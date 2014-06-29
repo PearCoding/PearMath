@@ -231,6 +231,11 @@ namespace PM
 	{
 	}
 	
+	template<typename T1, typename T2>
+	inline bool pm_MaxT(T1 a, T2 b) { return (a > b) ? a : b; }
+	template<typename T1, typename T2>
+	inline bool pm_MinT(T1 a, T2 b) { return (a < b) ? a : b; }
+	
 	typedef signed char int8;
 	typedef unsigned char uint8;
 

@@ -368,9 +368,9 @@ bool vectorTest()
 		END_TEST()
 
 		START_TEST("Normalize Vector4D");
-	vec op1 = pm_Set(1, 0, 1, 1);
+	vec op1 = pm_Set(1, 1, 1, 1);
 	TEST(vec r = pm_Normalize4D(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.5774f, 0, 0.5774f, 0.5774f), pm_FillVector(ABSOLUTE_ERROR)), op1, r)
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f), pm_FillVector(ABSOLUTE_ERROR)), op1, r)
 		END_TEST()
 
 		START_TEST("Dot Vector3D");
