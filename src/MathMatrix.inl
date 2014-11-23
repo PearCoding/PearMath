@@ -120,12 +120,10 @@ mat PM_MATH_INLINE pm_Translation(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	mat r;
-	r.v[0] = _mm_setr_ps(1, 0, 0, 0);
-	r.v[1] = _mm_setr_ps(0, 1, 0, 0);
-	r.v[2] = _mm_setr_ps(0, 0, 1, 0);
-	vec t = v;
-	((float *)&(t))[3] = 1;
-	r.v[3] = t;
+	r.v[0] = _mm_setr_ps(1, 0, 0, PM::pm_GetX(v));
+	r.v[1] = _mm_setr_ps(0, 1, 0, PM::pm_GetY(v));
+	r.v[2] = _mm_setr_ps(0, 0, 1, PM::pm_GetZ(v));
+	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
 	return r;
 #else
 	mat r;
@@ -1057,7 +1055,7 @@ mat PM_MATH_INLINE pm_Orthographic2D(float width, float height)
 #ifdef PM_USE_SIMD
 	mat r;
 	r.v[0] = _mm_setr_ps(2.0f / width, 0.0f, 0.0f, -1.0f);
-	r.v[1] = _mm_setr_ps(0.0f, 2.0f / height, 0.0f, -1.0f);
+	r.v[1] = _mm_setr_ps(0.0f, -2.0f / height, 0.0f, 1.0f);
 	r.v[2] = _mm_setr_ps(0.0f, 0.0f, -1.0f, 0.0f);
 	r.v[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
 
