@@ -113,5 +113,10 @@ namespace PM
 		{
 			return width() * height();
 		}
+
+		inline PM::vec2 size() const
+		{
+			return PM::pm_Set(width(), height());
+		}
 	};
 }
