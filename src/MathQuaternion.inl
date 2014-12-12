@@ -49,26 +49,26 @@ quat PM_MATH_INLINE pm_IdentityQuat()
 quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
 {
 #ifdef PM_USE_SIMD
-	const vec mask = _mm_setr_ps(1.0,1.0,1.0,-1.0);
+	const vec mask = _mm_setr_ps(1.0, 1.0, 1.0, -1.0);
 	const vec flip1 = _mm_mul_ps(
-						_mm_mul_ps(
-							_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(2,0,2,1)),
-							_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(2,1,0,2))),
-						mask);
+		_mm_mul_ps(
+		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(2, 0, 2, 1)),
+		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(2, 1, 0, 2))),
+		mask);
 	const vec flip2 = _mm_mul_ps(
-						_mm_mul_ps(
-							_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(1,3,3,3)),
-							_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(1,2,1,0))),
-						mask);
+		_mm_mul_ps(
+		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(1, 3, 3, 3)),
+		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(1, 2, 1, 0))),
+		mask);
 	return _mm_add_ps(
-				_mm_sub_ps(
-					_mm_mul_ps(q1,
-						_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3,3,3,3))),
-					_mm_mul_ps(
-						_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(0,1,0,2)),
-						_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(0,0,2,1)))),
-				_mm_add_ps(flip1,flip2));
-#else	
+		_mm_sub_ps(
+		_mm_mul_ps(q1,
+		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3, 3, 3, 3))),
+		_mm_mul_ps(
+		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(0, 1, 0, 2)),
+		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(0, 0, 2, 1)))),
+		_mm_add_ps(flip1, flip2));
+#else
 	quat r;
 	r.v[0] = q1.v[3] * q2.v[0] + q1.v[0] * q2.v[3] + q1.v[1] * q2.v[2] - q1.v[2] * q2.v[1];
 	r.v[1] = q1.v[3] * q2.v[1] + q1.v[1] * q2.v[3] + q1.v[2] * q2.v[0] - q1.v[0] * q2.v[2];
@@ -98,10 +98,10 @@ quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 #ifdef PM_USE_SIMD
 	quat r = _mm_mul_ps(q, _mm_setr_ps(-1, -1, -1, 1));
 	vec s = _mm_mul_ps(q, q);
-	s = _mm_rcp_ps(_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0,0,0,0)),
-			_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1,1,1,1)),
-			_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2,2,2,2)),
-			_mm_shuffle_ps(s, s, _MM_SHUFFLE(3,3,3,3))))));
+	s = _mm_rcp_ps(_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+		_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
+		_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
 	return _mm_mul_ps(r, s);
 #else
 	quat r = pm_ConjugateQuat(q);

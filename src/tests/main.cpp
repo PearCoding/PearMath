@@ -19,7 +19,6 @@
 	printf("\t%d: %s\n", ++ut_Count, str); \
 for (ut_I = 0; ut_I < TEST_LOOP_COUNT; ++ut_I) \
 	{
-
 #define TEST(f) \
 	f;
 
@@ -80,7 +79,7 @@ const char* to_str(mat& m, int i)
 	memset(str_buffer[i], 0, 1024);
 	sprintf(str_buffer[i], "\n{\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n}",
 		m[0][0], m[0][1], m[0][2], m[0][3],
-		m[1][0], m[1][1], m[1][2], m[1][3], 
+		m[1][0], m[1][1], m[1][2], m[1][3],
 		m[2][0], m[2][1], m[2][2], m[2][3],
 		m[3][0], m[3][1], m[3][2], m[3][3]);
 	return str_buffer[i];
@@ -186,22 +185,22 @@ bool vectorTest()
 		START_TEST("(SET) Vector.X");
 	TEST(vec v = pm_SetX(v, 10));
 	CHECK_TEST2(pm_GetX(v) == 10, v, 10)
-	END_TEST()
+		END_TEST()
 
 		START_TEST("(SET) Vector.Y");
 	TEST(vec v = pm_SetY(v, 20));
 	CHECK_TEST2(pm_GetY(v) == 20, v, 20)
-	END_TEST()
+		END_TEST()
 
 		START_TEST("(SET) Vector.Z");
 	TEST(vec v = pm_SetZ(v, 30));
 	CHECK_TEST2(pm_GetZ(v) == 30, v, 30)
-	END_TEST()
+		END_TEST()
 
 		START_TEST("(SET) Vector.W");
 	TEST(vec v = pm_SetW(v, 40));
 	CHECK_TEST2(pm_GetW(v) == 40, v, 40)
-	END_TEST()
+		END_TEST()
 
 		START_TEST("Vector + float");
 	vec op1 = pm_Set(10, 20, 30, 40);

@@ -38,58 +38,58 @@ namespace PM
 	{
 	public:
 		inline Region() :
-		mLowerCorner(), mUpperCorner()
+			mLowerCorner(), mUpperCorner()
 		{
 		}
-			
+
 		inline Region(const vec3& lowerCorner, const vec3& upperCorner) ://TODO Check if lowerCorner is really lower than upperCorner
-		mLowerCorner(lowerCorner), mUpperCorner(upperCorner)
+			mLowerCorner(lowerCorner), mUpperCorner(upperCorner)
 		{
 		}
-			
+
 		inline vec3 lowerCorner() const
 		{
 			return mLowerCorner;
 		}
-			
+
 		inline void setLowerCorner(const vec3& corner)
 		{
 			mLowerCorner = corner;
 		}
-			
+
 		inline vec3 upperCorner() const
 		{
 			return mUpperCorner;
 		}
-			
+
 		inline void setUpperCorner(const vec3& corner)
 		{
 			mUpperCorner = corner;
 		}
-			
+
 		inline bool contains(const vec3& point, float boundary = 0) const
 		{
 			return pm_IsLessOrEqual(point, pm_Subtract(mUpperCorner, pm_FillVector(boundary)))
 				&& pm_IsGreaterOrEqual(point, pm_Add(mLowerCorner, pm_FillVector(boundary)));
 		}
-			
+
 		inline void cropTo(const Region& region)
 		{
 			mLowerCorner = pm_Max(mLowerCorner, region.mLowerCorner);
 			mUpperCorner = pm_Min(mUpperCorner, region.mUpperCorner);
 		}
-			
+
 		inline void shift(const vec3& vec)
 		{
 			mLowerCorner = pm_Add(mLowerCorner, vec);
 			mUpperCorner = pm_Add(mUpperCorner, vec);
 		}
-			
+
 		inline void shiftLowerCorner(const vec3& vec)
 		{
 			mLowerCorner = pm_Add(mLowerCorner, vec);
 		}
-			
+
 		inline void shiftUpperCorner(const vec3& vec)
 		{
 			mUpperCorner = pm_Add(mUpperCorner, vec);
@@ -100,7 +100,7 @@ namespace PM
 			vec3 s = PM::pm_Subtract(mUpperCorner, mLowerCorner);
 			return PM::pm_Set(abs(PM::pm_GetX(s)), abs(PM::pm_GetY(s)), abs(PM::pm_GetZ(s)));
 		}
-			
+
 	private:
 		vec3 mLowerCorner;
 		vec3 mUpperCorner;

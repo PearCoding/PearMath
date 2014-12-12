@@ -55,7 +55,7 @@ namespace PM
 		}
 
 		Rect(const Rect<T>& rect) :
-		mLeft(rect.mLeft), mRight(rect.mRight), mTop(rect.mTop), mBottom(rect.mBottom)
+			mLeft(rect.mLeft), mRight(rect.mRight), mTop(rect.mTop), mBottom(rect.mBottom)
 		{
 		}
 

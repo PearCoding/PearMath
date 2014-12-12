@@ -111,7 +111,7 @@ mat PM_MATH_INLINE pm_ZeroMatrix()
 	return r;
 #else
 	mat r;
-	memset(r.v, 0, sizeof(float)*16);
+	memset(r.v, 0, sizeof(float) * 16);
 	return r;
 #endif
 }
@@ -141,70 +141,70 @@ mat PM_MATH_INLINE pm_Translation(const vec& v)
 mat PM_MATH_INLINE pm_Rotation(const quat& v)
 {
 #ifdef PM_USE_SIMD
-    float xx = pm_GetX(v) * pm_GetX(v);
-    float xy = pm_GetX(v) * pm_GetY(v);
-    float xz = pm_GetX(v) * pm_GetZ(v);
-    float xw = pm_GetX(v) * pm_GetW(v);
+	float xx = pm_GetX(v) * pm_GetX(v);
+	float xy = pm_GetX(v) * pm_GetY(v);
+	float xz = pm_GetX(v) * pm_GetZ(v);
+	float xw = pm_GetX(v) * pm_GetW(v);
 
-    float yy = pm_GetY(v) * pm_GetY(v);
-    float yz = pm_GetY(v) * pm_GetZ(v);
-    float yw = pm_GetY(v) * pm_GetW(v);
+	float yy = pm_GetY(v) * pm_GetY(v);
+	float yz = pm_GetY(v) * pm_GetZ(v);
+	float yw = pm_GetY(v) * pm_GetW(v);
 
-    float zz = pm_GetZ(v) * pm_GetZ(v);
-    float zw = pm_GetZ(v) * pm_GetW(v);
+	float zz = pm_GetZ(v) * pm_GetZ(v);
+	float zw = pm_GetZ(v) * pm_GetW(v);
 
 	mat r;
-    r.v[0] = _mm_setr_ps(1 - 2 * ( yy + zz ),
-				2 * ( xy - zw ),
-				2 * ( xz + yw ),
-				0);
+	r.v[0] = _mm_setr_ps(1 - 2 * (yy + zz),
+		2 * (xy - zw),
+		2 * (xz + yw),
+		0);
 
-    r.v[1] = _mm_setr_ps(2 * ( xy + zw ),
-				1 - 2 * ( xx + zz ),
-				2 * ( yz - xw ),
-				0);
+	r.v[1] = _mm_setr_ps(2 * (xy + zw),
+		1 - 2 * (xx + zz),
+		2 * (yz - xw),
+		0);
 
-    r.v[2] = _mm_setr_ps(2 * ( xz - yw ),
-				2 * ( yz + xw ),
-				1 - 2 * ( xx + yy ),
-				0);
+	r.v[2] = _mm_setr_ps(2 * (xz - yw),
+		2 * (yz + xw),
+		1 - 2 * (xx + yy),
+		0);
 
 	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
 
 	return r;
 #else
 	float xx = v[0] * v[0];
-    float xy = v[0] * v[1];
-    float xz = v[0] * v[2];
-    float xw = v[0] * v[3];
+	float xy = v[0] * v[1];
+	float xz = v[0] * v[2];
+	float xw = v[0] * v[3];
 
-    float yy = v[1] * v[1];
-    float yz = v[1] * v[2];
-    float yw = v[1] * v[3];
+	float yy = v[1] * v[1];
+	float yz = v[1] * v[2];
+	float yw = v[1] * v[3];
 
-    float zz = v[2] * v[2];
-    float zw = v[2] * v[3];
+	float zz = v[2] * v[2];
+	float zw = v[2] * v[3];
 
 	mat r;
-    r[0][0] = 1 - 2 * ( yy + zz );
-    r[0][1] = 2 * ( xy - zw );
-    r[0][2] = 2 * ( xz + yw );
+	r[0][0] = 1 - 2 * (yy + zz);
+	r[0][1] = 2 * (xy - zw);
+	r[0][2] = 2 * (xz + yw);
 	r[0][3] = 0;
 
-    r[1][0] = 2 * ( xy + zw );
-    r[1][1] = 1 - 2 * ( xx + zz );
-    r[1][2] = 2 * ( yz - xw );
+	r[1][0] = 2 * (xy + zw);
+	r[1][1] = 1 - 2 * (xx + zz);
+	r[1][2] = 2 * (yz - xw);
 	r[1][3] = 0;
 
-    r[2][0] = 2 * ( xz - yw );
-    r[2][1] = 2 * ( yz + xw );
-    r[2][2] = 1 - 2 * ( xx + yy );
+	r[2][0] = 2 * (xz - yw);
+	r[2][1] = 2 * (yz + xw);
+	r[2][2] = 1 - 2 * (xx + yy);
 	r[2][3] = 0;
 
 	r[3][0] = 0;
 	r[3][1] = 0;
 	r[3][2] = 0;
-    r[3][3] = 1;
+	r[3][3] = 1;
 
 	return r;
 #endif
@@ -216,7 +216,7 @@ mat PM_MATH_INLINE pm_Rotation(const vec& v, float angle)
 #ifdef PM_USE_SIMD
 	float c = cosf(angle);
 	float s = sinf(angle);
-	float t = 1-c;
+	float t = 1 - c;
 
 	float x2 = pm_GetX(v)*pm_GetX(v);
 	float y2 = pm_GetY(v)*pm_GetY(v);
@@ -229,19 +229,19 @@ mat PM_MATH_INLINE pm_Rotation(const vec& v, float angle)
 	float sz = s * pm_GetZ(v);
 
 	mat r;
-	r.v[0] = pm_Set(t*x2+c, txy-sz, txz+sy, 0);
-	r.v[1] = pm_Set(txy+sz, t*y2+c, tyz-sx, 0);
-	r.v[2] = pm_Set(txz-sy, tyz+sx, t*z2+c, 0);
+	r.v[0] = pm_Set(t*x2 + c, txy - sz, txz + sy, 0);
+	r.v[1] = pm_Set(txy + sz, t*y2 + c, tyz - sx, 0);
+	r.v[2] = pm_Set(txz - sy, tyz + sx, t*z2 + c, 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
 #else
 	float c = cosf(angle);
 	float s = sinf(angle);
-	float t = 1-c;
+	float t = 1 - c;
 
-	float x2 = v[0]*v[0];
-	float y2 = v[1]*v[1];
-	float z2 = v[2]*v[2];
+	float x2 = v[0] * v[0];
+	float y2 = v[1] * v[1];
+	float z2 = v[2] * v[2];
 	float txy = t * v[0] * v[1];
 	float txz = t * v[0] * v[2];
 	float tyz = t * v[1] * v[2];
@@ -250,9 +250,9 @@ mat PM_MATH_INLINE pm_Rotation(const vec& v, float angle)
 	float sz = s * v[2];
 
 	mat r;
-	r.v[0] = pm_Set(t*x2+c, txy-sz, txz+sy, 0);
-	r.v[1] = pm_Set(txy+sz, t*y2+c, tyz-sx, 0);
-	r.v[2] = pm_Set(txz-sy, tyz+sx, t*z2+c, 0);
+	r.v[0] = pm_Set(t*x2 + c, txy - sz, txz + sy, 0);
+	r.v[1] = pm_Set(txy + sz, t*y2 + c, tyz - sx, 0);
+	r.v[2] = pm_Set(txz - sy, tyz + sx, t*z2 + c, 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
 #endif
@@ -266,8 +266,8 @@ mat PM_MATH_INLINE pm_RotationYawPitchRoll(const vec& v)
 	pm_SinCos(v, si, co);
 
 	mat r;
-	r.v[0] = pm_Set(pm_GetX(co)*pm_GetY(co), pm_GetX(co)*pm_GetY(si)*pm_GetZ(si)-pm_GetX(si)*pm_GetZ(co), pm_GetX(co)*pm_GetY(si)*pm_GetZ(co)+pm_GetX(si)*pm_GetZ(si), 0);
-	r.v[1] = pm_Set(pm_GetX(si)*pm_GetY(co), pm_GetX(si)*pm_GetY(si)*pm_GetZ(si)+pm_GetX(co)*pm_GetZ(co), pm_GetX(si)*pm_GetY(si)*pm_GetZ(co)-pm_GetX(co)*pm_GetZ(si), 0);
+	r.v[0] = pm_Set(pm_GetX(co)*pm_GetY(co), pm_GetX(co)*pm_GetY(si)*pm_GetZ(si) - pm_GetX(si)*pm_GetZ(co), pm_GetX(co)*pm_GetY(si)*pm_GetZ(co) + pm_GetX(si)*pm_GetZ(si), 0);
+	r.v[1] = pm_Set(pm_GetX(si)*pm_GetY(co), pm_GetX(si)*pm_GetY(si)*pm_GetZ(si) + pm_GetX(co)*pm_GetZ(co), pm_GetX(si)*pm_GetY(si)*pm_GetZ(co) - pm_GetX(co)*pm_GetZ(si), 0);
 	r.v[2] = pm_Set(-pm_GetY(si), pm_GetY(co)*pm_GetZ(si), pm_GetY(co)*pm_GetZ(co), 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
@@ -277,9 +277,9 @@ mat PM_MATH_INLINE pm_RotationYawPitchRoll(const vec& v)
 	pm_SinCos(v, si, co);
 
 	mat r;
-	r.v[0] = pm_Set(co[0]*co[1], co[0]*si[1]*si[2]-si[0]*co[2], co[0]*si[1]*co[2]+si[0]*si[2], 0);
-	r.v[1] = pm_Set(si[0]*co[1], si[0]*si[1]*si[2]+co[0]*co[2], si[0]*si[1]*co[2]-co[0]*si[2], 0);
-	r.v[2] = pm_Set(-si[1], co[1]*si[2], co[1]*co[2], 0);
+	r.v[0] = pm_Set(co[0] * co[1], co[0] * si[1] * si[2] - si[0] * co[2], co[0] * si[1] * co[2] + si[0] * si[2], 0);
+	r.v[1] = pm_Set(si[0] * co[1], si[0] * si[1] * si[2] + co[0] * co[2], si[0] * si[1] * co[2] - co[0] * si[2], 0);
+	r.v[2] = pm_Set(-si[1], co[1] * si[2], co[1] * co[2], 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
 #endif
@@ -314,10 +314,10 @@ mat PM_MATH_INLINE pm_Set(const vec& r1, const vec& r2, const vec& r3, const vec
 	return r;
 }
 
-mat PM_MATH_INLINE pm_Set(	float m00, float m01, float m02, float m03,
-									float m10, float m11, float m12, float m13,
-									float m20, float m21, float m22, float m23,
-									float m30, float m31, float m32, float m33)
+mat PM_MATH_INLINE pm_Set(float m00, float m01, float m02, float m03,
+	float m10, float m11, float m12, float m13,
+	float m20, float m21, float m22, float m23,
+	float m30, float m31, float m32, float m33)
 {
 #ifdef PM_USE_SIMD
 	mat r;
@@ -519,106 +519,106 @@ mat PM_MATH_INLINE pm_Multiply(const mat& m1, const mat& m2)
 {
 #ifdef PM_USE_SIMD
 	mat r;
-    vec row = m1.v[0];
+	vec row = m1.v[0];
 
-    vec x = _mm_shuffle_ps(row,row, _MM_SHUFFLE(0,0,0,0));
-    vec y = _mm_shuffle_ps(row,row, _MM_SHUFFLE(1,1,1,1));
-    vec z = _mm_shuffle_ps(row,row, _MM_SHUFFLE(2,2,2,2));
-    vec w = _mm_shuffle_ps(row,row, _MM_SHUFFLE(3,3,3,3));
-    x = _mm_mul_ps(x, m2.v[0]);
-    y = _mm_mul_ps(y, m2.v[1]);
-    z = _mm_mul_ps(z, m2.v[2]);
-    w = _mm_mul_ps(w, m2.v[3]);
-    x = _mm_add_ps(x,z);
-    y = _mm_add_ps(y,w);
-    x = _mm_add_ps(x,y);
-    r.v[0] = x;
+	vec x = _mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0));
+	vec y = _mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1));
+	vec z = _mm_shuffle_ps(row, row, _MM_SHUFFLE(2, 2, 2, 2));
+	vec w = _mm_shuffle_ps(row, row, _MM_SHUFFLE(3, 3, 3, 3));
+	x = _mm_mul_ps(x, m2.v[0]);
+	y = _mm_mul_ps(y, m2.v[1]);
+	z = _mm_mul_ps(z, m2.v[2]);
+	w = _mm_mul_ps(w, m2.v[3]);
+	x = _mm_add_ps(x, z);
+	y = _mm_add_ps(y, w);
+	x = _mm_add_ps(x, y);
+	r.v[0] = x;
 
-    row = m1.v[1];
-    x = _mm_shuffle_ps(row,row, _MM_SHUFFLE(0,0,0,0));
-    y = _mm_shuffle_ps(row,row, _MM_SHUFFLE(1,1,1,1));
-    z = _mm_shuffle_ps(row,row, _MM_SHUFFLE(2,2,2,2));
-    w = _mm_shuffle_ps(row,row, _MM_SHUFFLE(3,3,3,3));
-    x = _mm_mul_ps(x, m2.v[0]);
-    y = _mm_mul_ps(y, m2.v[1]);
-    z = _mm_mul_ps(z, m2.v[2]);
-    w = _mm_mul_ps(w, m2.v[3]);
-    x = _mm_add_ps(x,z);
-    y = _mm_add_ps(y,w);
-    x = _mm_add_ps(x,y);
-    r.v[1] = x;
+	row = m1.v[1];
+	x = _mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0));
+	y = _mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1));
+	z = _mm_shuffle_ps(row, row, _MM_SHUFFLE(2, 2, 2, 2));
+	w = _mm_shuffle_ps(row, row, _MM_SHUFFLE(3, 3, 3, 3));
+	x = _mm_mul_ps(x, m2.v[0]);
+	y = _mm_mul_ps(y, m2.v[1]);
+	z = _mm_mul_ps(z, m2.v[2]);
+	w = _mm_mul_ps(w, m2.v[3]);
+	x = _mm_add_ps(x, z);
+	y = _mm_add_ps(y, w);
+	x = _mm_add_ps(x, y);
+	r.v[1] = x;
 
-    row = m1.v[2];
-    x = _mm_shuffle_ps(row,row, _MM_SHUFFLE(0,0,0,0));
-    y = _mm_shuffle_ps(row,row, _MM_SHUFFLE(1,1,1,1));
-    z = _mm_shuffle_ps(row,row, _MM_SHUFFLE(2,2,2,2));
-    w = _mm_shuffle_ps(row,row, _MM_SHUFFLE(3,3,3,3));
-    x = _mm_mul_ps(x, m2.v[0]);
-    y = _mm_mul_ps(y, m2.v[1]);
-    z = _mm_mul_ps(z, m2.v[2]);
-    w = _mm_mul_ps(w, m2.v[3]);
-    x = _mm_add_ps(x,z);
-    y = _mm_add_ps(y,w);
-    x = _mm_add_ps(x,y);
-    r.v[2] = x;
+	row = m1.v[2];
+	x = _mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0));
+	y = _mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1));
+	z = _mm_shuffle_ps(row, row, _MM_SHUFFLE(2, 2, 2, 2));
+	w = _mm_shuffle_ps(row, row, _MM_SHUFFLE(3, 3, 3, 3));
+	x = _mm_mul_ps(x, m2.v[0]);
+	y = _mm_mul_ps(y, m2.v[1]);
+	z = _mm_mul_ps(z, m2.v[2]);
+	w = _mm_mul_ps(w, m2.v[3]);
+	x = _mm_add_ps(x, z);
+	y = _mm_add_ps(y, w);
+	x = _mm_add_ps(x, y);
+	r.v[2] = x;
 
-    row = m1.v[3];
-    x = _mm_shuffle_ps(row,row, _MM_SHUFFLE(0,0,0,0));
-    y = _mm_shuffle_ps(row,row, _MM_SHUFFLE(1,1,1,1));
-    z = _mm_shuffle_ps(row,row, _MM_SHUFFLE(2,2,2,2));
-    w = _mm_shuffle_ps(row,row, _MM_SHUFFLE(3,3,3,3));
-    x = _mm_mul_ps(x,m2.v[0]);
-    y = _mm_mul_ps(y,m2.v[1]);
-    z = _mm_mul_ps(z,m2.v[2]);
-    w = _mm_mul_ps(w,m2.v[3]);
-    x = _mm_add_ps(x,z);
-    y = _mm_add_ps(y,w);
-    x = _mm_add_ps(x,y);
-    r.v[3] = x;
+	row = m1.v[3];
+	x = _mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0));
+	y = _mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1));
+	z = _mm_shuffle_ps(row, row, _MM_SHUFFLE(2, 2, 2, 2));
+	w = _mm_shuffle_ps(row, row, _MM_SHUFFLE(3, 3, 3, 3));
+	x = _mm_mul_ps(x, m2.v[0]);
+	y = _mm_mul_ps(y, m2.v[1]);
+	z = _mm_mul_ps(z, m2.v[2]);
+	w = _mm_mul_ps(w, m2.v[3]);
+	x = _mm_add_ps(x, z);
+	y = _mm_add_ps(y, w);
+	x = _mm_add_ps(x, y);
+	r.v[3] = x;
 
-    return r;
+	return r;
 #else
 	mat r;
 	float x = m1.m[0][0];
-    float y = m1.m[0][1];
-    float z = m1.m[0][2];
-    float w = m1.m[0][3];
+	float y = m1.m[0][1];
+	float z = m1.m[0][2];
+	float w = m1.m[0][3];
 	vec r1 = m2.v[0];
 	vec r2 = m2.v[1];
 	vec r3 = m2.v[2];
 	vec r4 = m2.v[3];
-    r.m[0][0] = (r1[0]*x)+(r2[0]*y)+(r3[0]*z)+(r4[0]*w);
-    r.m[0][1] = (r1[1]*x)+(r2[1]*y)+(r3[1]*z)+(r4[1]*w);
-    r.m[0][2] = (r1[2]*x)+(r2[2]*y)+(r3[2]*z)+(r4[2]*w);
-    r.m[0][3] = (r1[3]*x)+(r2[3]*y)+(r3[3]*z)+(r4[3]*w);
+	r.m[0][0] = (r1[0] * x) + (r2[0] * y) + (r3[0] * z) + (r4[0] * w);
+	r.m[0][1] = (r1[1] * x) + (r2[1] * y) + (r3[1] * z) + (r4[1] * w);
+	r.m[0][2] = (r1[2] * x) + (r2[2] * y) + (r3[2] * z) + (r4[2] * w);
+	r.m[0][3] = (r1[3] * x) + (r2[3] * y) + (r3[3] * z) + (r4[3] * w);
 
-    x = m1.m[1][0];
-    y = m1.m[1][1];
-    z = m1.m[1][2];
-    w = m1.m[1][3];
-    r.m[1][0] = (r1[0]*x)+(r2[0]*y)+(r3[0]*z)+(r4[0]*w);
-    r.m[1][1] = (r1[1]*x)+(r2[1]*y)+(r3[1]*z)+(r4[1]*w);
-    r.m[1][2] = (r1[2]*x)+(r2[2]*y)+(r3[2]*z)+(r4[2]*w);
-    r.m[1][3] = (r1[3]*x)+(r2[3]*y)+(r3[3]*z)+(r4[3]*w);
+	x = m1.m[1][0];
+	y = m1.m[1][1];
+	z = m1.m[1][2];
+	w = m1.m[1][3];
+	r.m[1][0] = (r1[0] * x) + (r2[0] * y) + (r3[0] * z) + (r4[0] * w);
+	r.m[1][1] = (r1[1] * x) + (r2[1] * y) + (r3[1] * z) + (r4[1] * w);
+	r.m[1][2] = (r1[2] * x) + (r2[2] * y) + (r3[2] * z) + (r4[2] * w);
+	r.m[1][3] = (r1[3] * x) + (r2[3] * y) + (r3[3] * z) + (r4[3] * w);
 
-    x = m1.m[2][0];
-    y = m1.m[2][1];
-    z = m1.m[2][2];
-    w = m1.m[2][3];
-    r.m[2][0] = (r1[0]*x)+(r2[0]*y)+(r3[0]*z)+(r4[0]*w);
-    r.m[2][1] = (r1[1]*x)+(r2[1]*y)+(r3[1]*z)+(r4[1]*w);
-    r.m[2][2] = (r1[2]*x)+(r2[2]*y)+(r3[2]*z)+(r4[2]*w);
-    r.m[2][3] = (r1[3]*x)+(r2[3]*y)+(r3[3]*z)+(r4[3]*w);
+	x = m1.m[2][0];
+	y = m1.m[2][1];
+	z = m1.m[2][2];
+	w = m1.m[2][3];
+	r.m[2][0] = (r1[0] * x) + (r2[0] * y) + (r3[0] * z) + (r4[0] * w);
+	r.m[2][1] = (r1[1] * x) + (r2[1] * y) + (r3[1] * z) + (r4[1] * w);
+	r.m[2][2] = (r1[2] * x) + (r2[2] * y) + (r3[2] * z) + (r4[2] * w);
+	r.m[2][3] = (r1[3] * x) + (r2[3] * y) + (r3[3] * z) + (r4[3] * w);
 
-    x = m1.m[3][0];
-    y = m1.m[3][1];
-    z = m1.m[3][2];
-    w = m1.m[3][3];
-    r.m[3][0] = (r1[0]*x)+(r2[0]*y)+(r3[0]*z)+(r4[0]*w);
-    r.m[3][1] = (r1[1]*x)+(r2[1]*y)+(r3[1]*z)+(r4[1]*w);
-    r.m[3][2] = (r1[2]*x)+(r2[2]*y)+(r3[2]*z)+(r4[2]*w);
-    r.m[3][3] = (r1[3]*x)+(r2[3]*y)+(r3[3]*z)+(r4[3]*w);
-    return r;
+	x = m1.m[3][0];
+	y = m1.m[3][1];
+	z = m1.m[3][2];
+	w = m1.m[3][3];
+	r.m[3][0] = (r1[0] * x) + (r2[0] * y) + (r3[0] * z) + (r4[0] * w);
+	r.m[3][1] = (r1[1] * x) + (r2[1] * y) + (r3[1] * z) + (r4[1] * w);
+	r.m[3][2] = (r1[2] * x) + (r2[2] * y) + (r3[2] * z) + (r4[2] * w);
+	r.m[3][3] = (r1[3] * x) + (r2[3] * y) + (r3[3] * z) + (r4[3] * w);
+	return r;
 #endif
 }
 
@@ -626,27 +626,27 @@ vec PM_MATH_INLINE pm_Multiply(const mat& m, const vec& v)
 {
 #ifdef PM_USE_SIMD
 # ifndef PEAR3D_USE_SSE3
-  vec r;
-  ((float *)&(r))[0] = pm_Dot4D(m.v[0], v);
-  ((float *)&(r))[1] = pm_Dot4D(m.v[1], v);
-  ((float *)&(r))[2] = pm_Dot4D(m.v[2], v);
-  ((float *)&(r))[3] = pm_Dot4D(m.v[3], v);
-  return r;
+	vec r;
+	((float *)&(r))[0] = pm_Dot4D(m.v[0], v);
+	((float *)&(r))[1] = pm_Dot4D(m.v[1], v);
+	((float *)&(r))[2] = pm_Dot4D(m.v[2], v);
+	((float *)&(r))[3] = pm_Dot4D(m.v[3], v);
+	return r;
 # else
-  vec m0 = _mm_mul_ps(m.v[0], v);
-  vec m1 = _mm_mul_ps(m.v[1], v);
-  vec m2 = _mm_mul_ps(m.v[2], v);
-  vec m3 = _mm_mul_ps(m.v[3], v);
+	vec m0 = _mm_mul_ps(m.v[0], v);
+	vec m1 = _mm_mul_ps(m.v[1], v);
+	vec m2 = _mm_mul_ps(m.v[2], v);
+	vec m3 = _mm_mul_ps(m.v[3], v);
 
-  return _mm_hadd_ps(_mm_hadd_ps(m0, m1), _mm_hadd_ps(m2, m3));
+	return _mm_hadd_ps(_mm_hadd_ps(m0, m1), _mm_hadd_ps(m2, m3));
 # endif
 #else
-  vec r;
-  r[0] = pm_Dot4D(m.v[0], v);
-  r[1] = pm_Dot4D(m.v[1], v);
-  r[2] = pm_Dot4D(m.v[2], v);
-  r[3] = pm_Dot4D(m.v[3], v);
-  return r;
+	vec r;
+	r[0] = pm_Dot4D(m.v[0], v);
+	r[1] = pm_Dot4D(m.v[1], v);
+	r[2] = pm_Dot4D(m.v[2], v);
+	r[3] = pm_Dot4D(m.v[3], v);
+	return r;
 #endif
 }
 
@@ -734,17 +734,17 @@ mat PM_MATH_INLINE pm_Divide(const mat& m, float s)
 mat PM_MATH_INLINE pm_Transpose(const mat& m)
 {
 #ifdef PM_USE_SIMD
-    mat r;
+	mat r;
 
-	vec tmp = _mm_shuffle_ps(m.v[0], m.v[1], _MM_SHUFFLE(1,0,1,0));
-    vec tmp2 = _mm_shuffle_ps(m.v[2], m.v[3], _MM_SHUFFLE(1,0,1,0));
-    vec tmp3 = _mm_shuffle_ps(m.v[0], m.v[1], _MM_SHUFFLE(3,2,3,2));
-    vec tmp4 = _mm_shuffle_ps(m.v[2], m.v[3], _MM_SHUFFLE(3,2,3,2));
+	vec tmp = _mm_shuffle_ps(m.v[0], m.v[1], _MM_SHUFFLE(1, 0, 1, 0));
+	vec tmp2 = _mm_shuffle_ps(m.v[2], m.v[3], _MM_SHUFFLE(1, 0, 1, 0));
+	vec tmp3 = _mm_shuffle_ps(m.v[0], m.v[1], _MM_SHUFFLE(3, 2, 3, 2));
+	vec tmp4 = _mm_shuffle_ps(m.v[2], m.v[3], _MM_SHUFFLE(3, 2, 3, 2));
 
-    r.v[0] = _mm_shuffle_ps(tmp, tmp2, _MM_SHUFFLE(2,0,2,0));
-    r.v[1] = _mm_shuffle_ps(tmp, tmp2, _MM_SHUFFLE(3,1,3,1));
-    r.v[2] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(2,0,2,0));
-    r.v[3] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(3,1,3,1));
+	r.v[0] = _mm_shuffle_ps(tmp, tmp2, _MM_SHUFFLE(2, 0, 2, 0));
+	r.v[1] = _mm_shuffle_ps(tmp, tmp2, _MM_SHUFFLE(3, 1, 3, 1));
+	r.v[2] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(2, 0, 2, 0));
+	r.v[3] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(3, 1, 3, 1));
 
 	return r;
 #else
@@ -799,165 +799,165 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 #ifdef PM_USE_SIMD
 	mat tr = pm_Transpose(m);
 
-	vec m00 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(1,1,0,0));
-    vec m10 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(3,2,3,2));
-    vec m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(1,1,0,0));
-    vec m11 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(3,2,3,2));
-    vec m02 = _mm_shuffle_ps(tr.v[2], tr.v[0], _MM_SHUFFLE(2,0,2,0));
-    vec m12 = _mm_shuffle_ps(tr.v[3], tr.v[1], _MM_SHUFFLE(3,1,3,1));
+	vec m00 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(1, 1, 0, 0));
+	vec m10 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(3, 2, 3, 2));
+	vec m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(1, 1, 0, 0));
+	vec m11 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(3, 2, 3, 2));
+	vec m02 = _mm_shuffle_ps(tr.v[2], tr.v[0], _MM_SHUFFLE(2, 0, 2, 0));
+	vec m12 = _mm_shuffle_ps(tr.v[3], tr.v[1], _MM_SHUFFLE(3, 1, 3, 1));
 
-    vec d0 = _mm_mul_ps(m00,m10);
-    vec d1 = _mm_mul_ps(m01,m11);
-    vec d2 = _mm_mul_ps(m02,m12);
+	vec d0 = _mm_mul_ps(m00, m10);
+	vec d1 = _mm_mul_ps(m01, m11);
+	vec d2 = _mm_mul_ps(m02, m12);
 
-    m00 = _mm_shuffle_ps(tr.v[2],tr.v[2], _MM_SHUFFLE(3,2,3,2));
-    m10 = _mm_shuffle_ps(tr.v[3],tr.v[3], _MM_SHUFFLE(1,1,0,0));
-    m01 = _mm_shuffle_ps(tr.v[0],tr.v[0], _MM_SHUFFLE(3,2,3,2));
-    m11 = _mm_shuffle_ps(tr.v[1],tr.v[1], _MM_SHUFFLE(1,1,0,0));
-    m02 = _mm_shuffle_ps(tr.v[2],tr.v[0], _MM_SHUFFLE(3,1,3,1));
-    m12 = _mm_shuffle_ps(tr.v[3],tr.v[1],_MM_SHUFFLE(2,0,2,0));
+	m00 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(3, 2, 3, 2));
+	m10 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(1, 1, 0, 0));
+	m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(3, 2, 3, 2));
+	m11 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(1, 1, 0, 0));
+	m02 = _mm_shuffle_ps(tr.v[2], tr.v[0], _MM_SHUFFLE(3, 1, 3, 1));
+	m12 = _mm_shuffle_ps(tr.v[3], tr.v[1], _MM_SHUFFLE(2, 0, 2, 0));
 
-    m00 = _mm_mul_ps(m00,m10);
-    m01 = _mm_mul_ps(m01,m11);
-    m02 = _mm_mul_ps(m02,m12);
-    d0 = _mm_sub_ps(d0,m00);
-    d1 = _mm_sub_ps(d1,m01);
-    d2 = _mm_sub_ps(d2,m02);
+	m00 = _mm_mul_ps(m00, m10);
+	m01 = _mm_mul_ps(m01, m11);
+	m02 = _mm_mul_ps(m02, m12);
+	d0 = _mm_sub_ps(d0, m00);
+	d1 = _mm_sub_ps(d1, m01);
+	d2 = _mm_sub_ps(d2, m02);
 
-    m11 = _mm_shuffle_ps(d0,d2, _MM_SHUFFLE(1,1,3,1));
-    m00 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(1,0,2,1));
-    m10 = _mm_shuffle_ps(m11,d0, _MM_SHUFFLE(0,3,0,2));
-    m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(0,1,0,2));
-    m11 = _mm_shuffle_ps(m11,d0, _MM_SHUFFLE(2,1,2,1));
+	m11 = _mm_shuffle_ps(d0, d2, _MM_SHUFFLE(1, 1, 3, 1));
+	m00 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(1, 0, 2, 1));
+	m10 = _mm_shuffle_ps(m11, d0, _MM_SHUFFLE(0, 3, 0, 2));
+	m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(0, 1, 0, 2));
+	m11 = _mm_shuffle_ps(m11, d0, _MM_SHUFFLE(2, 1, 2, 1));
 
-	vec m13 = _mm_shuffle_ps(d1,d2, _MM_SHUFFLE(3,3,3,1));
-    m02 = _mm_shuffle_ps(tr.v[3], tr.v[3],_MM_SHUFFLE(1,0,2,1));
-    m12 = _mm_shuffle_ps(m13,d1, _MM_SHUFFLE(0,3,0,2));
-    vec m03 = _mm_shuffle_ps(tr.v[2], tr.v[2],_MM_SHUFFLE(0,1,0,2));
-    m13 = _mm_shuffle_ps(m13,d1, _MM_SHUFFLE(2,1,2,1));
+	vec m13 = _mm_shuffle_ps(d1, d2, _MM_SHUFFLE(3, 3, 3, 1));
+	m02 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(1, 0, 2, 1));
+	m12 = _mm_shuffle_ps(m13, d1, _MM_SHUFFLE(0, 3, 0, 2));
+	vec m03 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(0, 1, 0, 2));
+	m13 = _mm_shuffle_ps(m13, d1, _MM_SHUFFLE(2, 1, 2, 1));
 
-    vec clm0 = _mm_mul_ps(m00,m10);
-    vec clm2 = _mm_mul_ps(m01,m11);
-    vec clm4 = _mm_mul_ps(m02,m12);
-    vec clm6 = _mm_mul_ps(m03,m13);
+	vec clm0 = _mm_mul_ps(m00, m10);
+	vec clm2 = _mm_mul_ps(m01, m11);
+	vec clm4 = _mm_mul_ps(m02, m12);
+	vec clm6 = _mm_mul_ps(m03, m13);
 
-    m11 = _mm_shuffle_ps(d0,d2, _MM_SHUFFLE(0,0,1,0));
-    m00 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(2,1,3,2));
-    m10 = _mm_shuffle_ps(d0,m11, _MM_SHUFFLE(2,1,0,3));
-    m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(1,3,2,3));
-    m11 = _mm_shuffle_ps(d0,m11, _MM_SHUFFLE(0,2,1,2));
+	m11 = _mm_shuffle_ps(d0, d2, _MM_SHUFFLE(0, 0, 1, 0));
+	m00 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(2, 1, 3, 2));
+	m10 = _mm_shuffle_ps(d0, m11, _MM_SHUFFLE(2, 1, 0, 3));
+	m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(1, 3, 2, 3));
+	m11 = _mm_shuffle_ps(d0, m11, _MM_SHUFFLE(0, 2, 1, 2));
 
-    m13 = _mm_shuffle_ps(d1,d2, _MM_SHUFFLE(2,2,1,0));
-    m02 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(2,1,3,2));
-    m12 = _mm_shuffle_ps(d1,m13, _MM_SHUFFLE(2,1,0,3));
-    m03 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(1,3,2,3));
-    m13 = _mm_shuffle_ps(d1,m13, _MM_SHUFFLE(0,2,1,2));
+	m13 = _mm_shuffle_ps(d1, d2, _MM_SHUFFLE(2, 2, 1, 0));
+	m02 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(2, 1, 3, 2));
+	m12 = _mm_shuffle_ps(d1, m13, _MM_SHUFFLE(2, 1, 0, 3));
+	m03 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(1, 3, 2, 3));
+	m13 = _mm_shuffle_ps(d1, m13, _MM_SHUFFLE(0, 2, 1, 2));
 
-    m00 = _mm_mul_ps(m00,m10);
-    m01 = _mm_mul_ps(m01,m11);
-    m02 = _mm_mul_ps(m02,m12);
-    m03 = _mm_mul_ps(m03,m13);
-    clm0 = _mm_sub_ps(clm0,m00);
-    clm2 = _mm_sub_ps(clm2,m01);
-    clm4 = _mm_sub_ps(clm4,m02);
-    clm6 = _mm_sub_ps(clm6,m03);
+	m00 = _mm_mul_ps(m00, m10);
+	m01 = _mm_mul_ps(m01, m11);
+	m02 = _mm_mul_ps(m02, m12);
+	m03 = _mm_mul_ps(m03, m13);
+	clm0 = _mm_sub_ps(clm0, m00);
+	clm2 = _mm_sub_ps(clm2, m01);
+	clm4 = _mm_sub_ps(clm4, m02);
+	clm6 = _mm_sub_ps(clm6, m03);
 
-    m00 = _mm_shuffle_ps(tr.v[1],tr.v[1], _MM_SHUFFLE(0,3,0,3));
-    m10 = _mm_shuffle_ps(d0,d2, _MM_SHUFFLE(1,0,2,2));
-    m10 = _mm_shuffle_ps(m10,m10, _MM_SHUFFLE(0,2,3,0));
-    m01 = _mm_shuffle_ps(tr.v[0],tr.v[0], _MM_SHUFFLE(2,0,3,1));
+	m00 = _mm_shuffle_ps(tr.v[1], tr.v[1], _MM_SHUFFLE(0, 3, 0, 3));
+	m10 = _mm_shuffle_ps(d0, d2, _MM_SHUFFLE(1, 0, 2, 2));
+	m10 = _mm_shuffle_ps(m10, m10, _MM_SHUFFLE(0, 2, 3, 0));
+	m01 = _mm_shuffle_ps(tr.v[0], tr.v[0], _MM_SHUFFLE(2, 0, 3, 1));
 
-    m11 = _mm_shuffle_ps(d0,d2, _MM_SHUFFLE(1,0,3,0));
-    m11 = _mm_shuffle_ps(m11,m11, _MM_SHUFFLE(2,1,0,3));
-    m02 = _mm_shuffle_ps(tr.v[3],tr.v[3], _MM_SHUFFLE(0,3,0,3));
+	m11 = _mm_shuffle_ps(d0, d2, _MM_SHUFFLE(1, 0, 3, 0));
+	m11 = _mm_shuffle_ps(m11, m11, _MM_SHUFFLE(2, 1, 0, 3));
+	m02 = _mm_shuffle_ps(tr.v[3], tr.v[3], _MM_SHUFFLE(0, 3, 0, 3));
 
-    m12 = _mm_shuffle_ps(d1,d2, _MM_SHUFFLE(3,2,2,2));
-    m12 = _mm_shuffle_ps(m12,m12, _MM_SHUFFLE(0,2,3,0));
-    m03 = _mm_shuffle_ps(tr.v[2],tr.v[2], _MM_SHUFFLE(2,0,3,1));
+	m12 = _mm_shuffle_ps(d1, d2, _MM_SHUFFLE(3, 2, 2, 2));
+	m12 = _mm_shuffle_ps(m12, m12, _MM_SHUFFLE(0, 2, 3, 0));
+	m03 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(2, 0, 3, 1));
 
-    m13 = _mm_shuffle_ps(d1,d2, _MM_SHUFFLE(3,2,3,0));
-    m13 = _mm_shuffle_ps(m13,m13, _MM_SHUFFLE(2,1,0,3));
+	m13 = _mm_shuffle_ps(d1, d2, _MM_SHUFFLE(3, 2, 3, 0));
+	m13 = _mm_shuffle_ps(m13, m13, _MM_SHUFFLE(2, 1, 0, 3));
 
-    m00 = _mm_mul_ps(m00,m10);
-    m01 = _mm_mul_ps(m01,m11);
-    m02 = _mm_mul_ps(m02,m12);
-    m03 = _mm_mul_ps(m03,m13);
+	m00 = _mm_mul_ps(m00, m10);
+	m01 = _mm_mul_ps(m01, m11);
+	m02 = _mm_mul_ps(m02, m12);
+	m03 = _mm_mul_ps(m03, m13);
 
-    vec clm1 = _mm_sub_ps(clm0,m00);
-    clm0 = _mm_add_ps(clm0,m00);
-    vec clm3 = _mm_add_ps(clm2,m01);
-    clm2 = _mm_sub_ps(clm2,m01);
-    vec clm5 = _mm_sub_ps(clm4,m02);
-    clm4 = _mm_add_ps(clm4,m02);
-    vec clm7 = _mm_add_ps(clm6,m03);
-    clm6 = _mm_sub_ps(clm6,m03);
+	vec clm1 = _mm_sub_ps(clm0, m00);
+	clm0 = _mm_add_ps(clm0, m00);
+	vec clm3 = _mm_add_ps(clm2, m01);
+	clm2 = _mm_sub_ps(clm2, m01);
+	vec clm5 = _mm_sub_ps(clm4, m02);
+	clm4 = _mm_add_ps(clm4, m02);
+	vec clm7 = _mm_add_ps(clm6, m03);
+	clm6 = _mm_sub_ps(clm6, m03);
 
-    clm0 = _mm_shuffle_ps(clm0,clm1, _MM_SHUFFLE(3,1,2,0));
-    clm2 = _mm_shuffle_ps(clm2,clm3, _MM_SHUFFLE(3,1,2,0));
-    clm4 = _mm_shuffle_ps(clm4,clm5, _MM_SHUFFLE(3,1,2,0));
-    clm6 = _mm_shuffle_ps(clm6,clm7, _MM_SHUFFLE(3,1,2,0));
-    clm0 = _mm_shuffle_ps(clm0,clm0, _MM_SHUFFLE(3,1,2,0));
-    clm2 = _mm_shuffle_ps(clm2,clm2, _MM_SHUFFLE(3,1,2,0));
-    clm4 = _mm_shuffle_ps(clm4,clm4, _MM_SHUFFLE(3,1,2,0));
-    clm6 = _mm_shuffle_ps(clm6,clm6, _MM_SHUFFLE(3,1,2,0));
+	clm0 = _mm_shuffle_ps(clm0, clm1, _MM_SHUFFLE(3, 1, 2, 0));
+	clm2 = _mm_shuffle_ps(clm2, clm3, _MM_SHUFFLE(3, 1, 2, 0));
+	clm4 = _mm_shuffle_ps(clm4, clm5, _MM_SHUFFLE(3, 1, 2, 0));
+	clm6 = _mm_shuffle_ps(clm6, clm7, _MM_SHUFFLE(3, 1, 2, 0));
+	clm0 = _mm_shuffle_ps(clm0, clm0, _MM_SHUFFLE(3, 1, 2, 0));
+	clm2 = _mm_shuffle_ps(clm2, clm2, _MM_SHUFFLE(3, 1, 2, 0));
+	clm4 = _mm_shuffle_ps(clm4, clm4, _MM_SHUFFLE(3, 1, 2, 0));
+	clm6 = _mm_shuffle_ps(clm6, clm6, _MM_SHUFFLE(3, 1, 2, 0));
 
-    float detf = pm_Dot4D(clm0,tr.v[0]);
-	if(determinant)
+	float detf = pm_Dot4D(clm0, tr.v[0]);
+	if (determinant)
 	{
 		*determinant = detf;
 	}
 	vec det = _mm_rcp_ps(_mm_set1_ps(detf));
 
-    mat r;
-    r.v[0] = _mm_mul_ps(det, clm0);
-    r.v[1] = _mm_mul_ps(det, clm2);
-    r.v[2] = _mm_mul_ps(det, clm4);
-    r.v[3] = _mm_mul_ps(det, clm6);
-    return r;
+	mat r;
+	r.v[0] = _mm_mul_ps(det, clm0);
+	r.v[1] = _mm_mul_ps(det, clm2);
+	r.v[2] = _mm_mul_ps(det, clm4);
+	r.v[3] = _mm_mul_ps(det, clm6);
+	return r;
 #else
-	float a0 = m.v[0][0]*m.v[1][1] - m.v[0][1]*m.v[1][0];
-    float a1 = m.v[0][0]*m.v[1][2] - m.v[0][2]*m.v[1][0];
-    float a2 = m.v[0][0]*m.v[1][3] - m.v[0][3]*m.v[1][0];
-    float a3 = m.v[0][1]*m.v[1][2] - m.v[0][2]*m.v[1][1];
-    float a4 = m.v[0][1]*m.v[1][3] - m.v[0][3]*m.v[1][1];
-    float a5 = m.v[0][2]*m.v[1][3] - m.v[0][3]*m.v[1][2];
-    float b0 = m.v[2][0]*m.v[3][1] - m.v[2][1]*m.v[3][0];
-    float b1 = m.v[2][0]*m.v[3][2] - m.v[2][2]*m.v[3][0];
-    float b2 = m.v[2][0]*m.v[3][3] - m.v[2][3]*m.v[3][0];
-    float b3 = m.v[2][1]*m.v[3][2] - m.v[2][2]*m.v[3][1];
-    float b4 = m.v[2][1]*m.v[3][3] - m.v[2][3]*m.v[3][1];
-    float b5 = m.v[2][2]*m.v[3][3] - m.v[2][3]*m.v[3][2];
+	float a0 = m.v[0][0] * m.v[1][1] - m.v[0][1] * m.v[1][0];
+	float a1 = m.v[0][0] * m.v[1][2] - m.v[0][2] * m.v[1][0];
+	float a2 = m.v[0][0] * m.v[1][3] - m.v[0][3] * m.v[1][0];
+	float a3 = m.v[0][1] * m.v[1][2] - m.v[0][2] * m.v[1][1];
+	float a4 = m.v[0][1] * m.v[1][3] - m.v[0][3] * m.v[1][1];
+	float a5 = m.v[0][2] * m.v[1][3] - m.v[0][3] * m.v[1][2];
+	float b0 = m.v[2][0] * m.v[3][1] - m.v[2][1] * m.v[3][0];
+	float b1 = m.v[2][0] * m.v[3][2] - m.v[2][2] * m.v[3][0];
+	float b2 = m.v[2][0] * m.v[3][3] - m.v[2][3] * m.v[3][0];
+	float b3 = m.v[2][1] * m.v[3][2] - m.v[2][2] * m.v[3][1];
+	float b4 = m.v[2][1] * m.v[3][3] - m.v[2][3] * m.v[3][1];
+	float b5 = m.v[2][2] * m.v[3][3] - m.v[2][3] * m.v[3][2];
 
 	float det = a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0;
 
-	if(determinant)
+	if (determinant)
 	{
 		*determinant = det;
 	}
 
 	mat r;
 
-	r.v[0][0] = + m.v[1][1]*b5 - m.v[1][2]*b4 + m.v[1][3]*b3;
-	r.v[1][0] = - m.v[1][0]*b5 + m.v[1][2]*b2 - m.v[1][3]*b1;
-	r.v[2][0] = + m.v[1][0]*b4 - m.v[1][1]*b2 + m.v[1][3]*b0;
-	r.v[3][0] = - m.v[1][0]*b3 + m.v[1][1]*b1 - m.v[1][2]*b0;
-	r.v[0][1] = - m.v[0][1]*b5 + m.v[0][2]*b4 - m.v[0][3]*b3;
-	r.v[1][1] = + m.v[0][0]*b5 - m.v[0][2]*b2 + m.v[0][3]*b1;
-	r.v[2][1] = - m.v[0][0]*b4 + m.v[0][1]*b2 - m.v[0][3]*b0;
-	r.v[3][1] = + m.v[0][0]*b3 - m.v[0][1]*b1 + m.v[0][2]*b0;
-	r.v[0][2] = + m.v[3][1]*a5 - m.v[3][2]*a4 + m.v[3][3]*a3;
-	r.v[1][2] = - m.v[3][0]*a5 + m.v[3][2]*a2 - m.v[3][3]*a1;
-	r.v[2][2] = + m.v[3][0]*a4 - m.v[3][1]*a2 + m.v[3][3]*a0;
-	r.v[3][2] = - m.v[3][0]*a3 + m.v[3][1]*a1 - m.v[3][2]*a0;
-	r.v[0][3] = - m.v[2][1]*a5 + m.v[2][2]*a4 - m.v[2][3]*a3;
-	r.v[1][3] = + m.v[2][0]*a5 - m.v[2][2]*a2 + m.v[2][3]*a1;
-	r.v[2][3] = - m.v[2][0]*a4 + m.v[2][1]*a2 - m.v[2][3]*a0;
-	r.v[3][3] = + m.v[2][0]*a3 - m.v[2][1]*a1 + m.v[2][2]*a0;
+	r.v[0][0] = +m.v[1][1] * b5 - m.v[1][2] * b4 + m.v[1][3] * b3;
+	r.v[1][0] = -m.v[1][0] * b5 + m.v[1][2] * b2 - m.v[1][3] * b1;
+	r.v[2][0] = +m.v[1][0] * b4 - m.v[1][1] * b2 + m.v[1][3] * b0;
+	r.v[3][0] = -m.v[1][0] * b3 + m.v[1][1] * b1 - m.v[1][2] * b0;
+	r.v[0][1] = -m.v[0][1] * b5 + m.v[0][2] * b4 - m.v[0][3] * b3;
+	r.v[1][1] = +m.v[0][0] * b5 - m.v[0][2] * b2 + m.v[0][3] * b1;
+	r.v[2][1] = -m.v[0][0] * b4 + m.v[0][1] * b2 - m.v[0][3] * b0;
+	r.v[3][1] = +m.v[0][0] * b3 - m.v[0][1] * b1 + m.v[0][2] * b0;
+	r.v[0][2] = +m.v[3][1] * a5 - m.v[3][2] * a4 + m.v[3][3] * a3;
+	r.v[1][2] = -m.v[3][0] * a5 + m.v[3][2] * a2 - m.v[3][3] * a1;
+	r.v[2][2] = +m.v[3][0] * a4 - m.v[3][1] * a2 + m.v[3][3] * a0;
+	r.v[3][2] = -m.v[3][0] * a3 + m.v[3][1] * a1 - m.v[3][2] * a0;
+	r.v[0][3] = -m.v[2][1] * a5 + m.v[2][2] * a4 - m.v[2][3] * a3;
+	r.v[1][3] = +m.v[2][0] * a5 - m.v[2][2] * a2 + m.v[2][3] * a1;
+	r.v[2][3] = -m.v[2][0] * a4 + m.v[2][1] * a2 - m.v[2][3] * a0;
+	r.v[3][3] = +m.v[2][0] * a3 - m.v[2][1] * a1 + m.v[2][2] * a0;
 
-	det = 1.0f/det;
-	for(int i = 0; i < 4; ++i)
+	det = 1.0f / det;
+	for (int i = 0; i < 4; ++i)
 	{
-		for(int j = 0; j < 4; ++j)
+		for (int j = 0; j < 4; ++j)
 		{
 			r.v[i][j] *= det;
 		}
@@ -973,7 +973,7 @@ vec PM_MATH_INLINE pm_Determinant(const mat& m);
 mat PM_MATH_INLINE pm_Perspective(float width, float height, float n, float f)
 {
 #ifdef PM_USE_SIMD
-	float near2 = n+n;
+	float near2 = n + n;
 	float range = f / (n - f);
 
 	mat r;
@@ -984,8 +984,8 @@ mat PM_MATH_INLINE pm_Perspective(float width, float height, float n, float f)
 
 	return r;
 #else
-	float near2 = n+n;
-	float range = f/(n - f);
+	float near2 = n + n;
+	float range = f / (n - f);
 
 	mat r;
 	r.v[0][0] = near2 / width;
@@ -1018,7 +1018,7 @@ mat PM_MATH_INLINE pm_Orthographic(float width, float height, float n, float f)
 	mat r;
 	r.v[0] = _mm_setr_ps(-2.0f / width, 0.0f, 0.0f, -1.0f);
 	r.v[1] = _mm_setr_ps(0.0f, 2.0f / height, 0.0f, 1.0f);
-	r.v[2] = _mm_setr_ps(0.0f, 0.0f, -2.0f/(f - n), -(f + n)/(f - n));
+	r.v[2] = _mm_setr_ps(0.0f, 0.0f, -2.0f / (f - n), -(f + n) / (f - n));
 	r.v[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return r;

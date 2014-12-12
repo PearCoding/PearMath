@@ -115,12 +115,12 @@
 #ifndef PM_NO_ASSERTS
 # define PM_ASSERT(cond) \
 	do \
-	{ \
-		if(!(cond)) \
 		{ \
+		if(!(cond)) \
+				{ \
 			PM_DEBUG_BREAK(); \
-		} \
-	} while(0)
+				} \
+		} while(0)
 #else
 # define PM_ASSERT(cond)
 #endif
@@ -230,12 +230,12 @@ namespace PM
 	inline void pm_Noop()
 	{
 	}
-	
+
 	template<typename T>
 	inline T pm_MaxT(T a, T b) { return (a > b) ? a : b; }
 	template<typename T>
 	inline T pm_MinT(T a, T b) { return (a < b) ? a : b; }
-	
+
 	typedef signed char int8;
 	typedef unsigned char uint8;
 
@@ -335,7 +335,7 @@ namespace PM
 
 	vec pm_Zero();
 	vec pm_One();
-	vec pm_Set(float x, float y, float z=0, float w=0);
+	vec pm_Set(float x, float y, float z = 0, float w = 0);
 
 	vec pm_SetX(const vec& v, float x);
 	vec pm_SetY(const vec& v, float y);
@@ -365,7 +365,7 @@ namespace PM
 	vec pm_IsGreaterOrEqualv(const vec& v1, const vec& v2);
 	bool pm_IsGreaterOrEqual(const vec& v1, const vec& v2);
 	vec pm_IsInBounds(const vec& v, const vec& bounds);
-		
+
 	vec pm_Negate(const vec& v);
 	vec pm_Add(const vec& v1, const vec& v2);
 	vec pm_Subtract(const vec& v1, const vec& v2);
@@ -390,19 +390,19 @@ namespace PM
 	vec pm_Lerp(const vec& v1, const vec& v2, const vec& t);
 	vec pm_NLerp(const vec& v1, const vec& v2, const vec& t);
 	vec pm_SLerp(const vec& v1, const vec& v2, const vec& t);
-		
+
 	vec pm_Max(const vec& v1, const vec& v2);
 	vec pm_Min(const vec& v1, const vec& v2);
 	vec pm_Clamp(const vec& v, const vec& min, const vec& max);
 	vec pm_Saturate(const vec& v);
-		
+
 	vec4 pm_Load4D(const float src[4]);
 	void pm_Store4D(const vec4& v, float dst[4]);
 	float pm_Dot4D(const vec4& v1, const vec4& v2);
 	float pm_Magnitude4D(const vec4& v);
 	float pm_MagnitudeSqr4D(const vec4& v);
 	vec4 pm_Normalize4D(const vec4& v);
-		
+
 	vec3 pm_Load3D(const float src[3]);
 	void pm_Store3D(const vec3& v, float dst[3]);
 	float pm_Dot3D(const vec3& v1, const vec3& v2);
@@ -410,7 +410,7 @@ namespace PM
 	float pm_Magnitude3D(const vec3& v);
 	float pm_MagnitudeSqr3D(const vec3& v);
 	vec3 pm_Normalize3D(const vec3& v);
-		
+
 	vec2 pm_Load2D(const float src[2]);
 	void pm_Store2D(const vec2& v, float dst[2]);
 	float pm_Dot2D(const vec2& v1, const vec2& v2);
@@ -431,9 +431,9 @@ namespace PM
 	mat pm_Scaling(const vec3& v);
 	mat pm_Set(const vec& r1, const vec& r2, const vec& r3, const vec& r4);
 	mat pm_Set(float m00, float m01, float m02, float m03,
-					float m10, float m11, float m12, float m13,
-					float m20, float m21, float m22, float m23,
-					float m30, float m31, float m32, float m33);
+		float m10, float m11, float m12, float m13,
+		float m20, float m21, float m22, float m23,
+		float m30, float m31, float m32, float m33);
 
 	mat pm_FillMatrix(float val);
 
@@ -445,7 +445,7 @@ namespace PM
 	bool pm_IsNearlyEqual(const mat& m1, const mat& m2, float delta);
 	mat pm_IsNotEqualv(const mat& m1, const mat& m2);
 	bool pm_IsNotEqual(const mat& m1, const mat& m2);
-		
+
 	mat pm_Negate(const mat& m);
 	mat pm_Add(const mat& m1, const mat& m2);
 	mat pm_Add(const mat& m, float s);
@@ -460,7 +460,7 @@ namespace PM
 	mat pm_Transpose(const mat& m);
 	mat pm_Inverse(const mat& m, float* determinant = 0);
 	vec pm_Determinant(const mat& m);
-		
+
 	mat pm_Perspective(float width, float height, float near, float far);
 	mat pm_Orthographic(float width, float height, float near, float far);
 
@@ -478,7 +478,7 @@ namespace PM
 	quat pm_RotationMatrix(const mat& m);
 
 	//Color
-		
+
 	vec pm_SetR(const color& v, float x);
 	vec pm_SetG(const color& v, float y);
 	vec pm_SetB(const color& v, float z);
@@ -523,7 +523,7 @@ namespace PM
 	frame pm_RotateLocalX(const frame& f, float angle);
 	frame pm_RotateLocalY(const frame& f, float angle);
 	frame pm_RotateLocalZ(const frame& f, float angle);
-		
+
 	frame pm_RotateWorld(const frame& f, float angle, const vec3& axis);
 	frame pm_RotateLocal(const frame& f, float angle, const vec3& axis);
 
@@ -567,13 +567,13 @@ namespace PM
 	template<typename T>
 	inline T pm_NextPowerOf2(T x)
 	{
-			T val = 1;
-			while(val < x)
-			{
-				val <<= 1;
-			}
+		T val = 1;
+		while (val < x)
+		{
+			val <<= 1;
+		}
 
-			return val;
+		return val;
 	}
 
 #define _PM_MATH_INCLUDED_
@@ -583,5 +583,4 @@ namespace PM
 # include "MathColor.inl"
 # include "MathFrame.inl"
 #undef _PM_MATH_INCLUDED_
-
 }
