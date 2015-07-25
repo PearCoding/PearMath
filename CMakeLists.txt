@@ -101,7 +101,7 @@ SET(PM_TEST_Src
   ${PM_Root}/tests/main.cpp)
 
 #DEPENDIES, LIBARIES AND EXECUTABLES
-add_executable(test ${PM_TEST_Src} ${PM_Hdr})
+add_executable(pm_test ${PM_TEST_Src} ${PM_Hdr})
 
 #INSTALL
 INSTALL(FILES ${PM_Hdr} DESTINATION include/PM)
