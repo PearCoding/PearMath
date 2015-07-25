@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2015, Ömercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -34,12 +34,12 @@
 #define PM_DOUBLEQUOTE(str) PM_STRINGIFY(str)
 
 #define PM_NAME_STRING		"PearMath"
-#define PM_VENDOR_STRING	"PearMath project 2014"
+#define PM_VENDOR_STRING	"PearMath project 2014-2015"
 
 #define PM_VERSION_MAJOR	1
-#define PM_VERSION_MINOR	0
+#define PM_VERSION_MINOR	1
 #define PM_VERSION_STRING 	PM_DOUBLEQUOTE(PM_VERSION_MAJOR) "." PM_DOUBLEQUOTE(PM_VERSION_MINOR)
-#define PM_VERSION 			0x0100
+#define PM_VERSION 			0x0101
 #define PM_VERSION_CHECK(major, minor) (((major) << 8) | (minor))
 
 //OS

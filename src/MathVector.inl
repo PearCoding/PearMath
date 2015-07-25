@@ -1084,6 +1084,7 @@ void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 
 float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 {
+	//TODO: Use SSE3 _mm_dp_ps!
 #if defined(PM_USE_SIMD)
 	vec s = _mm_mul_ps(v1, v2);
 	s = _mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),

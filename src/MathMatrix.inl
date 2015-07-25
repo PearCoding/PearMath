@@ -127,12 +127,10 @@ mat PM_MATH_INLINE pm_Translation(const vec& v)
 	return r;
 #else
 	mat r;
-	r.v[0] = pm_Set(1, 0, 0, 0);
-	r.v[1] = pm_Set(0, 1, 0, 0);
-	r.v[2] = pm_Set(0, 0, 1, 0);
-	vec t = v;
-	t[3] = 1;
-	r.v[3] = t;
+	r.v[0] = pm_Set(1, 0, 0, pm_GetX(v));
+	r.v[1] = pm_Set(0, 1, 0, pm_GetY(v));
+	r.v[2] = pm_Set(0, 0, 1, pm_GetZ(v));
+	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
 #endif
 }
