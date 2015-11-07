@@ -623,13 +623,11 @@ mat PM_MATH_INLINE pm_Multiply(const mat& m1, const mat& m2)
 vec PM_MATH_INLINE pm_Multiply(const mat& m, const vec& v)
 {
 #ifdef PM_USE_SIMD
-# ifndef PEAR3D_USE_SSE3
-	vec r;
-	((float *)&(r))[0] = pm_Dot4D(m.v[0], v);
-	((float *)&(r))[1] = pm_Dot4D(m.v[1], v);
-	((float *)&(r))[2] = pm_Dot4D(m.v[2], v);
-	((float *)&(r))[3] = pm_Dot4D(m.v[3], v);
-	return r;
+# ifndef PM_USE_SSE3
+	return PM::pm_Set(pm_Dot4D(m.v[0], v),
+		pm_Dot4D(m.v[1], v),
+		pm_Dot4D(m.v[2], v),
+		pm_Dot4D(m.v[3], v));
 # else
 	vec m0 = _mm_mul_ps(m.v[0], v);
 	vec m1 = _mm_mul_ps(m.v[1], v);

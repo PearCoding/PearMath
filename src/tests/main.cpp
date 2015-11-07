@@ -532,6 +532,11 @@ bool matrixTest()
 	CHECK_TEST3(pm_IsEqual(r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6)), testOp1, testOp2, r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6));
 	END_TEST()
 
+		START_TEST("Matrix * Vector");
+	TEST(vec r = pm_Multiply(pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0,0,0,1)));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set(2, 4, 3, 1)), pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0, 0, 0, 1), r, pm_Set(2, 4, 3, 1));
+	END_TEST()
+
 		START_TEST("Transpose Matrix");
 	TEST(mat r = pm_Transpose(testOp1));
 	CHECK_TEST2(pm_IsEqual(r, pm_Set(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0)), testOp1, r, pm_Set(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0));
