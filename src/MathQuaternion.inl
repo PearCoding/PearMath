@@ -111,8 +111,16 @@ quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 
 quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t);
 
-quat PM_MATH_INLINE pm_RotationRollPitchYaw(float pitch, float yaw, float roll);
-quat PM_MATH_INLINE pm_RotationRollPitchYaw(const quat& angles);
+quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(float roll, float pitch, float yaw)
+{
+	
+}
+
+quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(const vec3& angles)
+{
+	return pm_RotationQuatRollPitchYaw(PM::pm_GetX(angles), PM::pm_GetY(angles), PM::pm_GetZ(angles));
+}
+
 quat PM_MATH_INLINE pm_RotationAxis(const quat& axis, float angle)
 {
 	//quat nAxis = pm_Normalize3D(axis);

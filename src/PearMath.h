@@ -476,8 +476,8 @@ namespace PM
 
 	quat pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t);
 
-	quat pm_RotationRollPitchYaw(float pitch, float yaw, float roll);
-	quat pm_RotationRollPitchYaw(const quat& angles);
+	quat pm_RotationQuatRollPitchYaw(float yaw, float pitch, float roll);
+	quat pm_RotationQuatRollPitchYaw(const vec3& angles);
 	quat pm_RotationAxis(const quat& axis, float angle);
 	quat pm_RotationMatrix(const mat& m);
 
