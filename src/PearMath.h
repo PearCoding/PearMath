@@ -236,7 +236,7 @@ namespace PM
 	template<typename T>
 	inline T pm_MinT(T a, T b) { return (a < b) ? a : b; }
 	template<typename T>
-	inline T pm_ClampT(T a, T min, T max) { return pm_MaxT<T>(min, pm_MinT<T>(max, T)); }
+	inline T pm_ClampT(T a, T min, T max) { return pm_MaxT<T>(min, pm_MinT<T>(max, a)); }
 	template<typename T>
 	inline T pm_SignT(T a) { return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
 
