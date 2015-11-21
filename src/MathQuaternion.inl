@@ -109,16 +109,54 @@ quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 #endif
 }
 
-quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t);
+// Better and faster approach?
+// TODO: Test it!
+quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
+{
+	float theta = PM::pm_Dot4D(q1, q2);
+
+	if (std::fabsf(theta) > 1)
+	{
+		return q1;
+	}
+	
+	PM::quat q3 = q2;
+	if (theta < 0) {
+		q3 = PM::pm_Negate(q2);
+		theta = -theta;
+	}
+
+	float halfTheta = acosf(theta);
+	float sinHalfTheta = sqrtf(1 - theta*theta);
+	
+	if (std::fabsf(sinHalfTheta) < 0.001f)
+	{
+		return PM::pm_Add(PM::pm_Scale(q1, 0.5f), PM::pm_Scale(q3, 0.5f));
+	}
+
+	float rsinHalfTheta = 1 / sinHalfTheta;
+	PM::vec4 ratioA = PM::pm_Scale(PM::pm_Sin(PM::pm_Scale(PM::pm_Subtract(PM::pm_One(), t), halfTheta)), rsinHalfTheta);
+	PM::vec4 ratioB = PM::pm_Scale(PM::pm_Sin(PM::pm_Scale(t, halfTheta)), rsinHalfTheta);
+
+	return PM::pm_MultiplyAdd(q1, ratioA, PM::pm_Multiply(q3, ratioB));
+}
 
 quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(float roll, float pitch, float yaw)
 {
-	
+	return pm_RotationQuatRollPitchYaw(PM::pm_Set(roll, pitch, yaw));
 }
 
 quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(const vec3& angles)
 {
-	return pm_RotationQuatRollPitchYaw(PM::pm_GetX(angles), PM::pm_GetY(angles), PM::pm_GetZ(angles));
+	PM::vec3 cosa;
+	PM::vec3 sina;
+
+	pm_SinCos(PM::pm_Scale(angles, 0.5f), sina, cosa);
+
+	return PM::pm_Set(PM::pm_GetX(sina)*PM::pm_GetY(cosa)*PM::pm_GetZ(cosa) - PM::pm_GetX(cosa)*PM::pm_GetY(sina)*PM::pm_GetZ(sina),
+		PM::pm_GetX(cosa)*PM::pm_GetY(sina)*PM::pm_GetZ(cosa) + PM::pm_GetX(sina)*PM::pm_GetY(cosa)*PM::pm_GetZ(sina),
+		PM::pm_GetX(cosa)*PM::pm_GetY(cosa)*PM::pm_GetZ(sina) - PM::pm_GetX(sina)*PM::pm_GetY(sina)*PM::pm_GetZ(cosa),
+		PM::pm_GetX(cosa)*PM::pm_GetY(cosa)*PM::pm_GetZ(cosa) + PM::pm_GetX(sina)*PM::pm_GetY(sina)*PM::pm_GetZ(sina));
 }
 
 quat PM_MATH_INLINE pm_RotationAxis(const quat& axis, float angle)
@@ -146,4 +184,44 @@ quat PM_MATH_INLINE pm_RotationAxis(const quat& axis, float angle)
 #endif
 }
 
-quat PM_MATH_INLINE pm_RotationMatrix(const mat& m);
+// Really that good?
+// TODO: Test it!
+quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
+{
+	float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
+	if (trace > 0)
+	{
+		float s = 0.5f / sqrtf(trace + 1.0f);
+		return PM::pm_Set((m.m[2][1] - m.m[1][2]) * s,
+			(m.m[0][2] - m.m[2][0]) * s,
+			(m.m[1][0] - m.m[0][1]) * s,
+			0.25f / s);
+	}
+	else
+	{
+		if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2])
+		{
+			float s = 2.0f * sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]);
+			return PM::pm_Set(0.25f * s,
+				(m.m[0][1] + m.m[1][0]) / s,
+				(m.m[0][2] + m.m[2][0]) / s,
+				(m.m[2][1] - m.m[1][2]) / s);
+		}
+		else if (m.m[1][1] > m.m[2][2])
+		{
+			float s = 2.0f * sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]);
+			PM::pm_Set((m.m[0][1] + m.m[1][0]) / s,
+				0.25f * s,
+				(m.m[1][2] + m.m[2][1]) / s,
+				(m.m[0][2] - m.m[2][0]) / s);
+		}
+		else 
+		{
+			float s = 2.0f * sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]);
+			PM::pm_Set((m.m[0][2] + m.m[2][0]) / s,
+				(m.m[1][2] + m.m[2][1]) / s,
+				0.25f * s,
+				(m.m[1][0] - m.m[0][1]) / s);
+		}
+	}
+}
