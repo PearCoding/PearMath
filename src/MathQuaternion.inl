@@ -225,3 +225,8 @@ quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 		}
 	}
 }
+
+vec PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec& vector)
+{
+	return pm_MultiplyQuat(rotation, pm_MultiplyQuat(pm_SetW(vector,0), pm_ConjugateQuat(rotation)));
+}

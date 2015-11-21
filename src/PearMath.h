@@ -480,6 +480,7 @@ namespace PM
 	quat pm_RotationQuatRollPitchYaw(const vec3& angles);
 	quat pm_RotationAxis(const quat& axis, float angle);
 	quat pm_RotationMatrix(const mat& m);
+	vec pm_RotateWithQuat(const quat& rot, const vec& v);
 
 	//Color
 
