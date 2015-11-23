@@ -107,7 +107,7 @@
 #ifdef PM_CC_MSC
 # define PM_DEBUG_BREAK() __debugbreak()
 # define PM_ALIGN(x) __declspec(align(x))
-#else//FIXME: Really use cpu dependet assembler?
+#else//FIXME: Really use cpu dependent assembler?
 # define PM_DEBUG_BREAK() __asm__ __volatile__ ("int $0x03")
 # define PM_ALIGN(x) __attribute__((aligned(x)))
 #endif
@@ -140,27 +140,27 @@
 # define PM_MATH_INLINE
 #endif
 
-#if !defined(PM_NO_SIMD) && (defined(__SSE__) || _M_IX86_FP == 1 || defined(_M_X64 ))
+#if !defined(PM_NO_SIMD) && (defined(__SSE__) || _M_IX86_FP == 1 || defined(_M_X64 ) || defined(PM_FORCE_SSE))
 # include <xmmintrin.h>
 # define PM_USE_SSE
 #endif
 
-#if !defined(PM_NO_SIMD) && (defined(__SSE2__) || _M_IX86_FP == 2 || defined(_M_X64 ))
+#if !defined(PM_NO_SIMD) && (defined(__SSE2__) || _M_IX86_FP == 2 || defined(_M_X64 ) || defined(PM_FORCE_SSE2))
 # include <emmintrin.h>
 # define PM_USE_SSE2
 #endif
 
-#if !defined(PM_NO_SIMD) && defined(__SSE3__)
+#if !defined(PM_NO_SIMD) && (defined(__SSE3__) || defined(PM_FORCE_SSE3))
 # include <pmmintrin.h>
 # define PM_USE_SSE3
 #endif
 
-#if !defined(PM_NO_SIMD) && defined(__SSSE3__)
+#if !defined(PM_NO_SIMD) && (defined(__SSSE3__) || defined(PM_FORCE_SSSE3))
 # include <tmmintrin.h>
 # define PM_USE_SSSE3
 #endif
 
-#if !defined(PM_NO_SIMD) && defined(__SSE4__)
+#if !defined(PM_NO_SIMD) && (defined(__SSE4__) || defined(PM_FORCE_SSE4))
 # include <smmintrin.h>
 # define PM_USE_SSE4
 #endif
@@ -225,6 +225,10 @@
 # define PM_VECTOR_SLERP_THRESHOLD (0.9995f)
 #endif
 
+/**
+ * ATTENTION: Many 2D and 3D functions are constructed to change the other "unused" parts of the 4D vector.
+ * Don't use these functions as a element wise operation.
+ */
 namespace PM
 {
 	inline void pm_Noop()
@@ -406,6 +410,8 @@ namespace PM
 	float pm_Magnitude4D(const vec4& v);
 	float pm_MagnitudeSqr4D(const vec4& v);
 	vec4 pm_Normalize4D(const vec4& v);
+	vec4 pm_QualityNormalize4D(const vec4& v);
+	vec4 pm_FastNormalize4D(const vec4& v);
 
 	vec3 pm_Load3D(const float src[3]);
 	void pm_Store3D(const vec3& v, float dst[3]);
@@ -414,6 +420,8 @@ namespace PM
 	float pm_Magnitude3D(const vec3& v);
 	float pm_MagnitudeSqr3D(const vec3& v);
 	vec3 pm_Normalize3D(const vec3& v);
+	vec3 pm_QualityNormalize3D(const vec2& v);
+	vec3 pm_FastNormalize3D(const vec2& v);
 
 	vec2 pm_Load2D(const float src[2]);
 	void pm_Store2D(const vec2& v, float dst[2]);
@@ -421,6 +429,8 @@ namespace PM
 	float pm_Magnitude2D(const vec2& v);
 	float pm_MagnitudeSqr2D(const vec2& v);
 	vec2 pm_Normalize2D(const vec2& v);
+	vec2 pm_QualityNormalize2D(const vec2& v);
+	vec2 pm_FastNormalize2D(const vec2& v);
 
 	//Matrix
 	mat pm_LoadMatrix(const float* src);
