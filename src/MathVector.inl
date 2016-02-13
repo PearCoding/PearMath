@@ -1084,14 +1084,16 @@ void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 
 float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 {
-	//TODO: Use SSE3 _mm_dp_ps!
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0xF1));
+# else
 	vec s = _mm_mul_ps(v1, v2);
-	s = _mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+	return _mm_cvtss_f32(_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3)))));
-	return ((float *)&(s))[0];
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
+# endif
 #else
 	return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]) + (v1[3] * v2[3]);
 #endif
@@ -1100,13 +1102,16 @@ float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 float PM_MATH_INLINE pm_Magnitude4D(const vec4& v)
 {
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0xF1)));
+# else
 	vec s = _mm_mul_ps(v, v);
-	s = _mm_sqrt_ss(
+	return _mm_cvtss_f32(_mm_sqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
-	return ((float *)&(s))[0];
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3)))))));
+#endif
 #else
 	return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
 #endif
@@ -1119,14 +1124,46 @@ float PM_MATH_INLINE pm_MagnitudeSqr4D(const vec4& v)
 
 vec4 PM_MATH_INLINE pm_Normalize4D(const vec4& v)
 {
+#if defined(PM_FAST_MATH)
+	return pm_FastNormalize4D(v);
+#else
+	return pm_QualityNormalize4D(v);
+#endif
+}
+
+vec4 PM_MATH_INLINE pm_QualityNormalize4D(const vec4& v)
+{
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0xFF)));
+# else
+	__m128 s = _mm_mul_ps(v, v);
+	s = _mm_sqrt_ss(
+		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+			_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
+				_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
+					_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
+	return _mm_div_ps(v, _mm_shuffle_ps(s, s, 0));
+# endif
+#else
+	return pm_FastNormalize4D(v);
+#endif
+}
+
+vec4 PM_MATH_INLINE pm_FastNormalize4D(const vec4& v)
+{
+#if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0xFF)));
+# else
 	__m128 s = _mm_mul_ps(v, v);
 	s = _mm_rsqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
-		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
-		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
+			_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
+				_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
+					_mm_shuffle_ps(s, s, _MM_SHUFFLE(3, 3, 3, 3))))));
 	return _mm_mul_ps(v, _mm_shuffle_ps(s, s, 0));
+# endif
 #else
 	vec r;
 	float mag = pm_Magnitude4D(v);
@@ -1170,11 +1207,14 @@ void PM_MATH_INLINE pm_Store3D(const vec3& v, float dst[3])
 float PM_MATH_INLINE pm_Dot3D(const vec3& v1, const vec3& v2)
 {
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0x71));
+# else
 	vec s = _mm_mul_ps(v1, v2);
-	s = _mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+	return _mm_cvtss_f32(_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2))));
-	return ((float *)&(s))[0];
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)))));
+# endif
 #else
 	return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]);
 #endif
@@ -1183,10 +1223,14 @@ float PM_MATH_INLINE pm_Dot3D(const vec3& v1, const vec3& v2)
 vec3 PM_MATH_INLINE pm_Cross3D(const vec3& v1, const vec3& v2)
 {
 #if defined(PM_USE_SIMD)
-	return _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 0, 2, 1)),
+	/*return _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 0, 2, 1)),
 		_mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 1, 0, 2))),
 		_mm_mul_ps(_mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 1, 0, 2)),
-		_mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 0, 2, 1))));
+		_mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 0, 2, 1))));*/
+	__m128 result = _mm_sub_ps(
+		_mm_mul_ps(v1, _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 0, 2, 1))),
+		_mm_mul_ps(v2, _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 0, 2, 1))));
+	return _mm_shuffle_ps(result, result, _MM_SHUFFLE(3, 0, 2, 1));
 #else
 	vec3 r;
 	r[0] = v1[1] * v2[2] - v1[2] * v2[1];
@@ -1200,12 +1244,15 @@ vec3 PM_MATH_INLINE pm_Cross3D(const vec3& v1, const vec3& v2)
 float PM_MATH_INLINE pm_Magnitude3D(const vec3& v)
 {
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0x71)));
+# else
 	vec s = _mm_mul_ps(v, v);
-	s = _mm_sqrt_ss(
+	return _mm_cvtss_f32(_mm_sqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)))));
-	return ((float *)&(s))[0];
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2))))));
+# endif
 #else
 	return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #endif
@@ -1218,13 +1265,44 @@ float PM_MATH_INLINE pm_MagnitudeSqr3D(const vec3& v)
 
 vec3 PM_MATH_INLINE pm_Normalize3D(const vec3& v)
 {
+#if defined(PM_FAST_MATH)
+	return pm_FastNormalize3D(v);
+#else
+	return pm_QualityNormalize3D(v);
+#endif
+}
+
+vec3 PM_MATH_INLINE pm_QualityNormalize3D(const vec3& v)
+{
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0x7F)));
+# else
+	vec s = _mm_mul_ps(v, v);
+	s = _mm_sqrt_ss(
+		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+			_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
+				_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)))));
+	return _mm_div_ps(v, _mm_shuffle_ps(s, s, 0));
+#endif
+#else
+	return pm_Normalize3D(v);
+#endif
+}
+
+vec3 PM_MATH_INLINE pm_FastNormalize3D(const vec3& v)
+{
+#if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0x7F)));// Should be 0x77, but x/0 is not good :P
+# else
 	vec s = _mm_mul_ps(v, v);
 	s = _mm_rsqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
-		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)))));
+			_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
+				_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)))));
 	return _mm_mul_ps(v, _mm_shuffle_ps(s, s, 0));
+#endif
 #else
 	vec3 r;
 	float mag = pm_Magnitude3D(v);
@@ -1266,10 +1344,13 @@ void PM_MATH_INLINE pm_Store2D(const vec& v, float dst[2])
 float PM_MATH_INLINE pm_Dot2D(const vec2& v1, const vec2& v2)
 {
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0x31));
+# else
 	vec s = _mm_mul_ps(v1, v2);
-	s = _mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)));
-	return ((float *)&(s))[0];
+	return _mm_cvtss_f32(_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1))));
+# endif
 #else
 	return (v1[0] * v2[0]) + (v1[1] * v2[1]);
 #endif
@@ -1278,11 +1359,14 @@ float PM_MATH_INLINE pm_Dot2D(const vec2& v1, const vec2& v2)
 float PM_MATH_INLINE pm_Magnitude2D(const vec2& v)
 {
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0x31)));
+# else
 	vec s = _mm_mul_ps(v, v);
-	s = _mm_sqrt_ss(
+	return _mm_cvtss_f32(_mm_sqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1))));
-	return ((float *)&(s))[0];
+		_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)))));
+# endif
 #else
 	return std::sqrt(v[0] * v[0] + v[1] * v[1]);
 #endif
@@ -1295,12 +1379,42 @@ float PM_MATH_INLINE pm_MagnitudeSqr2D(const vec2& v)
 
 vec2 PM_MATH_INLINE pm_Normalize2D(const vec2& v)
 {
+#if defined(PM_FAST_MATH)
+	return pm_FastNormalize2D(v);
+#else
+	return pm_QualityNormalize2D(v);
+#endif
+}
+
+vec2 PM_MATH_INLINE pm_QualityNormalize2D(const vec2& v)
+{
 #if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0x3F)));
+# else
+	vec s = _mm_mul_ps(v, v);
+	s = _mm_sqrt_ss(
+		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
+			_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1))));
+	return _mm_div_ps(v, _mm_shuffle_ps(s, s, 0));
+# endif
+#else
+	return pm_Normalize2D(v);
+#endif
+}
+
+vec2 PM_MATH_INLINE pm_FastNormalize2D(const vec2& v)
+{
+#if defined(PM_USE_SIMD)
+# if defined(PM_USE_SSE4)
+	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0x3F)));// Should be 0x33, but x/0 is not good :P
+# else
 	vec s = _mm_mul_ps(v, v);
 	s = _mm_rsqrt_ss(
 		_mm_add_ss(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
-		_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1))));
+			_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1))));
 	return _mm_mul_ps(v, _mm_shuffle_ps(s, s, 0));
+# endif
 #else
 	vec2 r;
 	float mag = pm_Magnitude2D(v);

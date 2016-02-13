@@ -384,6 +384,18 @@ bool vectorTest()
 	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f))
 		END_TEST()
 
+		START_TEST("Quality Normalize Vector4D");
+	vec op1 = pm_Set(1, 1, 1, 1);
+	TEST(vec r = pm_QualityNormalize4D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f))
+		END_TEST()
+
+		START_TEST("Fast Normalize Vector4D");
+	vec op1 = pm_Set(1, 1, 1, 1);
+	TEST(vec r = pm_FastNormalize4D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0.5f, 0.5f, 0.5f, 0.5f))
+		END_TEST()
+
 		START_TEST("Dot Vector3D");
 	vec op1 = pm_Set(20, 0, 2.0, 0);
 	vec op2 = pm_Set(20, 5, 10.0, 0);
@@ -416,6 +428,18 @@ bool vectorTest()
 	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(1, 0, 0), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(1, 0, 0))
 		END_TEST()
 
+		START_TEST("Quality Normalize Vector3D");
+	vec op1 = pm_Set(20, 0, 0);
+	TEST(vec r = pm_QualityNormalize3D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(1, 0, 0), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(1, 0, 0))
+		END_TEST()
+
+		START_TEST("Fast Normalize Vector3D");
+	vec op1 = pm_Set(20, 0, 0);
+	TEST(vec r = pm_FastNormalize3D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(1, 0, 0), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(1, 0, 0))
+		END_TEST()
+
 		START_TEST("Dot Vector2D");
 	vec op1 = pm_Set(20, 0);
 	vec op2 = pm_Set(20, 5);
@@ -438,6 +462,18 @@ bool vectorTest()
 		START_TEST("Normalize Vector2D");
 	vec op1 = pm_Set(0, 20);
 	TEST(vec r = pm_Normalize2D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0, 1))
+		END_TEST()
+
+		START_TEST("Quality Normalize Vector2D");
+	vec op1 = pm_Set(0, 20);
+	TEST(vec r = pm_QualityNormalize2D(op1));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0, 1))
+		END_TEST()
+
+		START_TEST("Fast Normalize Vector2D");
+	vec op1 = pm_Set(0, 20);
+	TEST(vec r = pm_FastNormalize2D(op1));
 	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), pm_FillVector(ABSOLUTE_ERROR)), op1, r, pm_Set(0, 1))
 		END_TEST()
 
@@ -530,6 +566,11 @@ bool matrixTest()
 		START_TEST("Matrix * Matrix");
 	TEST(mat r = pm_Multiply(testOp1, testOp2));
 	CHECK_TEST3(pm_IsEqual(r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6)), testOp1, testOp2, r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6));
+	END_TEST()
+
+		START_TEST("Matrix * Vector");
+	TEST(vec r = pm_Multiply(pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0,0,0,1)));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set(2, 4, 3, 1)), pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0, 0, 0, 1), r, pm_Set(2, 4, 3, 1));
 	END_TEST()
 
 		START_TEST("Transpose Matrix");
