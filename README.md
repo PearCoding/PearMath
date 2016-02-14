@@ -1,6 +1,8 @@
-SIMD math library.
+[![Build Status](https://travis-ci.org/PearCoding/PearMath.svg?branch=master)](https://travis-ci.org/PearCoding/PearMath)
 
-Copyright (c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
+## SIMD math library.
+
+Copyright (c) 2014, Ömercan Yazici < pearcoding AT gmail.com >
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -34,5 +36,5 @@ http://pearcoding.eu/projects/pearmath
 At the moment you can build the library for Windows and Linux with cmake.
 Currently there is no tested support for MacOS X, but it should be still useable there.
 
-If you want to help us, please write an e-mail to Ömercan Yazici <pearcoding AT gmail.com>
+If you want to help us, please write an e-mail to Ömercan Yazici < pearcoding AT gmail.com >
  
