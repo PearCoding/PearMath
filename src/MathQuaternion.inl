@@ -115,7 +115,7 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 {
 	float theta = PM::pm_Dot4D(q1, q2);
 
-	if (std::fabsf(theta) > 1)
+	if (fabsf(theta) > 1)
 	{
 		return q1;
 	}
@@ -129,7 +129,7 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 	float halfTheta = acosf(theta);
 	float sinHalfTheta = sqrtf(1 - theta*theta);
 	
-	if (std::fabsf(sinHalfTheta) < 0.001f)
+	if (fabsf(sinHalfTheta) < 0.001f)
 	{
 		return PM::pm_Add(PM::pm_Scale(q1, 0.5f), PM::pm_Scale(q3, 0.5f));
 	}

@@ -68,13 +68,13 @@ const char* to_str(float f, int i)
 	return str_buffer[i];
 }
 
-const char* to_str(vec& v, int i)
+const char* to_str(PM::vec v, int i)
 {
 	sprintf(str_buffer[i], "[%f, %f, %f, %f]", pm_GetX(v), pm_GetY(v), pm_GetZ(v), pm_GetW(v));
 	return str_buffer[i];
 }
 
-const char* to_str(mat& m, int i)
+const char* to_str(PM::mat m, int i)
 {
 	memset(str_buffer[i], 0, 1024);
 	sprintf(str_buffer[i], "\n{\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n\t%f, %f, %f, %f\n}",
@@ -85,7 +85,7 @@ const char* to_str(mat& m, int i)
 	return str_buffer[i];
 }
 
-const char* to_str(frame& f, int i)
+const char* to_str(PM::frame f, int i)
 {
 	memset(str_buffer[i], 0, 1024);
 	sprintf(str_buffer[i], "\n{\nUp:\t\t%f, %f, %f, %f\nForward:\t%f, %f, %f, %f\nOrigin:\t\t%f, %f, %f, %f\n}",
