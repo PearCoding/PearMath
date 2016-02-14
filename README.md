@@ -1,5 +1,3 @@
-https://travis-ci.org/PearCoding/PearMath.svg?branch=master
-
 SIMD math library.
 
 Copyright (c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
