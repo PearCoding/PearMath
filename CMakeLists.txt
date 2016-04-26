@@ -68,6 +68,7 @@ IF(CYGWIN)
 ENDIF()
 
 #PACKAGES
+option(PM_ONLY_LIBRARY "Compile only library" OFF)
 
 #DEFINITIONS AND FLAGS
 include_directories(${PM_Root})
@@ -111,8 +112,10 @@ SET(PM_TEST_Src
   ${PM_Root}/tests/main.cpp)
 
 #DEPENDIES, LIBARIES AND EXECUTABLES
-add_executable(pm_test ${PM_TEST_Src} ${PM_Hdr})
-set_target_properties(pm_test PROPERTIES COMPILE_DEFINITIONS "${DEFS}" COMPILE_DEFINITIONS_DEBUG "${DEFS_DEBUG}")
+IF(NOT PM_ONLY_LIBRARY)
+	add_executable(pm_test ${PM_TEST_Src} ${PM_Hdr})
+	set_target_properties(pm_test PROPERTIES COMPILE_DEFINITIONS "${DEFS}" COMPILE_DEFINITIONS_DEBUG "${DEFS_DEBUG}")
+ENDIF(NOT PM_ONLY_LIBRARY)
 
 #INSTALL
 INSTALL(FILES ${PM_Hdr} DESTINATION include/PM)
