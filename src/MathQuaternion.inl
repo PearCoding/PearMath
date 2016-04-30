@@ -141,6 +141,16 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 	return PM::pm_MultiplyAdd(q1, ratioA, PM::pm_Multiply(q3, ratioB));
 }
 
+quat PM_MATH_INLINE pm_RotationQuatXYZ(float x, float y, float z)
+{
+	return pm_RotationQuatXYZ(PM::pm_Set(x, y, z));
+}
+
+quat PM_MATH_INLINE pm_RotationQuatXYZ(const vec3& angles)
+{
+	return pm_RotationQuatRollPitchYaw(angles);
+}
+
 quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(float roll, float pitch, float yaw)
 {
 	return pm_RotationQuatRollPitchYaw(PM::pm_Set(roll, pitch, yaw));

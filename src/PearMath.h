@@ -244,6 +244,14 @@ namespace PM
 	template<typename T>
 	inline T pm_SignT(T a) { return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
 
+	template<typename T>
+	inline void pm_SinCosT(T v, T& sin, T& cos)
+	{
+		// We hope for the optimization...
+		sin = std::sin(v);
+		cos = std::cos(v);
+	}
+
 	typedef signed char int8;
 	typedef unsigned char uint8;
 
@@ -486,6 +494,8 @@ namespace PM
 
 	quat pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t);
 
+	quat pm_RotationQuatXYZ(float yaw, float pitch, float roll);
+	quat pm_RotationQuatXYZ(const vec3& angles);
 	quat pm_RotationQuatRollPitchYaw(float yaw, float pitch, float roll);
 	quat pm_RotationQuatRollPitchYaw(const vec3& angles);
 	quat pm_RotationAxis(const quat& axis, float angle);
