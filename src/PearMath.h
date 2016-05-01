@@ -225,9 +225,15 @@
 # define PM_VECTOR_SLERP_THRESHOLD (0.9995f)
 #endif
 
+#ifndef PM_EPSILON
+# include <limits>
+# define PM_EPSILON (std::numeric_limits<float>::epsilon())
+#endif
+
+
 /**
  * ATTENTION: Many 2D and 3D functions are constructed to change the other "unused" parts of the 4D vector.
- * Don't use these functions as a element wise operation.
+ * Don't use these functions as an element wise operation.
  */
 namespace PM
 {
@@ -501,6 +507,9 @@ namespace PM
 	quat pm_RotationAxis(const quat& axis, float angle);
 	quat pm_RotationMatrix(const mat& m);
 	vec pm_RotateWithQuat(const quat& rot, const vec& v);
+
+	quat pm_RotateFromTo(const vec3& from, const vec3& to);
+	quat pm_RotateFromTo(const vec3& from, const vec3& to, const vec3& fallback);
 
 	//Color
 

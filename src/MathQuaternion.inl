@@ -240,3 +240,66 @@ vec PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec& vector)
 {
 	return pm_MultiplyQuat(rotation, pm_MultiplyQuat(pm_SetW(vector,0), pm_ConjugateQuat(rotation)));
 }
+
+/*
+ Will return the closest rotation from 'from' to 'to'.
+ @see Stan Melax's article in Game Programming Gems
+*/
+quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to)
+{
+	float dot = pm_Dot3D(from, to);
+	if (dot >= 1)
+	{
+		return pm_IdentityQuat();
+	}
+	else
+	{
+		if (dot + 1 < PM_EPSILON) // Close to -1
+		{
+			vec axis = pm_Cross3D(pm_Set(1, 0, 0), from);
+			if (pm_MagnitudeSqr3D(axis) < PM_EPSILON)
+				axis = pm_Cross3D(pm_Set(0, 1, 0), from);
+
+			return pm_RotationAxis(pm_Normalize3D(axis), PM_PI_F);
+		}
+		else
+		{
+			float s = std::sqrt((1 + dot) * 2);
+			float is = 1 / s;
+
+			vec3 cross = pm_Cross3D(from, to);
+
+			return pm_Normalize4D(pm_SetW(pm_Scale(cross, is), s * 0.5f));
+		}
+	}
+}
+
+/*
+Will return the closest rotation from 'from' to 'to'.
+Will fallback to rotate with the 'fallback' axis, when both vectors are too close.
+*/
+quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to, const vec3& fallback)
+{
+
+	float dot = pm_Dot3D(from, to);
+	if (dot >= 1)
+	{
+		return pm_IdentityQuat();
+	}
+	else
+	{
+		if (dot + 1 < PM_EPSILON) // Close to -1
+		{
+			return pm_RotationAxis(fallback, PM_PI_F);
+		}
+		else
+		{
+			float s = std::sqrt((1 + dot) * 2);
+			float is = 1 / s;
+
+			vec3 cross = pm_Cross3D(from, to);
+
+			return pm_Normalize4D(pm_SetW(pm_Scale(cross, is), s * 0.5f));
+		}
+	}
+}
