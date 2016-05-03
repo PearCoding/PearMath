@@ -84,6 +84,19 @@ vec PM_MATH_INLINE pm_Set(float x, float y, float z, float w)
 #endif
 }
 
+vec PM_MATH_INLINE pm_SetIndex(const vec& v, int index, float val)
+{
+#ifdef PM_USE_SIMD
+	vec r = v;
+	((float *)&(r))[index] = val;
+	return r;
+#else
+	vec r = v;
+	r[index] = val;
+	return r;
+#endif
+}
+
 vec PM_MATH_INLINE pm_SetX(const vec& v, float x)
 {
 #ifdef PM_USE_SIMD
@@ -133,6 +146,15 @@ vec PM_MATH_INLINE pm_SetW(const vec& v, float w)
 	vec r = v;
 	r[3] = w;
 	return r;
+#endif
+}
+
+float PM_MATH_INLINE pm_GetIndex(const vec& v, int index)
+{
+#ifdef PM_USE_SIMD
+	return ((float *)&(v))[index];
+#else
+	return v[index];
 #endif
 }
 

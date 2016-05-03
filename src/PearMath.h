@@ -359,10 +359,12 @@ namespace PM
 	vec pm_One();
 	vec pm_Set(float x, float y, float z = 0, float w = 0);
 
+	vec pm_SetIndex(const vec& v, int index, float x);
 	vec pm_SetX(const vec& v, float x);
 	vec pm_SetY(const vec& v, float y);
 	vec pm_SetZ(const vec& v, float z);
 	vec pm_SetW(const vec& v, float w);
+	float pm_GetIndex(const vec& v, int index);
 	float pm_GetX(const vec& v);
 	float pm_GetY(const vec& v);
 	float pm_GetZ(const vec& v);
