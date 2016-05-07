@@ -37,10 +37,6 @@ void PM_MATH_INLINE pm_Copy(vec& vdst, const vec& vsrc)
 #ifdef PM_USE_SIMD
 	vdst = vsrc;
 #else
-	//vdst[0] = vsrc[0];
-	//vdst[1] = vsrc[1];
-	//vdst[2] = vsrc[2];
-	//vdst[3] = vsrc[3];
 	memcpy(vdst.v, vsrc.v, sizeof(float) * 4);
 #endif
 }
