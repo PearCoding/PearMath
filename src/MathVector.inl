@@ -1341,7 +1341,6 @@ vec PM_MATH_INLINE pm_Load2D(const float src[2])
 	vec r;
 	r[0] = src[0];
 	r[1] = src[1];
-	r[2] = src[2];
 	return r;
 #endif
 }
