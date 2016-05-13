@@ -256,11 +256,11 @@ quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to)
 	{
 		if (dot + 1 < PM_EPSILON) // Close to -1
 		{
-			vec axis = pm_Cross3D(pm_Set(1, 0, 0), from);
+			vec axis = pm_Cross3D(from, pm_Set(1, 0, 0));
 			if (pm_MagnitudeSqr3D(axis) < PM_EPSILON)
-				axis = pm_Cross3D(pm_Set(0, 1, 0), from);
+				axis = pm_Cross3D(from, pm_Set(0, 1, 0));
 
-			return pm_RotationAxis(pm_Normalize3D(axis), PM_PI_F);
+			return PM::pm_SetW(axis, 0);
 		}
 		else
 		{
@@ -271,6 +271,9 @@ quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to)
 
 			return pm_Normalize4D(pm_SetW(pm_Scale(cross, is), s * 0.5f));
 		}
+
+		/*vec3 w = pm_Cross3D(from, to);
+		return pm_Normalize4D(pm_SetW(w, 1 + dot));*/
 	}
 }
 
