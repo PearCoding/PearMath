@@ -1077,7 +1077,8 @@ vec PM_MATH_INLINE pm_Saturate(const vec& v)
 vec PM_MATH_INLINE pm_Load4D(const float src[4])
 {
 #ifdef PM_USE_SIMD
-	return _mm_load_ps(src);
+	PM_ALIGN(16) float t[4] = { src[0], src[1], src[2], src[3] };
+	return _mm_load_ps(t);
 #else
 	vec r;
 	r[0] = src[0];
@@ -1091,7 +1092,12 @@ vec PM_MATH_INLINE pm_Load4D(const float src[4])
 void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 {
 #ifdef PM_USE_SIMD
-	_mm_store_ps(dst, v);
+	PM_ALIGN(16) float t[4];
+	_mm_store_ps(t, v);
+	dst[0] = t[0];
+	dst[1] = t[1];
+	dst[2] = t[2];
+	dst[3] = t[3];
 #else
 	dst[0] = v[0];
 	dst[1] = v[1];
@@ -1196,7 +1202,7 @@ vec4 PM_MATH_INLINE pm_FastNormalize4D(const vec4& v)
 vec PM_MATH_INLINE pm_Load3D(const float src[3])
 {
 #ifdef PM_USE_SIMD
-	float t[4] = { src[0], src[1], src[2], 0 };
+	PM_ALIGN(16) float t[4] = { src[0], src[1], src[2], 0 };
 	return _mm_load_ps(t);
 #else
 	vec r;
@@ -1304,7 +1310,7 @@ vec3 PM_MATH_INLINE pm_QualityNormalize3D(const vec3& v)
 	return _mm_div_ps(v, _mm_shuffle_ps(s, s, 0));
 #endif
 #else
-	return pm_Normalize3D(v);
+	return pm_FastNormalize3D(v);
 #endif
 }
 
@@ -1335,7 +1341,7 @@ vec3 PM_MATH_INLINE pm_FastNormalize3D(const vec3& v)
 vec PM_MATH_INLINE pm_Load2D(const float src[2])
 {
 #ifdef PM_USE_SIMD
-	float t[4] = { src[0], src[1], 0, 0 };
+	PM_ALIGN(16) float t[4] = { src[0], src[1], 0, 0 };
 	return _mm_load_ps(t);
 #else
 	vec r;
@@ -1416,7 +1422,7 @@ vec2 PM_MATH_INLINE pm_QualityNormalize2D(const vec2& v)
 	return _mm_div_ps(v, _mm_shuffle_ps(s, s, 0));
 # endif
 #else
-	return pm_Normalize2D(v);
+	return pm_FastNormalize2D(v);
 #endif
 }
 
