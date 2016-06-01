@@ -902,7 +902,8 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 	{
 		*determinant = detf;
 	}
-	vec det = _mm_rcp_ps(_mm_set1_ps(detf));
+
+	vec det = pm_Reciprocal(_mm_set1_ps(detf), 6);
 
 	mat r;
 	r.v[0] = _mm_mul_ps(det, clm0);

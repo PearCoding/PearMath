@@ -398,6 +398,7 @@ namespace PM
 	vec pm_Scale(const vec& v, float factor);
 	vec pm_MultiplyAdd(const vec& v1, const vec& v2, const vec& v3);
 	vec pm_Reciprocal(const vec& v);
+	vec pm_Reciprocal(const vec& v, int n);// Newton-Raphson
 	vec pm_Sqrt(const vec& v);
 	vec pm_ReciprocalSqrt(const vec& v);
 	vec pm_Pow(const vec& v1, const vec& v2);
@@ -610,6 +611,21 @@ namespace PM
 		}
 
 		return val;
+	}
+
+	inline float pm_Reciprocal(float f, int n)
+	{
+		if (n <= 1)
+			return 1.0f / f;
+		else
+		{
+			float x = f*0.25f;
+
+			for (int i = 0; i < n; ++i)
+				x = x*(2 - f*x);
+
+			return x;
+		}
 	}
 
 #define _PM_MATH_INCLUDED_

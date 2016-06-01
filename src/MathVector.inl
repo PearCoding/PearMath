@@ -510,6 +510,17 @@ vec PM_MATH_INLINE pm_Reciprocal(const vec& v)
 #endif
 }
 
+vec PM_MATH_INLINE pm_Reciprocal(const vec& v, int n)
+{
+	vec x = pm_Scale(v, 0.25f);
+
+	vec v2 = pm_FillVector(2);
+	for (int i = 0; i < n; ++i)
+		x = pm_Multiply(x, pm_Subtract(v2, pm_Multiply(v, x)));
+
+	return x;
+}
+
 /*
  * @todo This is not good enough
  */
