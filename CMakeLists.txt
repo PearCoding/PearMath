@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
+# Copyright (c) 2014, ï¿½mercan Yazici <pearcoding AT gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -94,19 +94,21 @@ ELSE()
 ENDIF()
 
 IF(NOT MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2" PARENT_SCOPE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 
 	IF(PM_FORCE_SSE3)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3" PARENT_SCOPE)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
 	ENDIF()
 
 	IF(PM_FORCE_SSSE3)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mssse3" PARENT_SCOPE)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mssse3")
 	ENDIF()
 
 	IF(PM_FORCE_SSE4)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1" PARENT_SCOPE)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
 	ENDIF()
+	
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 ENDIF()
 
 SET(PM_DEFS "${DEFS}" PARENT_SCOPE)

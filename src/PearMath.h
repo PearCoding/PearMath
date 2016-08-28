@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014-2015, Ömercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2015, ï¿½mercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -466,6 +466,14 @@ namespace PM
 		float m20, float m21, float m22, float m23,
 		float m30, float m31, float m32, float m33);
 
+	float pm_Get(const mat& m, int x, int y);
+	vec pm_GetRow(const mat& m, int y);
+	vec pm_GetColumn(const mat& m, int x);
+	
+	vec pm_DecomposeTranslation(const mat& m);
+	vec3 pm_DecomposeScale(const mat& m);
+	quat pm_DecomposeRotation(const mat& m);
+	void pm_Decompose(const mat& m, vec& t, vec3& s, quat& r);
 	mat pm_FillMatrix(float val);
 
 	mat pm_IsEqualv(const mat& m1, const mat& m2);

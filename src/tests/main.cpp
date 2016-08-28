@@ -20,7 +20,7 @@
 for (ut_I = 0; ut_I < TEST_LOOP_COUNT; ++ut_I) \
 	{
 #define TEST(f) \
-	f;
+	f
 
 #define CHECK_TEST3(val, a1, a2, a3, res) \
 if (!(val)) \
@@ -541,6 +541,50 @@ bool matrixTest()
 		0.0, 1.0, 0.0, 2.0,
 		2.0, 0.0, 1.0, 0.0));
 	CHECK_TEST2(pm_IsEqual(r, testOp1), testOp1, r, testOp1);
+	END_TEST()
+
+		START_TEST("(GET) Matrix");
+	TEST(float r = pm_Get(testOp1, 1, 2));
+	CHECK_TEST2(r == 1, testOp1, r, 1);
+	END_TEST()
+
+		START_TEST("(GET) Matrix");
+	TEST(vec r = pm_GetRow(testOp1, 2));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set(0.0, 1.0, 0.0, 2.0)), testOp1, r, pm_Set(0.0, 1.0, 0.0, 2.0));
+	END_TEST()
+
+		START_TEST("(GET) Matrix");
+	TEST(vec r = pm_GetColumn(testOp1, 2));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set(0.0, 1.0, 0.0, 1.0)), testOp1, r, pm_Set(0.0, 1.0, 0.0, 1.0));
+	END_TEST()
+
+		START_TEST("Translation Decompose");
+		mat op1 = pm_Translation(pm_Set(3, 2, 6, 1));
+	TEST(vec r = pm_DecomposeTranslation(op1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set(3, 2, 6, 1)), op1, r, pm_Set(3, 2, 6, 1));
+	END_TEST()
+
+		START_TEST("Rotation Decompose");
+		mat op1 = pm_Rotation(pm_Set(0, 0.949f, 0, 0.316f));
+	TEST(vec r = pm_DecomposeRotation(op1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set(0, 0.949f, 0, 0.316f)), op1, r, pm_Set(0, 0.949f, 0, 0.316f));
+	END_TEST()
+
+		START_TEST("Scale Decompose");
+		mat op1 = pm_Scaling(pm_Set(3, 2, 6, 1));
+	TEST(vec r = pm_DecomposeScale(op1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set(3, 2, 6, 1)), op1, r, pm_Set(3, 2, 6, 1));
+	END_TEST()
+
+		START_TEST("Decompose (ELEM)");// TODO
+		mat op1 = pm_Set(-2,-1,2,0,  -2,1,-1,0,  0,0,1,0,  0,0,0,1);
+		quat resR = pm_RotationMatrix(pm_Set(1/1.4142f, -1/1.4142f,0,0,  1/1.4142f,1/1.4142f,0,0,  0,0,1,0,  0,0,0,1));
+	TEST(vec t = pm_DecomposeTranslation(op1));
+	CHECK_TEST2(pm_IsEqual(t, pm_Set(0, 0, 0, 1)), op1, t, pm_Set(0, 0, 0, 1));
+	TEST(quat r = pm_DecomposeRotation(op1));
+	CHECK_TEST2(pm_IsEqual(r, resR), op1, r, resR);
+	TEST(vec s = pm_DecomposeScale(op1));
+	CHECK_TEST2(pm_IsEqual(s, pm_Set(-2*1.4142f, 1.4142f, 2.44949f, 1)), op1, s, pm_Set(-2*1.4142f, 1.4142f, 2.44949f, 1));
 	END_TEST()
 
 		START_TEST("Matrix + Matrix");

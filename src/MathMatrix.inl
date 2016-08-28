@@ -334,6 +334,53 @@ mat PM_MATH_INLINE pm_Set(float m00, float m01, float m02, float m03,
 #endif
 }
 
+float PM_MATH_INLINE pm_Get(const mat& m, int x, int y)
+{
+	PM_ASSERT(x >= 0 && x < 4);
+	PM_ASSERT(y >= 0 && y < 4);
+
+	return pm_GetIndex(m.v[y],x);
+}
+
+vec PM_MATH_INLINE pm_GetRow(const mat& m, int y)
+{
+	PM_ASSERT(y >= 0 && y < 4);
+	return m.v[y];
+}
+
+vec PM_MATH_INLINE pm_GetColumn(const mat& m, int x)
+{
+	PM_ASSERT(x >= 0 && x < 4);
+	return pm_Set(pm_Get(m,x,0), pm_Get(m,x,1), pm_Get(m,x,2), pm_Get(m,x,3));
+}
+
+vec PM_MATH_INLINE pm_DecomposeTranslation(const mat& m)
+{
+	return pm_GetColumn(m, 3);
+}
+
+vec3 PM_MATH_INLINE pm_DecomposeScale(const mat& m)
+{
+	return pm_Set(pm_Magnitude3D(pm_GetColumn(m,0)), pm_Magnitude3D(pm_GetColumn(m,1)), pm_Magnitude3D(pm_GetColumn(m,2)), 1);
+}
+
+quat PM_MATH_INLINE pm_DecomposeRotation(const mat& m)
+{
+	vec is = pm_SetW(pm_Reciprocal(pm_DecomposeScale(m)), 0);
+	mat rm = pm_Set(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
+	return pm_RotationMatrix(rm);
+}
+
+void PM_MATH_INLINE pm_Decompose(const mat& m, vec& t, vec3& s, quat& r)
+{
+	t = pm_DecomposeTranslation(m);
+	s = pm_DecomposeScale(m);
+
+	vec is = pm_SetW(pm_Reciprocal(s), 0);
+	mat rm = pm_Set(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
+	r = pm_RotationMatrix(rm);
+}
+
 mat PM_MATH_INLINE pm_FillMatrix(float val)
 {
 #ifdef PM_USE_SIMD
