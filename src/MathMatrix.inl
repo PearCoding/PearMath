@@ -287,9 +287,9 @@ mat PM_MATH_INLINE pm_Scaling(const vec3& v)
 {
 #ifdef PM_USE_SIMD
 	mat r;
-	r.v[0] = _mm_setr_ps(((float *)&(v))[0], 0, 0, 0);
-	r.v[1] = _mm_setr_ps(0, ((float *)&(v))[1], 0, 0);
-	r.v[2] = _mm_setr_ps(0, 0, ((float *)&(v))[2], 0);
+	r.v[0] = pm_Set(pm_GetX(v), 0, 0, 0);
+	r.v[1] = pm_Set(0, pm_GetY(v), 0, 0);
+	r.v[2] = pm_Set(0, 0, pm_GetZ(v), 0);
 	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
 	return r;
 #else
@@ -1011,7 +1011,14 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 #endif
 }
 
-vec PM_MATH_INLINE pm_Determinant(const mat& m);
+//vec PM_MATH_INLINE pm_Determinant(const mat& m);
+
+vec PM_MATH_INLINE pm_Transform(const mat& m, const vec& v)
+{
+	const vec t = pm_Multiply(m, v);
+	//return pm_Scale(t, 1.0f/pm_GetW(t));
+	return t;
+}
 
 //Right handled
 mat PM_MATH_INLINE pm_Perspective(float width, float height, float n, float f)

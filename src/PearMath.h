@@ -498,7 +498,9 @@ namespace PM
 	mat pm_Divide(const mat& m, float s);
 	mat pm_Transpose(const mat& m);
 	mat pm_Inverse(const mat& m, float* determinant = 0);
-	vec pm_Determinant(const mat& m);
+	//vec pm_Determinant(const mat& m);
+
+	vec pm_Transform(const mat& m, const vec& v);
 
 	mat pm_Perspective(float width, float height, float near, float far);
 	mat pm_Orthographic(float width, float height, float near, float far);
