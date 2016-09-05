@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014, ï¿½mercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -220,7 +220,7 @@ quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 		else if (m.m[1][1] > m.m[2][2])
 		{
 			float s = 2.0f * sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]);
-			PM::pm_Set((m.m[0][1] + m.m[1][0]) / s,
+			return PM::pm_Set((m.m[0][1] + m.m[1][0]) / s,
 				0.25f * s,
 				(m.m[1][2] + m.m[2][1]) / s,
 				(m.m[0][2] - m.m[2][0]) / s);
@@ -228,7 +228,7 @@ quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 		else 
 		{
 			float s = 2.0f * sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]);
-			PM::pm_Set((m.m[0][2] + m.m[2][0]) / s,
+			return PM::pm_Set((m.m[0][2] + m.m[2][0]) / s,
 				(m.m[1][2] + m.m[2][1]) / s,
 				0.25f * s,
 				(m.m[1][0] - m.m[0][1]) / s);
