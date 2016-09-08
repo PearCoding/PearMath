@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
+ * Copyright(c) 2014, ï¿½mercan Yazici <pearcoding AT gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -194,12 +194,18 @@ frame PM_MATH_INLINE pm_MoveLeft(const frame& f, float s)
 
 mat PM_MATH_INLINE pm_ToMatrix(const frame& f, bool rotationOnly)
 {
-	return pm_Set(pm_Cross3D(f.Up, f.Forward), f.Up, f.Forward, (rotationOnly ? pm_Set(0.0f, 0.0f, 0.0f, 1.0) : pm_Set(pm_GetX(f.Origin), pm_GetY(f.Origin), pm_GetZ(f.Origin), 1.0f)));
+	return pm_Set4D(pm_SetW(pm_Cross3D(f.Up, f.Forward), rotationOnly ? 0.0f : pm_GetX(f.Origin)),
+		pm_SetW(f.Up, rotationOnly ? 0.0f : pm_GetY(f.Origin)),
+		pm_SetW(f.Forward, rotationOnly ? 0.0f : pm_GetZ(f.Origin)),
+		pm_Set(0.0f, 0.0f, 0.0f, 1.0));
 }
 
 mat PM_MATH_INLINE pm_ToCameraMatrix(const frame& f, bool rotationOnly)
 {
-	return pm_Set(pm_Cross3D(f.Up, pm_Negate(f.Forward)), f.Up, pm_Negate(f.Forward), (rotationOnly ? pm_Set(0.0f, 0.0f, 0.0f, 1.0) : pm_Set(-pm_GetX(f.Origin), -pm_GetY(f.Origin), -pm_GetZ(f.Origin), 1.0f)));
+	return pm_Set4D(pm_SetW(pm_Cross3D(f.Up, pm_Negate(f.Forward)), rotationOnly ? 0.0f : -pm_GetX(f.Origin)),
+		pm_SetW(f.Up, rotationOnly ? 0.0f : -pm_GetY(f.Origin)),
+		pm_SetW(pm_Negate(f.Forward), rotationOnly ? 0.0f : -pm_GetZ(f.Origin)),
+		pm_Set(0.0f, 0.0f, 0.0f, 1.0));
 }
 
 frame PM_MATH_INLINE pm_RotateLocalX(const frame& f, float angle)
@@ -271,9 +277,7 @@ vec3 PM_MATH_INLINE pm_LocalToWorld(const frame& f, const vec3& v, bool rotation
 		t[0][2] * pm_GetX(v) + t[1][2] * pm_GetY(v) + t[2][2] * pm_GetZ(v), pm_GetW(v));
 
 	if (!rotationOnly)
-	{
 		r = pm_Add(r, f.Origin);
-	}
 
 	return r;
 }
@@ -281,7 +285,7 @@ vec3 PM_MATH_INLINE pm_LocalToWorld(const frame& f, const vec3& v, bool rotation
 vec3 PM_MATH_INLINE pm_WorldToLocal(const frame& f, const vec3& v)
 {
 	mat t = pm_ToMatrix(f, true);
-	t = pm_Inverse(t);
+	t = pm_Inverse4D(t);
 
 	vec3 r = pm_Subtract(v, f.Origin);
 	r = pm_Set(t[0][0] * pm_GetX(r) + t[1][0] * pm_GetY(r) + t[2][0] * pm_GetZ(r),

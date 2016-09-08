@@ -194,46 +194,31 @@ quat PM_MATH_INLINE pm_RotationAxis(const quat& axis, float angle)
 #endif
 }
 
-// Really that good?
-// TODO: Test it!
+quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)
+{
+	const float w = std::sqrt( pm_MaxT<float>( 0, 1 + m[0][0] + m[1][1] + m[2][2] ) ) / 2;
+	const float x = std::sqrt( pm_MaxT<float>( 0, 1 + m[0][0] - m[1][1] - m[2][2] ) ) / 2;
+	const float y = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
+	const float z = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
+
+	return pm_Set(std::copysign(x, m[2][1] - m[1][2] ),
+		std::copysign(y, m[0][2] - m[2][0] ),
+		std::copysign(z, m[1][0] - m[0][1] ),
+		w);
+}
+
 quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 {
-	float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
-	if (trace > 0)
-	{
-		float s = 0.5f / sqrtf(trace + 1.0f);
-		return PM::pm_Set((m.m[2][1] - m.m[1][2]) * s,
-			(m.m[0][2] - m.m[2][0]) * s,
-			(m.m[1][0] - m.m[0][1]) * s,
-			0.25f / s);
-	}
-	else
-	{
-		if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2])
-		{
-			float s = 2.0f * sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]);
-			return PM::pm_Set(0.25f * s,
-				(m.m[0][1] + m.m[1][0]) / s,
-				(m.m[0][2] + m.m[2][0]) / s,
-				(m.m[2][1] - m.m[1][2]) / s);
-		}
-		else if (m.m[1][1] > m.m[2][2])
-		{
-			float s = 2.0f * sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]);
-			return PM::pm_Set((m.m[0][1] + m.m[1][0]) / s,
-				0.25f * s,
-				(m.m[1][2] + m.m[2][1]) / s,
-				(m.m[0][2] - m.m[2][0]) / s);
-		}
-		else 
-		{
-			float s = 2.0f * sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]);
-			return PM::pm_Set((m.m[0][2] + m.m[2][0]) / s,
-				(m.m[1][2] + m.m[2][1]) / s,
-				0.25f * s,
-				(m.m[1][0] - m.m[0][1]) / s);
-		}
-	}
+	const float absDet = std::pow(pm_Determinant4D(m), 1/3.0f);
+	const float w = std::sqrt( pm_MaxT<float>( 0, absDet + m[0][0] + m[1][1] + m[2][2] ) ) / 2;
+	const float x = std::sqrt( pm_MaxT<float>( 0, absDet + m[0][0] - m[1][1] - m[2][2] ) ) / 2;
+	const float y = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
+	const float z = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
+
+	return pm_Set(std::copysign(x, m[2][1] - m[1][2] ),
+		std::copysign(y, m[0][2] - m[2][0] ),
+		std::copysign(z, m[1][0] - m[0][1] ),
+		w);
 }
 
 vec PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec& vector)

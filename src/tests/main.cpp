@@ -484,20 +484,20 @@ bool matrixTest()
 {
 	INIT_TEST_UNIT("Matrix");
 
-	mat testOp1 = pm_Set(0.0, 1.0, 0.0, 2.0,
+	mat testOp1 = pm_Set4D(0.0, 1.0, 0.0, 2.0,
 		2.0, 0.0, 1.0, 0.0,
 		0.0, 1.0, 0.0, 2.0,
 		2.0, 0.0, 1.0, 0.0);
 
-	mat testOp2 = pm_Set(3.0, 1.0, 1.0, 2.0,
+	mat testOp2 = pm_Set4D(3.0, 1.0, 1.0, 2.0,
 		2.0, 5.0, 1.0, 1.0,
 		2.0, 1.0, 4.0, 2.0,
 		2.0, 40.0, 1.0, 50.0);
 
 	START_TEST("Identity Matrix");
 	TEST(mat r = pm_Identity());
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)),
-		testOp1, r, pm_Set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set4D(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)),
+		testOp1, r, pm_Set4D(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 	END_TEST()
 
 		START_TEST("Zero Matrix");
@@ -508,23 +508,23 @@ bool matrixTest()
 
 		START_TEST("Translation Matrix");
 	TEST(mat r = pm_Translation(pm_Set(3, 2, 6, 1)));
-	CHECK_TEST1(pm_IsEqual(r, pm_Set(1, 0, 0, 3, 0, 1, 0, 2, 0, 0, 1, 6, 0, 0, 0, 1)), r, pm_Set(1, 0, 0, 3, 0, 1, 0, 2, 0, 0, 1, 6, 0, 0, 0, 1));
+	CHECK_TEST1(pm_IsEqual(r, pm_Set4D(1, 0, 0, 3, 0, 1, 0, 2, 0, 0, 1, 6, 0, 0, 0, 1)), r, pm_Set4D(1, 0, 0, 3, 0, 1, 0, 2, 0, 0, 1, 6, 0, 0, 0, 1));
 	END_TEST()
 
 		//TODO: Should have a better precision...
 		START_TEST("Rotation Quaternion Matrix");
 	TEST(mat r = pm_Rotation(pm_Set(0, 0.949f, 0, 0.316f)));
-	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set(-0.8f, 0, 0.6f, 0, 0, 1, 0, 0, -0.6f, 0, -0.8f, 0, 0, 0, 0, 1), 0.002f), r, pm_Set(-0.8f, 0, 0.6f, 0, 0, 1, 0, 0, -0.6f, 0, -0.8f, 0, 0, 0, 0, 1));
+	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set4D(-0.8f, 0, 0.6f, 0, 0, 1, 0, 0, -0.6f, 0, -0.8f, 0, 0, 0, 0, 1), 0.002f), r, pm_Set4D(-0.8f, 0, 0.6f, 0, 0, 1, 0, 0, -0.6f, 0, -0.8f, 0, 0, 0, 0, 1));
 	END_TEST()
 
 		START_TEST("Rotation Axis Matrix");
 	TEST(mat r = pm_Rotation(pm_Set(3, 2, 6, 1), pm_DegToRad(45)));
-	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set(
+	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set4D(
 		3.343145751f, -2.485281374f, 6.686291501f, 0,
 		6, 1.878679656f, 1.393398282f, 0,
 		3.857864376f, 5.636038969f, 11.25126266, 0,
 		0, 0, 0, 1), ABSOLUTE_ERROR), r,
-		pm_Set(3.343145751f, -2.485281374f, 6.686291501f, 0,
+		pm_Set4D(3.343145751f, -2.485281374f, 6.686291501f, 0,
 		6, 1.878679656f, 1.393398282f, 0,
 		3.857864376f, 5.636038969f, 11.25126266, 0,
 		0, 0, 0, 1));
@@ -532,11 +532,11 @@ bool matrixTest()
 
 		START_TEST("Scaling Matrix");
 	TEST(mat r = pm_Scaling(pm_Set(3, 2, 6, 1)));
-	CHECK_TEST1(pm_IsEqual(r, pm_Set(3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1)), r, pm_Set(3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1));
+	CHECK_TEST1(pm_IsEqual(r, pm_Set4D(3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1)), r, pm_Set4D(3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1));
 	END_TEST()
 
 		START_TEST("(SET) Matrix");
-	TEST(mat r = pm_Set(0.0, 1.0, 0.0, 2.0,
+	TEST(mat r = pm_Set4D(0.0, 1.0, 0.0, 2.0,
 		2.0, 0.0, 1.0, 0.0,
 		0.0, 1.0, 0.0, 2.0,
 		2.0, 0.0, 1.0, 0.0));
@@ -577,8 +577,8 @@ bool matrixTest()
 	END_TEST()
 
 		START_TEST("Decompose (ELEM)");// TODO
-		mat op1 = pm_Set(-2,-1,2,0,  -2,1,-1,0,  0,0,1,0,  0,0,0,1);
-		quat resR = pm_RotationMatrix(pm_Set(1/1.4142f, -1/1.4142f,0,0,  1/1.4142f,1/1.4142f,0,0,  0,0,1,0,  0,0,0,1));
+		mat op1 = pm_Set4D(-2,-1,2,0,  -2,1,-1,0,  0,0,1,0,  0,0,0,1);
+		quat resR = pm_RotationMatrix(pm_Set4D(1/1.4142f, -1/1.4142f,0,0,  1/1.4142f,1/1.4142f,0,0,  0,0,1,0,  0,0,0,1));
 	TEST(vec t = pm_DecomposeTranslation(op1));
 	CHECK_TEST2(pm_IsEqual(t, pm_Set(0, 0, 0, 1)), op1, t, pm_Set(0, 0, 0, 1));
 	TEST(quat r = pm_DecomposeRotation(op1));
@@ -587,55 +587,95 @@ bool matrixTest()
 	CHECK_TEST2(pm_IsEqual(s, pm_Set(-2*1.4142f, 1.4142f, 2.44949f, 1)), op1, s, pm_Set(-2*1.4142f, 1.4142f, 2.44949f, 1));
 	END_TEST()
 
+		START_TEST("Decompose 2 (ELEM)");// TODO
+		mat op1 = pm_Set4D(1,0,0,0,  0,1,0,1,  0,0,-1,-5,  0,0,0,1);
+	TEST(vec t = pm_DecomposeTranslation(op1));
+	CHECK_TEST2(pm_IsEqual(t, pm_Set(0, 1, -5, 1)), op1, t, pm_Set(0, 1, -5, 1));
+	TEST(quat r = pm_DecomposeRotation(op1));
+	CHECK_TEST2(pm_IsEqual(r, pm_IdentityQuat()), op1, r, pm_IdentityQuat());
+	TEST(vec s = pm_DecomposeScale(op1));
+	CHECK_TEST2(pm_IsEqual(s, pm_Set(1,1,-1, 1)), op1, s, pm_Set(1,1,-1, 1));
+	END_TEST()
+
 		START_TEST("Matrix + Matrix");
 	TEST(mat r = pm_Add(testOp1, testOp2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(3, 2, 1, 4, 4, 5, 2, 1, 2, 2, 4, 4, 4, 40, 2, 50)), testOp1, testOp2, r, pm_Set(3, 2, 1, 4, 4, 5, 2, 1, 2, 2, 4, 4, 4, 40, 2, 50));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set4D(3, 2, 1, 4, 4, 5, 2, 1, 2, 2, 4, 4, 4, 40, 2, 50)), testOp1, testOp2, r, pm_Set4D(3, 2, 1, 4, 4, 5, 2, 1, 2, 2, 4, 4, 4, 40, 2, 50));
 	END_TEST()
 
 		START_TEST("Matrix - Matrix");
 	TEST(mat r = pm_Subtract(testOp1, testOp2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(-3, 0, -1, 0, 0, -5, 0, -1, -2, 0, -4, 0, 0, -40, 0, -50)), testOp1, testOp2, r, pm_Set(-3, 0, -1, 0, 0, -5, 0, -1, -2, 0, -4, 0, 0, -40, 0, -50));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set4D(-3, 0, -1, 0, 0, -5, 0, -1, -2, 0, -4, 0, 0, -40, 0, -50)), testOp1, testOp2, r, pm_Set4D(-3, 0, -1, 0, 0, -5, 0, -1, -2, 0, -4, 0, 0, -40, 0, -50));
 	END_TEST()
 
 		START_TEST("Matrix * Matrix [Per element]");
 	TEST(mat r = pm_MultiplyElement(testOp1, testOp2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(0, 1, 0, 4, 4, 0, 1, 0, 0, 1, 0, 4, 4, 0, 1, 0)), testOp1, testOp2, r, pm_Set(0, 1, 0, 4, 4, 0, 1, 0, 0, 1, 0, 4, 4, 0, 1, 0));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set4D(0, 1, 0, 4, 4, 0, 1, 0, 0, 1, 0, 4, 4, 0, 1, 0)), testOp1, testOp2, r, pm_Set4D(0, 1, 0, 4, 4, 0, 1, 0, 0, 1, 0, 4, 4, 0, 1, 0));
 	END_TEST()
 
 		START_TEST("Matrix / Matrix");
 	TEST(mat r = pm_Divide(testOp1, testOp2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0)), testOp1, testOp2, r, pm_Set(0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set4D(0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0)), testOp1, testOp2, r, pm_Set4D(0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0));
 	END_TEST()
 
 		START_TEST("Matrix * Matrix");
 	TEST(mat r = pm_Multiply(testOp1, testOp2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6)), testOp1, testOp2, r, pm_Set(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set4D(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6)), testOp1, testOp2, r, pm_Set4D(6, 85, 3, 101, 8, 3, 6, 6, 6, 85, 3, 101, 8, 3, 6, 6));
 	END_TEST()
 
 		START_TEST("Matrix * Vector");
-	TEST(vec r = pm_Multiply(pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0,0,0,1)));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(2, 4, 3, 1)), pm_Set(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0, 0, 0, 1), r, pm_Set(2, 4, 3, 1));
+	TEST(vec r = pm_Multiply(pm_Set4D(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0,0,0,1)));
+	CHECK_TEST3(pm_IsEqual(r, pm_Set(2, 4, 3, 1)), pm_Set4D(1, 0, 0, 2, 0, 1, 0, 4, 0, 0, 1, 3, 0, 0, 0, 1), pm_Set(0, 0, 0, 1), r, pm_Set(2, 4, 3, 1));
 	END_TEST()
 
 		START_TEST("Transpose Matrix");
 	TEST(mat r = pm_Transpose(testOp1));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0)), testOp1, r, pm_Set(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set4D(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0)), testOp1, r, pm_Set4D(0, 2, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 2, 0, 2, 0));
 	END_TEST()
 
-		START_TEST("Inverse Matrix");
-	TEST(mat r = pm_Inverse(testOp2));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.38317757009346f, 0.040053404539386f, -0.10280373831776f, -0.012016021361816f, -0.13084112149533f, 0.21628838451268f, -0.021806853582555f, 0.0017801513128616f, -0.20560747663551f, 0.013351134846462f, 0.29906542056075f, -0.0040053404539386f, 0.093457943925234f, -0.17489986648865f, 0.015576323987539f, 0.019136626613262f), ABSOLUTE_ERROR),
-		testOp2, r, pm_Set(0.38317757009346f, 0.040053404539386f, -0.10280373831776f, -0.012016021361816f, -0.13084112149533f, 0.21628838451268f, -0.021806853582555f, 0.0017801513128616f, -0.20560747663551f, 0.013351134846462f, 0.29906542056075f, -0.0040053404539386f, 0.093457943925234f, -0.17489986648865f, 0.015576323987539f, 0.019136626613262f));
+		START_TEST("Determinant Matrix 2x2");
+	TEST(float r = pm_Determinant2D(pm_Set2D(1,0, 1,1)));
+	CHECK_TEST2(r == 1,
+		pm_Set2D(1,0, 1,1), r, 1);
+	END_TEST()
+
+		START_TEST("Determinant Matrix 3x3");
+	TEST(float r = pm_Determinant3D(pm_Set3D(1,0,1, 1,1,0, 0,1,1)));
+	CHECK_TEST2(r == 2,
+		pm_Set3D(1,0,1, 1,1,0, 0,1,1), r, 2);
+	END_TEST()
+
+		START_TEST("Determinant Matrix 4x4");
+	TEST(float r = pm_Determinant4D(testOp2));
+	CHECK_TEST2(std::abs(r - 2247) <= ABSOLUTE_ERROR,
+		testOp2, r, 2247);
+	END_TEST()
+
+		START_TEST("Inverse Matrix 2x2");
+	TEST(mat r = pm_Inverse2D(pm_Set2D(1,0, 1,1)));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set2D(1,0,-1,1), ABSOLUTE_ERROR),
+		pm_Set2D(1,0, 1,1), r, pm_Set2D(1,0,-1,1));
+	END_TEST()
+
+		START_TEST("Inverse Matrix 3x3");
+	TEST(mat r = pm_Inverse3D(pm_Set3D(1,0,1, 1,1,0, 0,1,1)));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set3D(0.5f,0.5f,-0.5f, -0.5f,0.5f,0.5f, 0.5f,-0.5f,0.5f), ABSOLUTE_ERROR),
+		pm_Set3D(1,0,1, 1,1,0, 0,1,1), r, pm_Set3D(0.5f,0.5f,-0.5f, -0.5f,0.5f,0.5f, 0.5f,-0.5f,0.5f));
+	END_TEST()
+
+		START_TEST("Inverse Matrix 4x4");
+	TEST(mat r = pm_Inverse4D(testOp2));
+	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set4D(0.38317757009346f, 0.040053404539386f, -0.10280373831776f, -0.012016021361816f, -0.13084112149533f, 0.21628838451268f, -0.021806853582555f, 0.0017801513128616f, -0.20560747663551f, 0.013351134846462f, 0.29906542056075f, -0.0040053404539386f, 0.093457943925234f, -0.17489986648865f, 0.015576323987539f, 0.019136626613262f), ABSOLUTE_ERROR),
+		testOp2, r, pm_Set4D(0.38317757009346f, 0.040053404539386f, -0.10280373831776f, -0.012016021361816f, -0.13084112149533f, 0.21628838451268f, -0.021806853582555f, 0.0017801513128616f, -0.20560747663551f, 0.013351134846462f, 0.29906542056075f, -0.0040053404539386f, 0.093457943925234f, -0.17489986648865f, 0.015576323987539f, 0.019136626613262f));
 	END_TEST()
 
 		START_TEST("Perspective Projection Matrix");
 	TEST(mat r = pm_Perspective(1, 1, 1, 10.0f));
-	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -1.1111f, -1, 0, 0, -1.1111f, 0), ABSOLUTE_ERROR), r, pm_Set(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -1.1111f, -1, 0, 0, -1.1111f, 0));
+	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set4D(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -1.1111f, -1, 0, 0, -1.1111f, 0), ABSOLUTE_ERROR), r, pm_Set4D(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -1.1111f, -1, 0, 0, -1.1111f, 0));
 	END_TEST()
 
 		START_TEST("Orthographic Projection Matrix");
 	TEST(mat r = pm_Orthographic(1, 1, 1, 10.0f));
-	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -0.1111f, 0, 0, 0, -0.1111f, 1), ABSOLUTE_ERROR), r, pm_Set(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -0.1111f, 0, 0, 0, -0.1111f, 1));
+	CHECK_TEST1(pm_IsNearlyEqual(r, pm_Set4D(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -0.1111f, 0, 0, 0, -0.1111f, 1), ABSOLUTE_ERROR), r, pm_Set4D(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, -0.1111f, 0, 0, 0, -0.1111f, 1));
 	END_TEST()
 
 		return TEST_UNIT_RESULT;
@@ -740,30 +780,30 @@ bool frameTest()
 
 		START_TEST("Matrix Frame");
 	TEST(mat r = pm_ToMatrix(f));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(
-		1, 1, -1, 0,
-		0, 1, 1, 0,
-		1, 0, 1, 0,
-		5, 7, 3, 1)), f, r,
-		pm_Set(
-		1, 1, -1, 0,
-		0, 1, 1, 0,
-		1, 0, 1, 0,
-		5, 7, 3, 1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set4D(
+		1, 1, -1, 5,
+		0, 1, 1, 7,
+		1, 0, 1, 3,
+		0, 0, 0, 1)), f, r,
+		pm_Set4D(
+		1, 1, -1, 5,
+		0, 1, 1, 7,
+		1, 0, 1, 3,
+		0, 0, 0, 1));
 	END_TEST()
 
 		START_TEST("Camera Matrix Frame");
 	TEST(mat r = pm_ToCameraMatrix(f));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(
-		-1, -1, 1, 0,
-		0, 1, 1, 0,
-		-1, 0, -1, 0,
-		-5, -7, -3, 1)), f, r,
-		pm_Set(
-		-1, -1, 1, 0,
-		0, 1, 1, 0,
-		-1, 0, -1, 0,
-		-5, -7, -3, 1));
+	CHECK_TEST2(pm_IsEqual(r, pm_Set4D(
+		-1, -1, 1, -5,
+		0, 1, 1, -7,
+		-1, 0, -1, -3,
+		0, 0, 0, 1)), f, r,
+		pm_Set4D(
+		-1, -1, 1, -5,
+		0, 1, 1, -7,
+		-1, 0, -1, -3,
+		0, 0, 0, 1));
 	END_TEST()
 
 		f.Up = pm_Set(0, 1, 0);

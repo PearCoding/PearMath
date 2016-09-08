@@ -460,8 +460,17 @@ namespace PM
 	mat pm_Rotation(const vec& v, float angle);
 	mat pm_RotationYawPitchRoll(const vec& v);
 	mat pm_Scaling(const vec3& v);
-	mat pm_Set(const vec& r1, const vec& r2, const vec& r3, const vec& r4);
-	mat pm_Set(float m00, float m01, float m02, float m03,
+
+	mat pm_Set2D(const vec& r1, const vec& r2);
+	mat pm_Set2D(float m00, float m01, float m10, float m11);
+
+	mat pm_Set3D(const vec& r1, const vec& r2, const vec& r3);
+	mat pm_Set3D(float m00, float m01, float m02,
+		float m10, float m11, float m12,
+		float m20, float m21, float m22);
+
+	mat pm_Set4D(const vec& r1, const vec& r2, const vec& r3, const vec& r4);
+	mat pm_Set4D(float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
 		float m30, float m31, float m32, float m33);
@@ -497,8 +506,14 @@ namespace PM
 	mat pm_Divide(const mat& m1, const mat& m2);
 	mat pm_Divide(const mat& m, float s);
 	mat pm_Transpose(const mat& m);
-	mat pm_Inverse(const mat& m, float* determinant = 0);
-	//vec pm_Determinant(const mat& m);
+
+	mat pm_Inverse2D(const mat& m, float* determinant = 0);
+	mat pm_Inverse3D(const mat& m, float* determinant = 0);
+	mat pm_Inverse4D(const mat& m, float* determinant = 0);
+
+	float pm_Determinant2D(const mat& m);
+	float pm_Determinant3D(const mat& m);
+	float pm_Determinant4D(const mat& m);
 
 	vec pm_Transform(const mat& m, const vec& v);
 
@@ -518,6 +533,7 @@ namespace PM
 	quat pm_RotationQuatRollPitchYaw(float yaw, float pitch, float roll);
 	quat pm_RotationQuatRollPitchYaw(const vec3& angles);
 	quat pm_RotationAxis(const quat& axis, float angle);
+	quat pm_RotationMatrixNormalized(const mat& m);
 	quat pm_RotationMatrix(const mat& m);
 	vec pm_RotateWithQuat(const quat& rot, const vec& v);
 

@@ -83,21 +83,12 @@ void PM_MATH_INLINE pm_StoreMatrix(const mat& tr, float* r)
 
 mat PM_MATH_INLINE pm_Identity()
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_setr_ps(1, 0, 0, 0);
-	r.v[1] = _mm_setr_ps(0, 1, 0, 0);
-	r.v[2] = _mm_setr_ps(0, 0, 1, 0);
-	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Set(1, 0, 0, 0);
 	r.v[1] = pm_Set(0, 1, 0, 0);
 	r.v[2] = pm_Set(0, 0, 1, 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_ZeroMatrix()
@@ -118,21 +109,12 @@ mat PM_MATH_INLINE pm_ZeroMatrix()
 
 mat PM_MATH_INLINE pm_Translation(const vec& v)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_setr_ps(1, 0, 0, PM::pm_GetX(v));
-	r.v[1] = _mm_setr_ps(0, 1, 0, PM::pm_GetY(v));
-	r.v[2] = _mm_setr_ps(0, 0, 1, PM::pm_GetZ(v));
-	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Set(1, 0, 0, pm_GetX(v));
 	r.v[1] = pm_Set(0, 1, 0, pm_GetY(v));
 	r.v[2] = pm_Set(0, 0, 1, pm_GetZ(v));
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
-#endif
 }
 
 //TODO: Optimize...
@@ -285,24 +267,57 @@ mat PM_MATH_INLINE pm_RotationYawPitchRoll(const vec& v)
 
 mat PM_MATH_INLINE pm_Scaling(const vec3& v)
 {
-#ifdef PM_USE_SIMD
 	mat r;
 	r.v[0] = pm_Set(pm_GetX(v), 0, 0, 0);
 	r.v[1] = pm_Set(0, pm_GetY(v), 0, 0);
 	r.v[2] = pm_Set(0, 0, pm_GetZ(v), 0);
-	r.v[3] = _mm_setr_ps(0, 0, 0, 1);
-	return r;
-#else
-	mat r;
-	r.v[0] = pm_Set(v[0], 0, 0, 0);
-	r.v[1] = pm_Set(0, v[1], 0, 0);
-	r.v[2] = pm_Set(0, 0, v[2], 0);
 	r.v[3] = pm_Set(0, 0, 0, 1);
 	return r;
-#endif
 }
 
-mat PM_MATH_INLINE pm_Set(const vec& r1, const vec& r2, const vec& r3, const vec& r4)
+mat PM_MATH_INLINE pm_Set2D(const vec& r1, const vec& r2)
+{
+	mat r;
+	r.v[0] = pm_SetW(pm_SetZ(r1,0),0);
+	r.v[1] = pm_SetW(pm_SetZ(r2,0),0);
+	r.v[2] = pm_Zero();
+	r.v[3] = pm_Zero();
+	return r;
+}
+
+mat PM_MATH_INLINE pm_Set2D(float m00, float m01, float m10, float m11)
+{
+	mat r;
+	r.v[0] = pm_Set(m00, m01, 0, 0);
+	r.v[1] = pm_Set(m10, m11, 0, 0);
+	r.v[2] = pm_Zero();
+	r.v[3] = pm_Zero();
+	return r;
+}
+
+mat PM_MATH_INLINE pm_Set3D(const vec& r1, const vec& r2, const vec& r3)
+{
+	mat r;
+	r.v[0] = pm_SetW(r1,0);
+	r.v[1] = pm_SetW(r2,0);
+	r.v[2] = pm_SetW(r3,0);
+	r.v[3] = pm_Zero();
+	return r;
+}
+
+mat PM_MATH_INLINE pm_Set3D(float m00, float m01, float m02,
+	float m10, float m11, float m12,
+	float m20, float m21, float m22)
+{
+	mat r;
+	r.v[0] = pm_Set(m00, m01, m02, 0);
+	r.v[1] = pm_Set(m10, m11, m12, 0);
+	r.v[2] = pm_Set(m20, m21, m22, 0);
+	r.v[3] = pm_Zero();
+	return r;
+}
+
+mat PM_MATH_INLINE pm_Set4D(const vec& r1, const vec& r2, const vec& r3, const vec& r4)
 {
 	mat r;
 	r.v[0] = r1;
@@ -312,26 +327,17 @@ mat PM_MATH_INLINE pm_Set(const vec& r1, const vec& r2, const vec& r3, const vec
 	return r;
 }
 
-mat PM_MATH_INLINE pm_Set(float m00, float m01, float m02, float m03,
+mat PM_MATH_INLINE pm_Set4D(float m00, float m01, float m02, float m03,
 	float m10, float m11, float m12, float m13,
 	float m20, float m21, float m22, float m23,
 	float m30, float m31, float m32, float m33)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_setr_ps(m00, m01, m02, m03);
-	r.v[1] = _mm_setr_ps(m10, m11, m12, m13);
-	r.v[2] = _mm_setr_ps(m20, m21, m22, m23);
-	r.v[3] = _mm_setr_ps(m30, m31, m32, m33);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Set(m00, m01, m02, m03);
 	r.v[1] = pm_Set(m10, m11, m12, m13);
 	r.v[2] = pm_Set(m20, m21, m22, m23);
 	r.v[3] = pm_Set(m30, m31, m32, m33);
 	return r;
-#endif
 }
 
 float PM_MATH_INLINE pm_Get(const mat& m, int x, int y)
@@ -367,8 +373,8 @@ vec3 PM_MATH_INLINE pm_DecomposeScale(const mat& m)
 quat PM_MATH_INLINE pm_DecomposeRotation(const mat& m)
 {
 	vec is = pm_SetW(pm_Reciprocal(pm_DecomposeScale(m)), 0);
-	mat rm = pm_Set(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
-	return pm_RotationMatrix(rm);
+	mat rm = pm_Set4D(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
+	return PM::pm_Normalize4D(pm_RotationMatrix(rm));
 }
 
 void PM_MATH_INLINE pm_Decompose(const mat& m, vec& t, vec3& s, quat& r)
@@ -377,27 +383,18 @@ void PM_MATH_INLINE pm_Decompose(const mat& m, vec& t, vec3& s, quat& r)
 	s = pm_DecomposeScale(m);
 
 	vec is = pm_SetW(pm_Reciprocal(s), 0);
-	mat rm = pm_Set(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
-	r = pm_RotationMatrix(rm);
+	mat rm = pm_Set4D(pm_Multiply(pm_GetRow(m,0), is), pm_Multiply(pm_GetRow(m,1), is), pm_Multiply(pm_GetRow(m,2), is), pm_Set(0,0,0,1));
+	r = PM::pm_Normalize4D(pm_RotationMatrix(rm));
 }
 
 mat PM_MATH_INLINE pm_FillMatrix(float val)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_set1_ps(val);
-	r.v[1] = _mm_set1_ps(val);
-	r.v[2] = _mm_set1_ps(val);
-	r.v[3] = _mm_set1_ps(val);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_FillVector(val);
 	r.v[1] = pm_FillVector(val);
 	r.v[2] = pm_FillVector(val);
 	r.v[3] = pm_FillVector(val);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_IsEqualv(const mat& m1, const mat& m2)
@@ -482,34 +479,16 @@ mat PM_MATH_INLINE pm_Negate(const mat& m)
 
 mat PM_MATH_INLINE pm_Add(const mat& m1, const mat& m2)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_add_ps(m1.v[0], m2.v[0]);
-	r.v[1] = _mm_add_ps(m1.v[1], m2.v[1]);
-	r.v[2] = _mm_add_ps(m1.v[2], m2.v[2]);
-	r.v[3] = _mm_add_ps(m1.v[3], m2.v[3]);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Add(m1.v[0], m2.v[0]);
 	r.v[1] = pm_Add(m1.v[1], m2.v[1]);
 	r.v[2] = pm_Add(m1.v[2], m2.v[2]);
 	r.v[3] = pm_Add(m1.v[3], m2.v[3]);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Add(const mat& m, float s)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	vec add = _mm_set1_ps(s);
-	r.v[0] = _mm_add_ps(m.v[0], add);
-	r.v[1] = _mm_add_ps(m.v[1], add);
-	r.v[2] = _mm_add_ps(m.v[2], add);
-	r.v[3] = _mm_add_ps(m.v[3], add);
-	return r;
-#else
 	mat r;
 	vec add = pm_FillVector(s);
 	r.v[0] = pm_Add(m.v[0], add);
@@ -517,39 +496,20 @@ mat PM_MATH_INLINE pm_Add(const mat& m, float s)
 	r.v[2] = pm_Add(m.v[2], add);
 	r.v[3] = pm_Add(m.v[3], add);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Subtract(const mat& m1, const mat& m2)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_sub_ps(m1.v[0], m2.v[0]);
-	r.v[1] = _mm_sub_ps(m1.v[1], m2.v[1]);
-	r.v[2] = _mm_sub_ps(m1.v[2], m2.v[2]);
-	r.v[3] = _mm_sub_ps(m1.v[3], m2.v[3]);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Subtract(m1.v[0], m2.v[0]);
 	r.v[1] = pm_Subtract(m1.v[1], m2.v[1]);
 	r.v[2] = pm_Subtract(m1.v[2], m2.v[2]);
 	r.v[3] = pm_Subtract(m1.v[3], m2.v[3]);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Subtract(const mat& m, float s)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	vec sub = _mm_set1_ps(s);
-	r.v[0] = _mm_sub_ps(m.v[0], sub);
-	r.v[1] = _mm_sub_ps(m.v[1], sub);
-	r.v[2] = _mm_sub_ps(m.v[2], sub);
-	r.v[3] = _mm_sub_ps(m.v[3], sub);
-	return r;
-#else
 	mat r;
 	vec sub = pm_FillVector(s);
 	r.v[0] = pm_Subtract(m.v[0], sub);
@@ -557,7 +517,6 @@ mat PM_MATH_INLINE pm_Subtract(const mat& m, float s)
 	r.v[2] = pm_Subtract(m.v[2], sub);
 	r.v[3] = pm_Subtract(m.v[3], sub);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Multiply(const mat& m1, const mat& m2)
@@ -714,15 +673,6 @@ mat PM_MATH_INLINE pm_MultiplyElement(const mat& m1, const mat& m2)
 
 mat PM_MATH_INLINE pm_Multiply(const mat& m, float s)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	vec mul = _mm_set1_ps(s);
-	r.v[0] = _mm_mul_ps(m.v[0], mul);
-	r.v[1] = _mm_mul_ps(m.v[1], mul);
-	r.v[2] = _mm_mul_ps(m.v[2], mul);
-	r.v[3] = _mm_mul_ps(m.v[3], mul);
-	return r;
-#else
 	mat r;
 	vec mul = pm_FillVector(s);
 	r.v[0] = pm_Multiply(m.v[0], mul);
@@ -730,40 +680,21 @@ mat PM_MATH_INLINE pm_Multiply(const mat& m, float s)
 	r.v[2] = pm_Multiply(m.v[2], mul);
 	r.v[3] = pm_Multiply(m.v[3], mul);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Divide(const mat& m1, const mat& m2)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_div_ps(m1.v[0], m2.v[0]);
-	r.v[1] = _mm_div_ps(m1.v[1], m2.v[1]);
-	r.v[2] = _mm_div_ps(m1.v[2], m2.v[2]);
-	r.v[3] = _mm_div_ps(m1.v[3], m2.v[3]);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Divide(m1.v[0], m2.v[0]);
 	r.v[1] = pm_Divide(m1.v[1], m2.v[1]);
 	r.v[2] = pm_Divide(m1.v[2], m2.v[2]);
 	r.v[3] = pm_Divide(m1.v[3], m2.v[3]);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Divide(const mat& m, float s)
 {
 	PM_DEBUG_ASSERT(s);
-#ifdef PM_USE_SIMD
-	mat r;
-	vec div = _mm_set1_ps(s);
-	r.v[0] = _mm_div_ps(m.v[0], div);
-	r.v[1] = _mm_div_ps(m.v[1], div);
-	r.v[2] = _mm_div_ps(m.v[2], div);
-	r.v[3] = _mm_div_ps(m.v[3], div);
-	return r;
-#else
 	mat r;
 	vec div = pm_FillVector(s);
 	r.v[0] = pm_Divide(m.v[0], div);
@@ -771,7 +702,6 @@ mat PM_MATH_INLINE pm_Divide(const mat& m, float s)
 	r.v[2] = pm_Divide(m.v[2], div);
 	r.v[3] = pm_Divide(m.v[3], div);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Transpose(const mat& m)
@@ -837,7 +767,29 @@ mat PM_MATH_INLINE pm_Transpose(const mat& m)
 #endif
 }
 
-mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
+mat PM_MATH_INLINE pm_Inverse2D(const mat& m, float* determinant)
+{
+	const float d = pm_Determinant2D(m);
+	if(determinant)
+		*determinant = d;
+	
+	return pm_Multiply(pm_Set2D(m[1][1], -m[0][1], -m[1][0], m[0][0]), 1/d);
+}
+
+mat PM_MATH_INLINE pm_Inverse3D(const mat& m, float* determinant)
+{
+	const float d = pm_Determinant3D(m);
+	if(determinant)
+		*determinant = d;
+	
+	return pm_Multiply(
+		pm_Set3D(m[1][1]*m[2][2] - m[1][2]*m[2][1], m[0][2]*m[2][1] - m[0][1]*m[2][2], m[0][1]*m[1][2] - m[0][2]*m[1][1],
+				 m[1][2]*m[2][0] - m[1][0]*m[2][2], m[0][0]*m[2][2] - m[0][2]*m[2][0], m[0][2]*m[1][0] - m[0][0]*m[1][2],
+				 m[1][0]*m[2][1] - m[1][1]*m[2][0], m[0][1]*m[2][0] - m[0][0]*m[2][1], m[0][0]*m[1][1] - m[0][1]*m[1][0]),
+		1/d);
+}
+
+mat PM_MATH_INLINE pm_Inverse4D(const mat& m, float* determinant)
 {
 #ifdef PM_USE_SIMD
 	mat tr = pm_Transpose(m);
@@ -946,9 +898,7 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 
 	float detf = pm_Dot4D(clm0, tr.v[0]);
 	if (determinant)
-	{
 		*determinant = detf;
-	}
 
 	vec det = _mm_set1_ps(1/detf);
 
@@ -975,9 +925,7 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 	float det = a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0;
 
 	if (determinant)
-	{
 		*determinant = det;
-	}
 
 	mat r;
 
@@ -1011,7 +959,33 @@ mat PM_MATH_INLINE pm_Inverse(const mat& m, float* determinant)
 #endif
 }
 
-//vec PM_MATH_INLINE pm_Determinant(const mat& m);
+float PM_MATH_INLINE pm_Determinant2D(const mat& m)
+{
+	return m[0][0]*m[1][1] - m[0][1]*m[1][0];
+}
+
+// Use smart cross and dots to improve performance!
+float PM_MATH_INLINE pm_Determinant3D(const mat& m)
+{
+	return m[0][0]*m[1][1]*m[2][2] 
+		+ m[0][1]*m[1][2]*m[2][0] 
+		+ m[0][2]*m[1][0]*m[2][1] 
+		- m[0][2]*m[1][1]*m[2][0] 
+		- m[0][1]*m[1][0]*m[2][2] 
+		- m[0][0]*m[1][2]*m[2][1];
+}
+
+float PM_MATH_INLINE pm_Determinant4D(const mat& m)
+{
+	const mat A = pm_Set2D(m[0][0],m[0][1], m[1][0], m[1][1]);
+	const mat B = pm_Set2D(m[0][2],m[0][3], m[1][2], m[1][3]);
+	const mat C = pm_Set2D(m[2][0],m[2][1], m[3][0], m[3][1]);
+	const mat D = pm_Set2D(m[2][2],m[2][3], m[3][2], m[3][3]);
+
+	float detD;
+	const float t = pm_Determinant2D(pm_Subtract(A, pm_Multiply(B, pm_Multiply(pm_Inverse2D(D, &detD), C)))); 
+	return t * detD;
+}
 
 vec PM_MATH_INLINE pm_Transform(const mat& m, const vec& v)
 {
@@ -1023,122 +997,36 @@ vec PM_MATH_INLINE pm_Transform(const mat& m, const vec& v)
 //Right handled
 mat PM_MATH_INLINE pm_Perspective(float width, float height, float n, float f)
 {
-#ifdef PM_USE_SIMD
 	float near2 = n + n;
 	float range = f / (n - f);
 
 	mat r;
-	r.v[0] = _mm_setr_ps(near2 / width, 0.0f, 0.0f, 0.0f);
-	r.v[1] = _mm_setr_ps(0.0f, near2 / height, 0.0f, 0.0f);
-	r.v[2] = _mm_setr_ps(0.0f, 0.0f, range, -1.0f);
-	r.v[3] = _mm_setr_ps(0.0f, 0.0f, range * n, 0.0f);
+	r.v[0] = pm_Set(near2 / width, 0.0f, 0.0f, 0.0f);
+	r.v[1] = pm_Set(0.0f, near2 / height, 0.0f, 0.0f);
+	r.v[2] = pm_Set(0.0f, 0.0f, range, -1.0f);
+	r.v[3] = pm_Set(0.0f, 0.0f, range * n, 0.0f);
 
 	return r;
-#else
-	float near2 = n + n;
-	float range = f / (n - f);
-
-	mat r;
-	r.v[0][0] = near2 / width;
-	r.v[0][1] = 0.0f;
-	r.v[0][2] = 0.0f;
-	r.v[0][3] = 0.0f;
-
-	r.v[1][0] = 0.0f;
-	r.v[1][1] = near2 / height;
-	r.v[1][2] = 0.0f;
-	r.v[1][3] = 0.0f;
-
-	r.v[2][0] = 0.0f;
-	r.v[2][1] = 0.0f;
-	r.v[2][2] = range;
-	r.v[2][3] = -1.0f;
-
-	r.v[3][0] = 0.0f;
-	r.v[3][1] = 0.0f;
-	r.v[3][2] = range*n;
-	r.v[3][3] = 0.0f;
-
-	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Orthographic(float width, float height, float n, float f)
 {
-#ifdef PM_USE_SIMD
 	mat r;
-	r.v[0] = _mm_setr_ps(-2.0f / width, 0.0f, 0.0f, -1.0f);
-	r.v[1] = _mm_setr_ps(0.0f, 2.0f / height, 0.0f, 1.0f);
-	r.v[2] = _mm_setr_ps(0.0f, 0.0f, -2.0f / (f - n), -(f + n) / (f - n));
-	r.v[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
+	r.v[0] = pm_Set(-2.0f / width, 0.0f, 0.0f, -1.0f);
+	r.v[1] = pm_Set(0.0f, 2.0f / height, 0.0f, 1.0f);
+	r.v[2] = pm_Set(0.0f, 0.0f, -2.0f / (f - n), -(f + n) / (f - n));
+	r.v[3] = pm_Set(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return r;
-#else
-	float range = 1.0f / (n - f);
-
-	mat r;
-	r.v[0][0] = 2.0f / width;
-	r.v[0][1] = 0.0f;
-	r.v[0][2] = 0.0f;
-	r.v[0][3] = 0.0f;
-
-	r.v[1][0] = 0.0f;
-	r.v[1][1] = 2.0f / height;
-	r.v[1][2] = 0.0f;
-	r.v[1][3] = 0.0f;
-
-	r.v[2][0] = 0.0f;
-	r.v[2][1] = 0.0f;
-	r.v[2][2] = range;
-	r.v[2][3] = 0.0f;
-
-	r.v[3][0] = -1.0f;
-	r.v[3][1] = 1.0f;
-	r.v[3][2] = range * n;
-	r.v[3][3] = 1.0f;
-
-	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Orthographic2D(float width, float height)
 {
-#ifdef PM_USE_SIMD
 	mat r;
-	r.v[0] = _mm_setr_ps(2.0f / width, 0.0f, 0.0f, -1.0f);
-	r.v[1] = _mm_setr_ps(0.0f, -2.0f / height, 0.0f, 1.0f);
-	r.v[2] = _mm_setr_ps(0.0f, 0.0f, -1.0f, 0.0f);
-	r.v[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
+	r.v[0] = pm_Set(2.0f / width, 0.0f, 0.0f, -1.0f);
+	r.v[1] = pm_Set(0.0f, -2.0f / height, 0.0f, 1.0f);
+	r.v[2] = pm_Set(0.0f, 0.0f, -1.0f, 0.0f);
+	r.v[3] = pm_Set(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return r;
-#else
-	//TODO
-	float near = 0.1;
-	float far = 10;
-
-	float range = 1.0f / (near - far);
-
-	mat r;
-	r.v[0][0] = 2.0f / width;
-	r.v[0][1] = 0.0f;
-	r.v[0][2] = 0.0f;
-	r.v[0][3] = 0.0f;
-
-	r.v[1][0] = 0.0f;
-	r.v[1][1] = 2.0f / height;
-	r.v[1][2] = 0.0f;
-	r.v[1][3] = 0.0f;
-
-	r.v[2][0] = 0.0f;
-	r.v[2][1] = 0.0f;
-	r.v[2][2] = range;
-	r.v[2][3] = 0.0f;
-
-	r.v[3][0] = -1.0f;
-	r.v[3][1] = 1.0f;
-	r.v[3][2] = range * near;
-	r.v[3][3] = 1.0f;
-
-	return r;
-#endif
 }
