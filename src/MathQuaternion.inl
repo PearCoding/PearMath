@@ -34,16 +34,7 @@
 
 quat PM_MATH_INLINE pm_IdentityQuat()
 {
-#ifdef PM_USE_SIMD
-	return _mm_set_ps(1, 0, 0, 0);
-#else
-	quat r;
-	r.v[0] = 0;
-	r.v[1] = 0;
-	r.v[2] = 0;
-	r.v[3] = 1;
-	return r;
-#endif
+	return pm_Set(0, 0, 0, 1);
 }
 
 quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
@@ -115,10 +106,8 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 {
 	float theta = PM::pm_Dot4D(q1, q2);
 
-	if (fabsf(theta) > 1)
-	{
+	if (std::abs(theta) > 1)
 		return q1;
-	}
 	
 	PM::quat q3 = q2;
 	if (theta < 0) {
@@ -126,72 +115,54 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 		theta = -theta;
 	}
 
-	float halfTheta = acosf(theta);
-	float sinHalfTheta = sqrtf(1 - theta*theta);
+	float halfTheta = std::acos(theta);
+	float sinHalfTheta = std::sqrt(1 - theta*theta);
 	
-	if (fabsf(sinHalfTheta) < 0.001f)
-	{
-		return PM::pm_Add(PM::pm_Scale(q1, 0.5f), PM::pm_Scale(q3, 0.5f));
-	}
+	if (std::abs(sinHalfTheta) < 0.001f)
+		return pm_Add(pm_Scale(q1, 0.5f), pm_Scale(q3, 0.5f));
 
 	float rsinHalfTheta = 1 / sinHalfTheta;
-	PM::vec4 ratioA = PM::pm_Scale(PM::pm_Sin(PM::pm_Scale(PM::pm_Subtract(PM::pm_One(), t), halfTheta)), rsinHalfTheta);
-	PM::vec4 ratioB = PM::pm_Scale(PM::pm_Sin(PM::pm_Scale(t, halfTheta)), rsinHalfTheta);
+	vec4 ratioA = pm_Scale(pm_Sin(pm_Scale(pm_Subtract(pm_One(), t), halfTheta)), rsinHalfTheta);
+	vec4 ratioB = pm_Scale(pm_Sin(pm_Scale(t, halfTheta)), rsinHalfTheta);
 
-	return PM::pm_MultiplyAdd(q1, ratioA, PM::pm_Multiply(q3, ratioB));
+	return pm_MultiplyAdd(q1, ratioA, pm_Multiply(q3, ratioB));
 }
 
-quat PM_MATH_INLINE pm_RotationQuatXYZ(float x, float y, float z)
+quat PM_MATH_INLINE pm_RotationQuatFromXYZ(float angle_x, float angle_y, float angle_z)
 {
-	return pm_RotationQuatXYZ(PM::pm_Set(x, y, z));
+	return pm_RotationQuatFromXYZ(pm_Set(angle_x, angle_y, angle_z));
 }
 
-quat PM_MATH_INLINE pm_RotationQuatXYZ(const vec3& angles)
+quat PM_MATH_INLINE pm_RotationQuatFromXYZ(const vec3& angles)
 {
-	return pm_RotationQuatRollPitchYaw(angles);
-}
-
-quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(float roll, float pitch, float yaw)
-{
-	return pm_RotationQuatRollPitchYaw(PM::pm_Set(roll, pitch, yaw));
-}
-
-quat PM_MATH_INLINE pm_RotationQuatRollPitchYaw(const vec3& angles)
-{
-	PM::vec3 cosa;
-	PM::vec3 sina;
+	vec3 cosa;
+	vec3 sina;
 
 	pm_SinCos(PM::pm_Scale(angles, 0.5f), sina, cosa);
 
-	return PM::pm_Set(PM::pm_GetX(sina)*PM::pm_GetY(cosa)*PM::pm_GetZ(cosa) - PM::pm_GetX(cosa)*PM::pm_GetY(sina)*PM::pm_GetZ(sina),
-		PM::pm_GetX(cosa)*PM::pm_GetY(sina)*PM::pm_GetZ(cosa) + PM::pm_GetX(sina)*PM::pm_GetY(cosa)*PM::pm_GetZ(sina),
-		PM::pm_GetX(cosa)*PM::pm_GetY(cosa)*PM::pm_GetZ(sina) - PM::pm_GetX(sina)*PM::pm_GetY(sina)*PM::pm_GetZ(cosa),
-		PM::pm_GetX(cosa)*PM::pm_GetY(cosa)*PM::pm_GetZ(cosa) + PM::pm_GetX(sina)*PM::pm_GetY(sina)*PM::pm_GetZ(sina));
+	return pm_Set(
+		pm_GetX(sina)*pm_GetY(cosa)*pm_GetZ(cosa) - pm_GetX(cosa)*pm_GetY(sina)*pm_GetZ(sina),
+		pm_GetX(cosa)*pm_GetY(sina)*pm_GetZ(cosa) + pm_GetX(sina)*pm_GetY(cosa)*pm_GetZ(sina),
+		pm_GetX(cosa)*pm_GetY(cosa)*pm_GetZ(sina) - pm_GetX(sina)*pm_GetY(sina)*pm_GetZ(cosa),
+		pm_GetX(cosa)*pm_GetY(cosa)*pm_GetZ(cosa) + pm_GetX(sina)*pm_GetY(sina)*pm_GetZ(sina));
 }
 
-quat PM_MATH_INLINE pm_RotationAxis(const quat& axis, float angle)
+vec3 PM_MATH_INLINE pm_RotationQuatToXYZ(const quat& rot)
 {
-	//quat nAxis = pm_Normalize3D(axis);
-#ifdef PM_USE_SIMD
-	vec s = _mm_set1_ps(0.5f*angle);
-	vec vS;
-	vec vC;
-	pm_SinCos(s, vS, vC);
-	s = vS;
-	((float *)&(s))[3] = ((float *)&(vC))[3];
-	return _mm_mul_ps(axis, s);
-#else
-	vec s;
-	s.v[0] = s.v[1] = s.v[2] = sinf(0.5f*angle);
-	s.v[3] = cosf(0.5f*angle);
+	vec p = pm_Multiply(rot, rot);
+	return pm_Set(
+			std::atan2(2*(pm_GetW(rot)*pm_GetX(rot) + pm_GetY(rot)*pm_GetZ(rot)), 1 - 2*(pm_GetX(p) + pm_GetY(p))),
+			std::asin(2*(pm_GetW(rot)*pm_GetY(rot) - pm_GetX(rot)*pm_GetZ(rot))),
+			std::atan2(2*(pm_GetW(rot)*pm_GetZ(rot) + pm_GetX(rot)*pm_GetY(rot)), 1 - 2*(pm_GetY(p) + pm_GetZ(p))),
+			0);
+}
 
-	vec t;
-	t[0] = axis[0];
-	t[1] = axis[1];
-	t[2] = axis[2];
-	t[3] = 0;
-	return pm_Multiply(t, s);
-#endif
+quat PM_MATH_INLINE pm_RotationAxis(const vec& axis, float angle)
+{
+	vec3 cosa;
+	vec3 sina;
+	pm_SinCos(pm_FillVector(0.5f*angle), sina, cosa);
+	return pm_Normalize4D(pm_SetW(pm_Multiply(axis, sina), pm_GetW(cosa)));
 }
 
 quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)

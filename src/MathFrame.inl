@@ -32,7 +32,6 @@
 # error MathFrame.h should only be included from Math.h
 #endif
 
-//TODO: Transpose the used matrix in this frame class
 vec3 PM_MATH_INLINE pm_GetXAxis(const frame& f)
 {
 	return pm_Cross3D(f.Up, f.Forward);
