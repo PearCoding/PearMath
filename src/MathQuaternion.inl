@@ -172,9 +172,9 @@ quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)
 	const float y = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
 	const float z = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
 
-	return pm_Set(std::copysign(x, m[2][1] - m[1][2] ),
-		std::copysign(y, m[0][2] - m[2][0] ),
-		std::copysign(z, m[1][0] - m[0][1] ),
+	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
+		copysignf(y, m[0][2] - m[2][0] ),
+		copysignf(z, m[1][0] - m[0][1] ),
 		w);
 }
 
@@ -186,9 +186,9 @@ quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 	const float y = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
 	const float z = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
 
-	return pm_Set(std::copysign(x, m[2][1] - m[1][2] ),
-		std::copysign(y, m[0][2] - m[2][0] ),
-		std::copysign(z, m[1][0] - m[0][1] ),
+	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
+		copysignf(y, m[0][2] - m[2][0] ),
+		copysignf(z, m[1][0] - m[0][1] ),
 		w);
 }
 
