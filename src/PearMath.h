@@ -243,6 +243,7 @@ namespace PM
 	{
 	}
 
+	// Utilities
 	template<typename T>
 	inline T pm_MaxT(T a, T b) { return (a > b) ? a : b; }
 	template<typename T>
@@ -259,6 +260,30 @@ namespace PM
 		sin = std::sin(v);
 		cos = std::cos(v);
 	}
+
+	template<>
+	inline void pm_SinCosT<float>(float v, float& sin, float& cos)
+	{
+#if defined(_GNU_SOURCE)
+		::sincosf(v, &sin, &cos);
+#else
+		sin = std::sin(v);
+		cos = std::cos(v);
+#endif
+	}
+
+	template<>
+	inline void pm_SinCosT<double>(double v, double& sin, double& cos)
+	{
+#if defined(_GNU_SOURCE)
+		::sincos(v, &sin, &cos);
+#else
+		sin = std::sin(v);
+		cos = std::cos(v);
+#endif
+	}
+
+	// Typedefs
 
 	typedef signed char int8;
 	typedef unsigned char uint8;
