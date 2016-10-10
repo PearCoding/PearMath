@@ -243,18 +243,17 @@ namespace PM
 	{
 	}
 
-	// Utilities
+	// Scalars
 	template<typename T>
-	inline T pm_MaxT(T a, T b) { return (a > b) ? a : b; }
+	inline T pm_Max(const T& a, const T& b) { return (a > b) ? a : b; }
 	template<typename T>
-	inline T pm_MinT(T a, T b) { return (a < b) ? a : b; }
+	inline T pm_Min(const T& a, const T& b) { return (a < b) ? a : b; }
 	template<typename T>
-	inline T pm_ClampT(T a, T min, T max) { return pm_MaxT<T>(min, pm_MinT<T>(max, a)); }
+	inline T pm_Clamp(const T& a, const T& min, const T& max) { return pm_Max<T>(min, pm_Min<T>(max, a)); }
 	template<typename T>
-	inline T pm_SignT(T a) { return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
-
+	inline T pm_Sign(T a) { return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
 	template<typename T>
-	inline void pm_SinCosT(T v, T& sin, T& cos)
+	inline void pm_SinCos(const T& v, T& sin, T& cos)
 	{
 		// We hope for the optimization...
 		sin = std::sin(v);
@@ -262,7 +261,7 @@ namespace PM
 	}
 
 	template<>
-	inline void pm_SinCosT<float>(float v, float& sin, float& cos)
+	inline void pm_SinCos<float>(const float& v, float& sin, float& cos)
 	{
 #if defined(_GNU_SOURCE)
 		::sincosf(v, &sin, &cos);
@@ -273,7 +272,7 @@ namespace PM
 	}
 
 	template<>
-	inline void pm_SinCosT<double>(double v, double& sin, double& cos)
+	inline void pm_SinCos<double>(const double& v, double& sin, double& cos)
 	{
 #if defined(_GNU_SOURCE)
 		::sincos(v, &sin, &cos);
@@ -283,8 +282,82 @@ namespace PM
 #endif
 	}
 
-	// Typedefs
+	template<typename T>
+	inline T pm_SafeASin(T v)
+	{
+		return std::asin(pm_Clamp<T>(v, -1, 1));
+	}
 
+	template<typename T>
+	inline T pm_SafeACos(T v)
+	{
+		return std::acos(pm_Clamp<T>(v, -1, 1));
+	}
+
+	template<typename T>
+	inline T pm_SafeSqrt(T v)
+	{
+		return std::sqrt(pm_Max<T>(v, 0));
+	}
+
+	inline float pm_DegToRad(float x)
+	{
+		return x*PM_2_PI_360_DIV_F;
+	}
+
+	inline float pm_RadToDeg(float x)
+	{
+		return x*PM_INV_2_PI_360_DIV_F;
+	}
+
+	inline float pm_HourToDeg(float x)
+	{
+		return x * (1.0f / 15.0f);
+	}
+
+	inline float pm_HourToRad(float x)
+	{
+		return pm_DegToRad(pm_HourToDeg(x));
+	}
+
+	inline float pm_DegToHour(float x)
+	{
+		return x * 15.0f;
+	}
+
+	inline float pm_RadToHour(float x)
+	{
+		return pm_DegToHour(pm_RadToDeg(x));
+	}
+
+	template<typename T>
+	inline T pm_NextPowerOf2(T x)
+	{
+		T val = 1;
+		while (val < x)
+		{
+			val <<= 1;
+		}
+
+		return val;
+	}
+
+	inline float pm_Reciprocal(float f, int n)
+	{
+		if (n <= 1)
+			return 1.0f / f;
+		else
+		{
+			float x = f*0.25f;
+
+			for (int i = 0; i < n; ++i)
+				x = x*(2 - f*x);
+
+			return x;
+		}
+	}
+
+	// Typedefs
 	typedef signed char int8;
 	typedef unsigned char uint8;
 
@@ -433,7 +506,8 @@ namespace PM
 	vec pm_Log(const vec& v);
 	vec pm_Sin(const vec& v);
 	vec pm_Cos(const vec& v);
-	void pm_SinCos(const vec& v, vec& sin, vec& cos);
+	template<>
+	void pm_SinCos<vec>(const vec& v, vec& sin, vec& cos);
 	vec pm_Tan(const vec& v);
 	vec pm_ASin(const vec& v);
 	vec pm_ACos(const vec& v);
@@ -443,9 +517,12 @@ namespace PM
 	vec pm_NLerp(const vec& v1, const vec& v2, const vec& t);
 	vec pm_SLerp(const vec& v1, const vec& v2, const vec& t);
 
-	vec pm_Max(const vec& v1, const vec& v2);
-	vec pm_Min(const vec& v1, const vec& v2);
-	vec pm_Clamp(const vec& v, const vec& min, const vec& max);
+	template<>
+	vec pm_Max<vec>(const vec& v1, const vec& v2);
+	template<>
+	vec pm_Min<vec>(const vec& v1, const vec& v2);
+	template<>
+	vec pm_Clamp<vec>(const vec& v, const vec& min, const vec& max);
 	vec pm_Saturate(const vec& v);
 
 	vec4 pm_Load4D(const float src[4]);
@@ -621,64 +698,6 @@ namespace PM
 
 	vec3 pm_TransformPoint(const frame& f, const vec3& off);
 	vec3 pm_Rotate(const frame& f, const vec3& v);
-
-	//Scalar
-	inline float pm_DegToRad(float x)
-	{
-		return x*PM_2_PI_360_DIV_F;
-	}
-
-	inline float pm_RadToDeg(float x)
-	{
-		return x*PM_INV_2_PI_360_DIV_F;
-	}
-
-	inline float pm_HourToDeg(float x)
-	{
-		return x * (1.0f / 15.0f);
-	}
-
-	inline float pm_HourToRad(float x)
-	{
-		return pm_DegToRad(pm_HourToDeg(x));
-	}
-
-	inline float pm_DegToHour(float x)
-	{
-		return x * 15.0f;
-	}
-
-	inline float pm_RadToHour(float x)
-	{
-		return pm_DegToHour(pm_RadToDeg(x));
-	}
-
-	template<typename T>
-	inline T pm_NextPowerOf2(T x)
-	{
-		T val = 1;
-		while (val < x)
-		{
-			val <<= 1;
-		}
-
-		return val;
-	}
-
-	inline float pm_Reciprocal(float f, int n)
-	{
-		if (n <= 1)
-			return 1.0f / f;
-		else
-		{
-			float x = f*0.25f;
-
-			for (int i = 0; i < n; ++i)
-				x = x*(2 - f*x);
-
-			return x;
-		}
-	}
 
 #define _PM_MATH_INCLUDED_
 # include "MathVector.inl"

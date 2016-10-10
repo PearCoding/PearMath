@@ -104,14 +104,14 @@ quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 // TODO: Test it!
 quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 {
-	float theta = PM::pm_Dot4D(q1, q2);
+	float theta = pm_Dot4D(q1, q2);
 
 	if (std::abs(theta) > 1)
 		return q1;
 	
-	PM::quat q3 = q2;
+	quat q3 = q2;
 	if (theta < 0) {
-		q3 = PM::pm_Negate(q2);
+		q3 = pm_Negate(q2);
 		theta = -theta;
 	}
 
@@ -167,10 +167,10 @@ quat PM_MATH_INLINE pm_RotationAxis(const vec& axis, float angle)
 
 quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)
 {
-	const float w = std::sqrt( pm_MaxT<float>( 0, 1 + m[0][0] + m[1][1] + m[2][2] ) ) / 2;
-	const float x = std::sqrt( pm_MaxT<float>( 0, 1 + m[0][0] - m[1][1] - m[2][2] ) ) / 2;
-	const float y = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
-	const float z = std::sqrt( pm_MaxT<float>( 0, 1 - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
+	const float w = pm_SafeSqrt<float>(1 + m[0][0] + m[1][1] + m[2][2] ) / 2;
+	const float x = pm_SafeSqrt<float>(1 + m[0][0] - m[1][1] - m[2][2] ) / 2;
+	const float y = pm_SafeSqrt<float>(1 - m[0][0] + m[1][1] - m[2][2] ) / 2;
+	const float z = pm_SafeSqrt<float>(1 - m[0][0] - m[1][1] + m[2][2] ) / 2;
 
 	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
 		copysignf(y, m[0][2] - m[2][0] ),
@@ -181,10 +181,10 @@ quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)
 quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
 {
 	const float absDet = std::pow(pm_Determinant4D(m), 1/3.0f);
-	const float w = std::sqrt( pm_MaxT<float>( 0, absDet + m[0][0] + m[1][1] + m[2][2] ) ) / 2;
-	const float x = std::sqrt( pm_MaxT<float>( 0, absDet + m[0][0] - m[1][1] - m[2][2] ) ) / 2;
-	const float y = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] + m[1][1] - m[2][2] ) ) / 2;
-	const float z = std::sqrt( pm_MaxT<float>( 0, absDet - m[0][0] - m[1][1] + m[2][2] ) ) / 2;
+	const float w = pm_SafeSqrt<float>(absDet + m[0][0] + m[1][1] + m[2][2] ) / 2;
+	const float x = pm_SafeSqrt<float>(absDet + m[0][0] - m[1][1] - m[2][2] ) / 2;
+	const float y = pm_SafeSqrt<float>(absDet - m[0][0] + m[1][1] - m[2][2] ) / 2;
+	const float z = pm_SafeSqrt<float>(absDet - m[0][0] - m[1][1] + m[2][2] ) / 2;
 
 	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
 		copysignf(y, m[0][2] - m[2][0] ),

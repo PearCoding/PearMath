@@ -755,7 +755,8 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 #endif
 }
 
-void PM_MATH_INLINE pm_SinCos(const vec& v, vec& sin, vec& cos)
+template<>
+void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
 {
 #ifdef PM_USE_SIMD
 	vec s = _mm_mul_ps(v, v);
@@ -1033,7 +1034,8 @@ vec PM_MATH_INLINE pm_SLerp(const vec& v1, const vec& v2, const vec& t)
 #endif
 }
 
-vec PM_MATH_INLINE pm_Max(const vec& v1, const vec& v2)
+template<>
+vec PM_MATH_INLINE pm_Max<vec>(const vec& v1, const vec& v2)
 {
 #ifdef PM_USE_SIMD
 	return _mm_max_ps(v1, v2);
@@ -1047,7 +1049,8 @@ vec PM_MATH_INLINE pm_Max(const vec& v1, const vec& v2)
 #endif
 }
 
-vec PM_MATH_INLINE pm_Min(const vec& v1, const vec& v2)
+template<>
+vec PM_MATH_INLINE pm_Min<vec>(const vec& v1, const vec& v2)
 {
 #ifdef PM_USE_SIMD
 	return _mm_min_ps(v1, v2);
@@ -1061,7 +1064,8 @@ vec PM_MATH_INLINE pm_Min(const vec& v1, const vec& v2)
 #endif
 }
 
-vec PM_MATH_INLINE pm_Clamp(const vec& v, const vec& min, const vec& max)
+template<>
+vec PM_MATH_INLINE pm_Clamp<vec>(const vec& v, const vec& min, const vec& max)
 {
 	PM_DEBUG_ASSERT(pm_IsLessOrEqual(min, max));
 #ifdef PM_USE_SIMD
