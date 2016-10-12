@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014, �mercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014, Ömercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -588,17 +588,17 @@ vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
 #ifdef PM_USE_SIMD
 	//I'm not happy with this :(
 	return _mm_setr_ps(
-		powf(pm_GetX(v1), pm_GetX(v2)),
-		powf(pm_GetY(v1), pm_GetY(v2)),
-		powf(pm_GetZ(v1), pm_GetZ(v2)),
-		powf(pm_GetW(v1), pm_GetW(v2)));
+		std::pow(pm_GetX(v1), pm_GetX(v2)),
+		std::pow(pm_GetY(v1), pm_GetY(v2)),
+		std::pow(pm_GetZ(v1), pm_GetZ(v2)),
+		std::pow(pm_GetW(v1), pm_GetW(v2)));
 	//return pm_Exp(_mm_mul_ps(pm_Log(v1), v2));
 #else
 	vec r;
-	r[0] = powf(v1[0], v2[0]);
-	r[1] = powf(v1[1], v2[1]);
-	r[2] = powf(v1[2], v2[2]);
-	r[3] = powf(v1[3], v2[3]);
+	r[0] = std::pow(v1[0], v2[0]);
+	r[1] = std::pow(v1[1], v2[1]);
+	r[2] = std::pow(v1[2], v2[2]);
+	r[3] = std::pow(v1[3], v2[3]);
 	return r;
 	//return pm_Exp(pm_Multiply(pm_Log(v1), v2));
 #endif
@@ -611,16 +611,16 @@ vec PM_MATH_INLINE pm_Exp(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	return _mm_setr_ps(
-		expf(pm_GetX(v)),
-		expf(pm_GetY(v)),
-		expf(pm_GetZ(v)),
-		expf(pm_GetW(v)));
+		std::exp(pm_GetX(v)),
+		std::exp(pm_GetY(v)),
+		std::exp(pm_GetZ(v)),
+		std::exp(pm_GetW(v)));
 #else
 	vec r;
-	r[0] = expf(v[0]);
-	r[1] = expf(v[1]);
-	r[2] = expf(v[2]);
-	r[3] = expf(v[3]);
+	r[0] = std::exp(v[0]);
+	r[1] = std::exp(v[1]);
+	r[2] = std::exp(v[2]);
+	r[3] = std::exp(v[3]);
 	return r;
 #endif
 }
@@ -632,16 +632,16 @@ vec PM_MATH_INLINE pm_Log(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	return _mm_setr_ps(
-		logf(pm_GetX(v)),
-		logf(pm_GetY(v)),
-		logf(pm_GetZ(v)),
-		logf(pm_GetW(v)));
+		std::log(pm_GetX(v)),
+		std::log(pm_GetY(v)),
+		std::log(pm_GetZ(v)),
+		std::log(pm_GetW(v)));
 #else
 	vec r;
-	r[0] = logf(v[0]);
-	r[1] = logf(v[1]);
-	r[2] = logf(v[2]);
-	r[3] = logf(v[3]);
+	r[0] = std::log(v[0]);
+	r[1] = std::log(v[1]);
+	r[2] = std::log(v[2]);
+	r[3] = std::log(v[3]);
 	return r;
 #endif
 }
@@ -693,10 +693,10 @@ vec PM_MATH_INLINE pm_Sin(const vec& v)
 	 * Use this or the c implementation from above??
 	 */
 	vec r;
-	r[0] = sinf(v[0]);
-	r[1] = sinf(v[1]);
-	r[2] = sinf(v[2]);
-	r[3] = sinf(v[3]);
+	r[0] = std::sin(v[0]);
+	r[1] = std::sin(v[1]);
+	r[2] = std::sin(v[2]);
+	r[3] = std::sin(v[3]);
 	return r;
 #endif
 }
@@ -747,10 +747,10 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 	 * Use this or the c implementation from above??
 	 */
 	vec r;
-	r[0] = cosf(v[0]);
-	r[1] = cosf(v[1]);
-	r[2] = cosf(v[2]);
-	r[3] = cosf(v[3]);
+	r[0] = std::cos(v[0]);
+	r[1] = std::cos(v[1]);
+	r[2] = std::cos(v[2]);
+	r[3] = std::cos(v[3]);
 	return r;
 #endif
 }
@@ -812,18 +812,10 @@ void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
 	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(4.1103176233121648e-19f), cosp));
 #endif
 #else
-	/*
-	 * Use this or the c implementation from above??
-	 */
-	sin[0] = sinf(v[0]);
-	sin[1] = sinf(v[1]);
-	sin[2] = sinf(v[2]);
-	sin[3] = sinf(v[3]);
-
-	cos[0] = cosf(v[0]);
-	cos[1] = cosf(v[1]);
-	cos[2] = cosf(v[2]);
-	cos[3] = cosf(v[3]);
+	pm_SinCos(v[0], sin[0], cos[0]);
+	pm_SinCos(v[1], sin[1], cos[1]);
+	pm_SinCos(v[2], sin[2], cos[2]);
+	pm_SinCos(v[3], sin[3], cos[3]);
 #endif
 }
 
@@ -902,19 +894,19 @@ vec PM_MATH_INLINE pm_Tan(const vec& v)
 
 	return r;*/
 	return _mm_setr_ps(
-		tanf(pm_GetX(v)),
-		tanf(pm_GetY(v)),
-		tanf(pm_GetZ(v)),
-		tanf(pm_GetW(v)));
+		std::tan(pm_GetX(v)),
+		std::tan(pm_GetY(v)),
+		std::tan(pm_GetZ(v)),
+		std::tan(pm_GetW(v)));
 #else
 	/*
 	 * Use this or the c implementation from above??
 	 */
 	vec r;
-	r[0] = tanf(v[0]);
-	r[1] = tanf(v[1]);
-	r[2] = tanf(v[2]);
-	r[3] = tanf(v[3]);
+	r[0] = std::tan(v[0]);
+	r[1] = std::tan(v[1]);
+	r[2] = std::tan(v[2]);
+	r[3] = std::tan(v[3]);
 	return r;
 #endif
 }
@@ -926,16 +918,16 @@ vec PM_MATH_INLINE pm_ASin(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	return _mm_setr_ps(
-		asinf(pm_GetX(v)),
-		asinf(pm_GetY(v)),
-		asinf(pm_GetZ(v)),
-		asinf(pm_GetW(v)));
+		std::asin(pm_GetX(v)),
+		std::asin(pm_GetY(v)),
+		std::asin(pm_GetZ(v)),
+		std::asin(pm_GetW(v)));
 #else
 	vec r;
-	r[0] = asinf(v[0]);
-	r[1] = asinf(v[1]);
-	r[2] = asinf(v[2]);
-	r[3] = asinf(v[3]);
+	r[0] = std::asin(v[0]);
+	r[1] = std::asin(v[1]);
+	r[2] = std::asin(v[2]);
+	r[3] = std::asin(v[3]);
 	return r;
 #endif
 }
@@ -947,10 +939,10 @@ vec PM_MATH_INLINE pm_ACos(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	return _mm_setr_ps(
-		acosf(pm_GetX(v)),
-		acosf(pm_GetY(v)),
-		acosf(pm_GetZ(v)),
-		acosf(pm_GetW(v)));
+		std::acos(pm_GetX(v)),
+		std::acos(pm_GetY(v)),
+		std::acos(pm_GetZ(v)),
+		std::acos(pm_GetW(v)));
 #else
 	vec r;
 	r[0] = std::acos(v[0]);
@@ -968,16 +960,16 @@ vec PM_MATH_INLINE pm_ATan(const vec& v)
 {
 #ifdef PM_USE_SIMD
 	return _mm_setr_ps(
-		atanf(pm_GetX(v)),
-		atanf(pm_GetY(v)),
-		atanf(pm_GetZ(v)),
-		atanf(pm_GetW(v)));
+		std::atan(pm_GetX(v)),
+		std::atan(pm_GetY(v)),
+		std::atan(pm_GetZ(v)),
+		std::atan(pm_GetW(v)));
 #else
 	vec r;
-	r[0] = atan(v[0]);
-	r[1] = atan(v[1]);
-	r[2] = atan(v[2]);
-	r[3] = atan(v[3]);
+	r[0] = std::atan(v[0]);
+	r[1] = std::atan(v[1]);
+	r[2] = std::atan(v[2]);
+	r[3] = std::atan(v[3]);
 	return r;
 #endif
 }
@@ -1003,11 +995,14 @@ vec PM_MATH_INLINE pm_NLerp(const vec& v1, const vec& v2, const vec& t)
 vec PM_MATH_INLINE pm_SLerp(const vec& v1, const vec& v2, const vec& t)
 {
 #ifdef PM_USE_SIMD
+	static const vec lerp_threshold = _mm_set1_ps(PM_VECTOR_SLERP_THRESHOLD);
+	static const vec one = _mm_set1_ps(1.0f);
+
 	vec cosAngle = _mm_set1_ps(pm_Dot4D(v1, v2));
-	vec mask = _mm_cmpgt_ps(_mm_set1_ps(PM_VECTOR_SLERP_THRESHOLD), cosAngle);
+	vec mask = _mm_cmpgt_ps(lerp_threshold, cosAngle);
 	vec angle = pm_ACos(cosAngle);
-	vec decWeight = _mm_sub_ps(_mm_set1_ps(1.0f), t);
-	vec angles = _mm_unpacklo_ps(_mm_set1_ps(1.0f), t);
+	vec decWeight = _mm_sub_ps(one, t);
+	vec angles = _mm_unpacklo_ps(one, t);
 	angles = _mm_unpacklo_ps(angles, decWeight);
 	angles = _mm_mul_ps(angles, angle);
 	vec sines = pm_Sin(angles);
@@ -1024,12 +1019,12 @@ vec PM_MATH_INLINE pm_SLerp(const vec& v1, const vec& v2, const vec& t)
 		return pm_Lerp(v1, v2, t);
 	}
 
-	angle = acosf(angle);
+	angle = std::acos(angle);
 	vec r;
-	r[0] = (v1[0] * sinf(angle*(1 - t[0])) + v2[0] * sinf(angle*t[0])) / sinf(angle);
-	r[1] = (v1[1] * sinf(angle*(1 - t[1])) + v2[1] * sinf(angle*t[1])) / sinf(angle);
-	r[2] = (v1[2] * sinf(angle*(1 - t[2])) + v2[2] * sinf(angle*t[2])) / sinf(angle);
-	r[3] = (v1[3] * sinf(angle*(1 - t[3])) + v2[3] * sinf(angle*t[3])) / sinf(angle);
+	r[0] = (v1[0] * std::sin(angle*(1 - t[0])) + v2[0] * std::sin(angle*t[0])) / std::sin(angle);
+	r[1] = (v1[1] * std::sin(angle*(1 - t[1])) + v2[1] * std::sin(angle*t[1])) / std::sin(angle);
+	r[2] = (v1[2] * std::sin(angle*(1 - t[2])) + v2[2] * std::sin(angle*t[2])) / std::sin(angle);
+	r[3] = (v1[3] * std::sin(angle*(1 - t[3])) + v2[3] * std::sin(angle*t[3])) / std::sin(angle);
 	return r;
 #endif
 }
@@ -1080,10 +1075,27 @@ vec PM_MATH_INLINE pm_Clamp<vec>(const vec& v, const vec& min, const vec& max)
 #endif
 }
 
+vec PM_MATH_INLINE pm_Abs(const vec& v)
+{
+#ifdef PM_USE_SIMD
+	static const vec sign_mask = _mm_set1_ps(-0.0f);
+    return _mm_andnot_ps(sign_mask, v);
+#else
+	vec r;
+	r[0] = std::abs(v[0]);
+	r[1] = std::abs(v[1]);
+	r[2] = std::abs(v[2]);
+	r[3] = std::abs(v[3]);
+	return r;
+#endif
+}
+
 vec PM_MATH_INLINE pm_Saturate(const vec& v)
 {
 #ifdef PM_USE_SIMD
-	return _mm_min_ps(_mm_max_ps(v, _mm_setzero_ps()), _mm_set1_ps(1.0f));
+	static const vec one = _mm_set1_ps(1.0f);
+	static const vec zero = _mm_setzero_ps();
+	return _mm_min_ps(_mm_max_ps(v, zero), one);
 #else
 	return pm_Clamp(v, pm_Zero(), pm_One());
 #endif
@@ -1212,6 +1224,22 @@ vec4 PM_MATH_INLINE pm_FastNormalize4D(const vec4& v)
 	r[3] = v[3] / mag;
 	return r;
 #endif
+}
+
+float PM_MATH_INLINE pm_MaxElement4D(const vec4& v)
+{
+	return PM::pm_Max(PM::pm_GetX(v),
+		PM::pm_Max(PM::pm_GetY(v),
+		PM::pm_Max(PM::pm_GetZ(v),
+		PM::pm_GetW(v))));
+}
+
+float PM_MATH_INLINE pm_MinElement4D(const vec4& v)
+{
+	return PM::pm_Min(PM::pm_GetX(v),
+		PM::pm_Min(PM::pm_GetY(v),
+		PM::pm_Min(PM::pm_GetZ(v),
+		PM::pm_GetW(v))));
 }
 
 vec PM_MATH_INLINE pm_Load3D(const float src[3])
@@ -1353,6 +1381,20 @@ vec3 PM_MATH_INLINE pm_FastNormalize3D(const vec3& v)
 #endif
 }
 
+float PM_MATH_INLINE pm_MaxElement3D(const vec3& v)
+{
+	return PM::pm_Max(PM::pm_GetX(v),
+		PM::pm_Max(PM::pm_GetY(v),
+		PM::pm_GetZ(v)));
+}
+
+float PM_MATH_INLINE pm_MinElement3D(const vec3& v)
+{
+	return PM::pm_Min(PM::pm_GetX(v),
+		PM::pm_Min(PM::pm_GetY(v),
+		PM::pm_GetZ(v)));
+}
+
 vec PM_MATH_INLINE pm_Load2D(const float src[2])
 {
 #ifdef PM_USE_SIMD
@@ -1462,4 +1504,14 @@ vec2 PM_MATH_INLINE pm_FastNormalize2D(const vec2& v)
 	r[3] = 0;
 	return r;
 #endif
+}
+
+float PM_MATH_INLINE pm_MaxElement2D(const vec2& v)
+{
+	return PM::pm_Max(PM::pm_GetX(v), PM::pm_GetY(v));
+}
+
+float PM_MATH_INLINE pm_MinElement2D(const vec2& v)
+{
+	return PM::pm_Min(PM::pm_GetX(v), PM::pm_GetY(v));
 }

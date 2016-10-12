@@ -182,6 +182,7 @@
 #define PM_PI_4_DIV			(PM_PI*0.25)
 #define PM_INV_PI			(0.31830988618379067153776752674503)
 #define PM_INV_2_PI			(PM_INV_PI*0.5)
+#define PM_INV_4_PI			(PM_INV_PI*0.25)
 #define PM_2_PI_360_DIV		(0.01745329251994329576923690768489)
 #define PM_INV_2_PI_360_DIV	(57.295779513082320876798154814105)
 
@@ -192,6 +193,7 @@
 #define PM_PI_4_DIV_F			(PM_PI_F*0.25)
 #define PM_INV_PI_F				(0.318309886183790671f)
 #define PM_INV_2_PI_F			(PM_INV_PI_F*0.5f)
+#define PM_INV_4_PI_F			(PM_INV_PI_F*0.25f)
 #define PM_2_PI_360_DIV_F		(0.017453292519943295f)
 #define PM_INV_2_PI_360_DIV_F	(57.29577951308232087f)
 
@@ -523,6 +525,8 @@ namespace PM
 	vec pm_Min<vec>(const vec& v1, const vec& v2);
 	template<>
 	vec pm_Clamp<vec>(const vec& v, const vec& min, const vec& max);
+
+	vec pm_Abs(const vec& v);
 	vec pm_Saturate(const vec& v);
 
 	vec4 pm_Load4D(const float src[4]);
@@ -533,6 +537,8 @@ namespace PM
 	vec4 pm_Normalize4D(const vec4& v);
 	vec4 pm_QualityNormalize4D(const vec4& v);
 	vec4 pm_FastNormalize4D(const vec4& v);
+	float pm_MaxElement4D(const vec4& v);
+	float pm_MinElement4D(const vec4& v);
 
 	vec3 pm_Load3D(const float src[3]);
 	void pm_Store3D(const vec3& v, float dst[3]);
@@ -543,6 +549,8 @@ namespace PM
 	vec3 pm_Normalize3D(const vec3& v);
 	vec3 pm_QualityNormalize3D(const vec2& v);
 	vec3 pm_FastNormalize3D(const vec2& v);
+	float pm_MaxElement3D(const vec4& v);
+	float pm_MinElement3D(const vec4& v);
 
 	vec2 pm_Load2D(const float src[2]);
 	void pm_Store2D(const vec2& v, float dst[2]);
@@ -552,6 +560,8 @@ namespace PM
 	vec2 pm_Normalize2D(const vec2& v);
 	vec2 pm_QualityNormalize2D(const vec2& v);
 	vec2 pm_FastNormalize2D(const vec2& v);
+	float pm_MaxElement2D(const vec4& v);
+	float pm_MinElement2D(const vec4& v);
 
 	//Matrix
 	mat pm_LoadMatrix(const float* src);
