@@ -414,11 +414,6 @@ namespace PM
 	typedef vec quat;
 	typedef vec color;
 
-	struct PM_ALIGN(16) avec//Array vector
-	{
-		float v[4];
-	};
-
 	struct PM_ALIGN(16) mat4
 	{
 		union
@@ -708,6 +703,120 @@ namespace PM
 
 	vec3 pm_TransformPoint(const frame& f, const vec3& off);
 	vec3 pm_Rotate(const frame& f, const vec3& v);
+
+	// Array vectors
+	struct avec4
+	{
+		float v[4];
+
+		avec4() = default;
+		inline avec4(const vec4& o)
+		{
+			pm_Store4D(o, v);
+		}
+
+		inline operator vec4() const
+		{
+			return pm_Load4D(v);
+		}
+
+		inline float& operator [] (int index)
+		{
+			PM_DEBUG_ASSERT(index < 4);
+			return v[index];
+		}
+
+		inline float operator [] (int index) const
+		{
+			PM_DEBUG_ASSERT(index < 4);
+			return v[index];
+		}
+
+		inline operator float* ()
+		{
+			return v;
+		}
+
+		inline operator const float* () const
+		{
+			return v;
+		}
+	};
+
+	struct avec3
+	{
+		float v[3];
+
+		avec3() = default;
+		inline avec3(const vec3& o)
+		{
+			pm_Store3D(o, v);
+		}
+
+		inline operator vec3() const
+		{
+			return pm_Load3D(v);
+		}
+
+		inline float& operator [] (int index)
+		{
+			PM_DEBUG_ASSERT(index < 3);
+			return v[index];
+		}
+
+		inline float operator [] (int index) const
+		{
+			PM_DEBUG_ASSERT(index < 3);
+			return v[index];
+		}
+
+		inline operator float* ()
+		{
+			return v;
+		}
+
+		inline operator const float* () const
+		{
+			return v;
+		}
+	};
+
+	struct avec2
+	{
+		float v[2];
+		avec2() = default;
+		inline avec2(const vec2& o)
+		{
+			pm_Store2D(o, v);
+		}
+
+		inline operator vec2() const
+		{
+			return pm_Load2D(v);
+		}
+
+		inline float& operator [] (int index)
+		{
+			PM_DEBUG_ASSERT(index < 2);
+			return v[index];
+		}
+
+		inline float operator [] (int index) const
+		{
+			PM_DEBUG_ASSERT(index < 2);
+			return v[index];
+		}
+
+		inline operator float* ()
+		{
+			return v;
+		}
+
+		inline operator const float* () const
+		{
+			return v;
+		}
+	};
 
 #define _PM_MATH_INCLUDED_
 # include "MathVector.inl"
