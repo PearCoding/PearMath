@@ -34,7 +34,7 @@
 
 void PM_MATH_INLINE pm_Copy(vec& vdst, const vec& vsrc)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vdst = vsrc;
 #else
 	memcpy(vdst.v, vsrc.v, sizeof(float) * 4);
@@ -43,7 +43,7 @@ void PM_MATH_INLINE pm_Copy(vec& vdst, const vec& vsrc)
 
 vec PM_MATH_INLINE pm_Zero()
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setzero_ps();
 #else
 	vec v;
@@ -54,7 +54,7 @@ vec PM_MATH_INLINE pm_Zero()
 
 vec PM_MATH_INLINE pm_One()
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_set1_ps(1.0f);
 #else
 	vec v;
@@ -68,7 +68,7 @@ vec PM_MATH_INLINE pm_One()
 
 vec PM_MATH_INLINE pm_Set(float x, float y, float z, float w)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_set_ps(w, z, y, x);
 #else
 	vec v;
@@ -82,7 +82,7 @@ vec PM_MATH_INLINE pm_Set(float x, float y, float z, float w)
 
 vec PM_MATH_INLINE pm_SetIndex(const vec& v, int index, float val)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec r = v;
 	((float *)&(r))[index] = val;
 	return r;
@@ -95,7 +95,7 @@ vec PM_MATH_INLINE pm_SetIndex(const vec& v, int index, float val)
 
 vec PM_MATH_INLINE pm_SetX(const vec& v, float x)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec r = v;
 	((float *)&(r))[0] = x;
 	return r;
@@ -108,7 +108,7 @@ vec PM_MATH_INLINE pm_SetX(const vec& v, float x)
 
 vec PM_MATH_INLINE pm_SetY(const vec& v, float y)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec r = v;
 	((float *)&(r))[1] = y;
 	return r;
@@ -121,7 +121,7 @@ vec PM_MATH_INLINE pm_SetY(const vec& v, float y)
 
 vec PM_MATH_INLINE pm_SetZ(const vec& v, float z)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec r = v;
 	((float *)&(r))[2] = z;
 	return r;
@@ -134,7 +134,7 @@ vec PM_MATH_INLINE pm_SetZ(const vec& v, float z)
 
 vec PM_MATH_INLINE pm_SetW(const vec& v, float w)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec r = v;
 	((float *)&(r))[3] = w;
 	return r;
@@ -147,7 +147,7 @@ vec PM_MATH_INLINE pm_SetW(const vec& v, float w)
 
 float PM_MATH_INLINE pm_GetIndex(const vec& v, int index)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return ((float *)&(v))[index];
 #else
 	return v[index];
@@ -156,7 +156,7 @@ float PM_MATH_INLINE pm_GetIndex(const vec& v, int index)
 
 float PM_MATH_INLINE pm_GetX(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return ((float *)&(v))[0];
 #else
 	return v[0];
@@ -165,7 +165,7 @@ float PM_MATH_INLINE pm_GetX(const vec& v)
 
 float PM_MATH_INLINE pm_GetY(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return ((float *)&(v))[1];
 #else
 	return v[1];
@@ -174,7 +174,7 @@ float PM_MATH_INLINE pm_GetY(const vec& v)
 
 float PM_MATH_INLINE pm_GetZ(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return ((float *)&(v))[2];
 #else
 	return v[2];
@@ -183,7 +183,7 @@ float PM_MATH_INLINE pm_GetZ(const vec& v)
 
 float PM_MATH_INLINE pm_GetW(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return ((float *)&(v))[3];
 #else
 	return v[3];
@@ -192,7 +192,7 @@ float PM_MATH_INLINE pm_GetW(const vec& v)
 
 vec PM_MATH_INLINE pm_FillVector(float val)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_set1_ps(val);
 #else
 	vec v;
@@ -206,7 +206,7 @@ vec PM_MATH_INLINE pm_FillVector(float val)
 
 void PM_MATH_INLINE pm_Vec2Array(const vec& v, float* dst)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	_mm_store_ps(&dst[0], v);
 #else
 	memcpy(const_cast<float*>(v.v), dst, sizeof(float) * 4);
@@ -215,7 +215,7 @@ void PM_MATH_INLINE pm_Vec2Array(const vec& v, float* dst)
 
 vec PM_MATH_INLINE pm_IsEqualv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmpeq_ps(v1, v2);
 #else
 	vec r;
@@ -229,7 +229,7 @@ vec PM_MATH_INLINE pm_IsEqualv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsEqual(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmpeq_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] == v2[2] && v1[3] == v2[3]);
@@ -238,7 +238,7 @@ bool PM_MATH_INLINE pm_IsEqual(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsNearlyEqualv(const vec& v1, const vec& v2, const vec& delta)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec del = _mm_sub_ps(v1, v2);
 	vec abs = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), del), del);
 	return _mm_cmple_ps(abs, delta);
@@ -254,7 +254,7 @@ vec PM_MATH_INLINE pm_IsNearlyEqualv(const vec& v1, const vec& v2, const vec& de
 
 bool PM_MATH_INLINE pm_IsNearlyEqual(const vec& v1, const vec& v2, const vec& delta)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec del = _mm_sub_ps(v1, v2);
 	vec abs = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), del), del);
 	return (_mm_movemask_ps(_mm_cmple_ps(abs, delta)) & 0xF) == 0xF;
@@ -266,7 +266,7 @@ bool PM_MATH_INLINE pm_IsNearlyEqual(const vec& v1, const vec& v2, const vec& de
 
 vec PM_MATH_INLINE pm_IsNotEqualv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmpneq_ps(v1, v2);
 #else
 	vec r;
@@ -280,7 +280,7 @@ vec PM_MATH_INLINE pm_IsNotEqualv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsNotEqual(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmpneq_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] != v2[0] && v1[1] != v2[1] && v1[2] != v2[2] && v1[3] != v2[3]);
@@ -289,7 +289,7 @@ bool PM_MATH_INLINE pm_IsNotEqual(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsLessv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmplt_ps(v1, v2);
 #else
 	vec r;
@@ -303,7 +303,7 @@ vec PM_MATH_INLINE pm_IsLessv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsLess(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmplt_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] < v2[0] && v1[1] < v2[1] && v1[2] < v2[2] && v1[3] < v2[3]);
@@ -312,7 +312,7 @@ bool PM_MATH_INLINE pm_IsLess(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsLessOrEqualv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmple_ps(v1, v2);
 #else
 	vec r;
@@ -326,7 +326,7 @@ vec PM_MATH_INLINE pm_IsLessOrEqualv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsLessOrEqual(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmple_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] <= v2[0] && v1[1] <= v2[1] && v1[2] <= v2[2] && v1[3] <= v2[3]);
@@ -335,7 +335,7 @@ bool PM_MATH_INLINE pm_IsLessOrEqual(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsGreaterv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmpgt_ps(v1, v2);
 #else
 	vec r;
@@ -349,7 +349,7 @@ vec PM_MATH_INLINE pm_IsGreaterv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsGreater(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmpgt_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] > v2[0] && v1[1] > v2[1] && v1[2] > v2[2] && v1[3] > v2[3]);
@@ -358,7 +358,7 @@ bool PM_MATH_INLINE pm_IsGreater(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsGreaterOrEqualv(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_cmpge_ps(v1, v2);
 #else
 	vec r;
@@ -372,7 +372,7 @@ vec PM_MATH_INLINE pm_IsGreaterOrEqualv(const vec& v1, const vec& v2)
 
 bool PM_MATH_INLINE pm_IsGreaterOrEqual(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return (_mm_movemask_ps(_mm_cmpge_ps(v1, v2)) & 0xF) == 0xF;
 #else
 	return (v1[0] >= v2[0] && v1[1] >= v2[1] && v1[2] >= v2[2] && v1[3] >= v2[3]);
@@ -381,7 +381,7 @@ bool PM_MATH_INLINE pm_IsGreaterOrEqual(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_IsInBounds(const vec& v, const vec& bounds)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	//Check if less or equal than negate and check again if less or equal. Next "and" both results.
 	vec tmp1 = _mm_cmple_ps(v, bounds);
 	vec tmp2 = _mm_mul_ps(bounds, _mm_set1_ps(-1.0f));
@@ -399,7 +399,7 @@ vec PM_MATH_INLINE pm_IsInBounds(const vec& v, const vec& bounds)
 
 vec PM_MATH_INLINE pm_Negate(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_sub_ps(_mm_set1_ps(0.0f), v);
 #else
 	vec r;
@@ -413,7 +413,7 @@ vec PM_MATH_INLINE pm_Negate(const vec& v)
 
 vec PM_MATH_INLINE pm_Add(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_add_ps(v1, v2);
 #else
 	vec r;
@@ -427,7 +427,7 @@ vec PM_MATH_INLINE pm_Add(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_Subtract(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_sub_ps(v1, v2);
 #else
 	vec r;
@@ -441,7 +441,7 @@ vec PM_MATH_INLINE pm_Subtract(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_Multiply(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_mul_ps(v1, v2);
 #else
 	vec r;
@@ -455,7 +455,7 @@ vec PM_MATH_INLINE pm_Multiply(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_Divide(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_div_ps(v1, v2);
 #else
 	vec r;
@@ -469,7 +469,7 @@ vec PM_MATH_INLINE pm_Divide(const vec& v1, const vec& v2)
 
 vec PM_MATH_INLINE pm_Scale(const vec& v, float factor)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_mul_ps(v, _mm_set1_ps(factor));
 #else
 	vec r;
@@ -483,7 +483,7 @@ vec PM_MATH_INLINE pm_Scale(const vec& v, float factor)
 
 vec PM_MATH_INLINE pm_MultiplyAdd(const vec& v1, const vec& v2, const vec& v3)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_add_ps(_mm_mul_ps(v1, v2), v3);
 #else
 	vec r;
@@ -497,7 +497,7 @@ vec PM_MATH_INLINE pm_MultiplyAdd(const vec& v1, const vec& v2, const vec& v3)
 
 vec PM_MATH_INLINE pm_Reciprocal(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_rcp_ps(v);
 #else
 	//Faster?
@@ -526,7 +526,7 @@ vec PM_MATH_INLINE pm_Reciprocal(const vec& v, int n)
  */
 vec PM_MATH_INLINE pm_Sqrt(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_sqrt_ps(v);
 #else
 	return pm_Multiply(v, pm_ReciprocalSqrt(v));
@@ -535,7 +535,7 @@ vec PM_MATH_INLINE pm_Sqrt(const vec& v)
 
 vec PM_MATH_INLINE pm_ReciprocalSqrt(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_rsqrt_ps(v);
 #else
 	union
@@ -585,7 +585,7 @@ vec PM_MATH_INLINE pm_ReciprocalSqrt(const vec& v)
 
 vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	//I'm not happy with this :(
 	return _mm_setr_ps(
 		std::pow(pm_GetX(v1), pm_GetX(v2)),
@@ -609,7 +609,7 @@ vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
  */
 vec PM_MATH_INLINE pm_Exp(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setr_ps(
 		std::exp(pm_GetX(v)),
 		std::exp(pm_GetY(v)),
@@ -630,7 +630,7 @@ vec PM_MATH_INLINE pm_Exp(const vec& v)
  */
 vec PM_MATH_INLINE pm_Log(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setr_ps(
 		std::log(pm_GetX(v)),
 		std::log(pm_GetY(v)),
@@ -653,7 +653,7 @@ vec PM_MATH_INLINE pm_Log(const vec& v)
  */
 vec PM_MATH_INLINE pm_Sin(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec s = _mm_mul_ps(v, v);
 	vec p = _mm_mul_ps(v, s);
 	vec r = _mm_add_ps(v, _mm_mul_ps(_mm_set1_ps(-0.16666666666667f), p));
@@ -708,7 +708,7 @@ vec PM_MATH_INLINE pm_Sin(const vec& v)
  */
 vec PM_MATH_INLINE pm_Cos(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec s = _mm_mul_ps(v, v);//x^2
 	vec r = _mm_add_ps(_mm_set1_ps(1), _mm_mul_ps(_mm_set1_ps(-0.5f), s));//-x^2/2+1
 
@@ -758,7 +758,7 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 template<>
 void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec s = _mm_mul_ps(v, v);
 	vec sinp = _mm_mul_ps(v, s);
 	vec cosp = _mm_mul_ps(s, s);
@@ -830,7 +830,7 @@ void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
  */
 vec PM_MATH_INLINE pm_Tan(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	/*vec s = _mm_mul_ps(v, v);
 	vec p = _mm_mul_ps(v, s);
 	vec r = v;
@@ -916,7 +916,7 @@ vec PM_MATH_INLINE pm_Tan(const vec& v)
  */
 vec PM_MATH_INLINE pm_ASin(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setr_ps(
 		std::asin(pm_GetX(v)),
 		std::asin(pm_GetY(v)),
@@ -937,7 +937,7 @@ vec PM_MATH_INLINE pm_ASin(const vec& v)
  */
 vec PM_MATH_INLINE pm_ACos(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setr_ps(
 		std::acos(pm_GetX(v)),
 		std::acos(pm_GetY(v)),
@@ -958,7 +958,7 @@ vec PM_MATH_INLINE pm_ACos(const vec& v)
  */
 vec PM_MATH_INLINE pm_ATan(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_setr_ps(
 		std::atan(pm_GetX(v)),
 		std::atan(pm_GetY(v)),
@@ -976,7 +976,7 @@ vec PM_MATH_INLINE pm_ATan(const vec& v)
 
 vec PM_MATH_INLINE pm_Lerp(const vec& v1, const vec& v2, const vec& t)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_add_ps(_mm_mul_ps(_mm_sub_ps(v2, v1), t), v1);
 #else
 	return pm_Add(v1, pm_Multiply(pm_Subtract(v2, v1), t));
@@ -985,7 +985,7 @@ vec PM_MATH_INLINE pm_Lerp(const vec& v1, const vec& v2, const vec& t)
 
 vec PM_MATH_INLINE pm_NLerp(const vec& v1, const vec& v2, const vec& t)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return pm_Normalize4D(_mm_add_ps(_mm_mul_ps(_mm_sub_ps(v2, v1), t), v1));
 #else
 	return pm_Normalize4D(pm_Add(v1, pm_Multiply(pm_Subtract(v2, v1), t)));
@@ -994,7 +994,7 @@ vec PM_MATH_INLINE pm_NLerp(const vec& v1, const vec& v2, const vec& t)
 
 vec PM_MATH_INLINE pm_SLerp(const vec& v1, const vec& v2, const vec& t)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	static const vec lerp_threshold = _mm_set1_ps(PM_VECTOR_SLERP_THRESHOLD);
 	static const vec one = _mm_set1_ps(1.0f);
 
@@ -1032,7 +1032,7 @@ vec PM_MATH_INLINE pm_SLerp(const vec& v1, const vec& v2, const vec& t)
 template<>
 vec PM_MATH_INLINE pm_Max<vec>(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_max_ps(v1, v2);
 #else
 	vec r;
@@ -1047,7 +1047,7 @@ vec PM_MATH_INLINE pm_Max<vec>(const vec& v1, const vec& v2)
 template<>
 vec PM_MATH_INLINE pm_Min<vec>(const vec& v1, const vec& v2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_min_ps(v1, v2);
 #else
 	vec r;
@@ -1063,7 +1063,7 @@ template<>
 vec PM_MATH_INLINE pm_Clamp<vec>(const vec& v, const vec& min, const vec& max)
 {
 	PM_DEBUG_ASSERT(pm_IsLessOrEqual(min, max));
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_min_ps(_mm_max_ps(min, v), max);
 #else
 	vec r;
@@ -1077,7 +1077,7 @@ vec PM_MATH_INLINE pm_Clamp<vec>(const vec& v, const vec& min, const vec& max)
 
 vec PM_MATH_INLINE pm_Abs(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	static const vec sign_mask = _mm_set1_ps(-0.0f);
     return _mm_andnot_ps(sign_mask, v);
 #else
@@ -1092,7 +1092,7 @@ vec PM_MATH_INLINE pm_Abs(const vec& v)
 
 vec PM_MATH_INLINE pm_Saturate(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	static const vec one = _mm_set1_ps(1.0f);
 	static const vec zero = _mm_setzero_ps();
 	return _mm_min_ps(_mm_max_ps(v, zero), one);
@@ -1103,7 +1103,7 @@ vec PM_MATH_INLINE pm_Saturate(const vec& v)
 
 vec PM_MATH_INLINE pm_Load4D(const float src[4])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4] = { src[0], src[1], src[2], src[3] };
 	return _mm_load_ps(t);
 #else
@@ -1118,7 +1118,7 @@ vec PM_MATH_INLINE pm_Load4D(const float src[4])
 
 void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4];
 	_mm_store_ps(t, v);
 	dst[0] = t[0];
@@ -1135,7 +1135,7 @@ void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 
 float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 {
-#if defined(PM_USE_SIMD)
+#if defined(PM_WITH_SIMD)
 # if defined(PM_USE_SSE4)
 	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0xF1));
 # else
@@ -1152,8 +1152,8 @@ float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 
 float PM_MATH_INLINE pm_Magnitude4D(const vec4& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0xF1)));
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1184,8 +1184,8 @@ vec4 PM_MATH_INLINE pm_Normalize4D(const vec4& v)
 
 vec4 PM_MATH_INLINE pm_QualityNormalize4D(const vec4& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0xFF)));
 # else
 	__m128 s = _mm_mul_ps(v, v);
@@ -1203,8 +1203,8 @@ vec4 PM_MATH_INLINE pm_QualityNormalize4D(const vec4& v)
 
 vec4 PM_MATH_INLINE pm_FastNormalize4D(const vec4& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0xFF)));
 # else
 	__m128 s = _mm_mul_ps(v, v);
@@ -1244,7 +1244,7 @@ float PM_MATH_INLINE pm_MinElement4D(const vec4& v)
 
 vec PM_MATH_INLINE pm_Load3D(const float src[3])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4] = { src[0], src[1], src[2], 0 };
 	return _mm_load_ps(t);
 #else
@@ -1258,7 +1258,7 @@ vec PM_MATH_INLINE pm_Load3D(const float src[3])
 
 void PM_MATH_INLINE pm_Store3D(const vec3& v, float dst[3])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4];
 	_mm_store_ps(t, v);
 	dst[0] = t[0];
@@ -1273,8 +1273,8 @@ void PM_MATH_INLINE pm_Store3D(const vec3& v, float dst[3])
 
 float PM_MATH_INLINE pm_Dot3D(const vec3& v1, const vec3& v2)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0x71));
 # else
 	vec s = _mm_mul_ps(v1, v2);
@@ -1289,7 +1289,7 @@ float PM_MATH_INLINE pm_Dot3D(const vec3& v1, const vec3& v2)
 
 vec3 PM_MATH_INLINE pm_Cross3D(const vec3& v1, const vec3& v2)
 {
-#if defined(PM_USE_SIMD)
+#if defined(PM_WITH_SIMD)
 	/*return _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 0, 2, 1)),
 		_mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 1, 0, 2))),
 		_mm_mul_ps(_mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 1, 0, 2)),
@@ -1310,8 +1310,8 @@ vec3 PM_MATH_INLINE pm_Cross3D(const vec3& v1, const vec3& v2)
 
 float PM_MATH_INLINE pm_Magnitude3D(const vec3& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0x71)));
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1341,8 +1341,8 @@ vec3 PM_MATH_INLINE pm_Normalize3D(const vec3& v)
 
 vec3 PM_MATH_INLINE pm_QualityNormalize3D(const vec3& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0x7F)));
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1359,8 +1359,8 @@ vec3 PM_MATH_INLINE pm_QualityNormalize3D(const vec3& v)
 
 vec3 PM_MATH_INLINE pm_FastNormalize3D(const vec3& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0x7F)));// Should be 0x77, but x/0 is not good :P
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1397,7 +1397,7 @@ float PM_MATH_INLINE pm_MinElement3D(const vec3& v)
 
 vec PM_MATH_INLINE pm_Load2D(const float src[2])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4] = { src[0], src[1], 0, 0 };
 	return _mm_load_ps(t);
 #else
@@ -1410,7 +1410,7 @@ vec PM_MATH_INLINE pm_Load2D(const float src[2])
 
 void PM_MATH_INLINE pm_Store2D(const vec& v, float dst[2])
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	PM_ALIGN(16) float t[4];
 	_mm_store_ps(t, v);
 	dst[0] = t[0];
@@ -1423,8 +1423,8 @@ void PM_MATH_INLINE pm_Store2D(const vec& v, float dst[2])
 
 float PM_MATH_INLINE pm_Dot2D(const vec2& v1, const vec2& v2)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0x31));
 # else
 	vec s = _mm_mul_ps(v1, v2);
@@ -1438,8 +1438,8 @@ float PM_MATH_INLINE pm_Dot2D(const vec2& v1, const vec2& v2)
 
 float PM_MATH_INLINE pm_Magnitude2D(const vec2& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(v, v, 0x31)));
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1468,8 +1468,8 @@ vec2 PM_MATH_INLINE pm_Normalize2D(const vec2& v)
 
 vec2 PM_MATH_INLINE pm_QualityNormalize2D(const vec2& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_div_ps(v, _mm_sqrt_ps(_mm_dp_ps(v, v, 0x3F)));
 # else
 	vec s = _mm_mul_ps(v, v);
@@ -1485,8 +1485,8 @@ vec2 PM_MATH_INLINE pm_QualityNormalize2D(const vec2& v)
 
 vec2 PM_MATH_INLINE pm_FastNormalize2D(const vec2& v)
 {
-#if defined(PM_USE_SIMD)
-# if defined(PM_USE_SSE4)
+#if defined(PM_WITH_SIMD)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_mul_ps(v, _mm_rsqrt_ps(_mm_dp_ps(v, v, 0x3F)));// Should be 0x33, but x/0 is not good :P
 # else
 	vec s = _mm_mul_ps(v, v);

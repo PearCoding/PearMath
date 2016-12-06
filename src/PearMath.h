@@ -83,6 +83,9 @@
 
 #if defined(__INTEL_COMPILER)
 # define PM_CC_INTEL
+# ifdef PM_CC_NAME
+#  undef PM_CC_NAME
+# endif
 # define PM_CC_NAME "Intel C/C++"
 #endif
 
@@ -105,28 +108,20 @@
 #endif
 
 #ifdef PM_CC_MSC
-# define PM_DEBUG_BREAK() __debugbreak()
 # define PM_ALIGN(x) __declspec(align(x))
 #else//FIXME: Really use cpu dependent assembler?
-# define PM_DEBUG_BREAK() __asm__ __volatile__ ("int $0x03")
 # define PM_ALIGN(x) __attribute__((aligned(x)))
 #endif
 
 #ifndef PM_NO_ASSERTS
-# define PM_ASSERT(cond) \
-	do \
-		{ \
-		if(!(cond)) \
-				{ \
-			PM_DEBUG_BREAK(); \
-				} \
-		} while(0)
+#include <assert.h>
+# define PM_ASSERT(cond) assert((cond))
 #else
 # define PM_ASSERT(cond)
 #endif
 
 #if defined(PM_DEBUG)
-# define PM_DEBUG_ASSERT(cond) PM_ASSERT(cond)
+# define PM_DEBUG_ASSERT(cond) PM_ASSERT((cond))
 #else
 # define PM_DEBUG_ASSERT(cond) PM::pm_Noop()
 #endif
@@ -140,41 +135,13 @@
 # define PM_MATH_INLINE
 #endif
 
-#if !defined(PM_NO_SIMD) && (defined(__SSE__) || _M_IX86_FP == 1 || defined(_M_X64 ) || defined(PM_FORCE_SSE))
-# include <xmmintrin.h>
-# define PM_USE_SSE
+#ifdef PM_CC_GNU
+# include <x86intrin.h>
+#else
+# include <intrin.h>
 #endif
 
-#if !defined(PM_NO_SIMD) && (defined(__SSE2__) || _M_IX86_FP == 2 || defined(_M_X64 ) || defined(PM_FORCE_SSE2))
-# include <emmintrin.h>
-# define PM_USE_SSE2
-#endif
-
-#if !defined(PM_NO_SIMD) && (defined(__SSE3__) || defined(PM_FORCE_SSE3))
-# include <pmmintrin.h>
-# define PM_USE_SSE3
-#endif
-
-#if !defined(PM_NO_SIMD) && (defined(__SSSE3__) || defined(PM_FORCE_SSSE3))
-# include <tmmintrin.h>
-# define PM_USE_SSSE3
-#endif
-
-#if !defined(PM_NO_SIMD) && (defined(__SSE4__) || defined(PM_FORCE_SSE4))
-# include <smmintrin.h>
-# define PM_USE_SSE4
-#endif
-
-#if defined(PM_USE_SSE) || \
-		defined(PM_USE_SSE2) || \
-		defined(PM_USE_SSE3) || \
-		defined(PM_USE_SSSE3) || \
-		defined(PM_USE_SSE4)
-# ifndef PM_USE_SIMD
-#  define PM_USE_SIMD
-# endif
-#endif
-
+// Constants
 #define PM_PI				(3.1415926535897932384626433832795)
 #define PM_2_PI				(2*PM_PI)
 #define PM_4_PI				(4*PM_PI)
@@ -377,7 +344,7 @@ namespace PM
 	typedef unsigned long int uint64;
 #endif
 
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	typedef __m128 vec;
 #else
 	struct PM_ALIGN(16) vec
@@ -623,8 +590,6 @@ namespace PM
 	float pm_Determinant2D(const mat& m);
 	float pm_Determinant3D(const mat& m);
 	float pm_Determinant4D(const mat& m);
-
-	vec pm_Transform(const mat& m, const vec& v);
 
 	mat pm_Perspective(float width, float height, float near, float far);
 	mat pm_Orthographic(float width, float height, float near, float far);

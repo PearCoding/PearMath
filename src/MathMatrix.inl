@@ -36,7 +36,7 @@
 
 mat PM_MATH_INLINE pm_LoadMatrix(const float* tr)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat r;
 	r.v[0] = _mm_load_ps(&tr[0]);
 	r.v[1] = _mm_load_ps(&tr[4]);
@@ -56,7 +56,7 @@ mat PM_MATH_INLINE pm_LoadMatrix(const float* tr)
 void PM_MATH_INLINE pm_StoreMatrix(const mat& tr, float* r)
 {
 	//Reverse???
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	_mm_store_ps(&r[0], tr.v[0]);
 	_mm_store_ps(&r[4], tr.v[1]);
 	_mm_store_ps(&r[8], tr.v[2]);
@@ -93,7 +93,7 @@ mat PM_MATH_INLINE pm_Identity()
 
 mat PM_MATH_INLINE pm_ZeroMatrix()
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat r;
 	r.v[0] = _mm_setzero_ps();
 	r.v[1] = _mm_setzero_ps();
@@ -120,7 +120,7 @@ mat PM_MATH_INLINE pm_Translation(const vec& v)
 //TODO: Optimize...
 mat PM_MATH_INLINE pm_Rotation(const quat& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	float xx = pm_GetX(v) * pm_GetX(v);
 	float xy = pm_GetX(v) * pm_GetY(v);
 	float xz = pm_GetX(v) * pm_GetZ(v);
@@ -193,7 +193,7 @@ mat PM_MATH_INLINE pm_Rotation(const quat& v)
 //TODO: Optimize...
 mat PM_MATH_INLINE pm_Rotation(const vec& v, float angle)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	float c = cosf(angle);
 	float s = sinf(angle);
 	float t = 1 - c;
@@ -240,7 +240,7 @@ mat PM_MATH_INLINE pm_Rotation(const vec& v, float angle)
 
 mat PM_MATH_INLINE pm_RotationYawPitchRoll(const vec& v)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	vec si;
 	vec co;
 	pm_SinCos(v, si, co);
@@ -459,7 +459,7 @@ bool PM_MATH_INLINE pm_IsNotEqual(const mat& m1, const mat& m2)
 
 mat PM_MATH_INLINE pm_Negate(const mat& m)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat r;
 	vec zero = _mm_setzero_ps();
 	r.v[0] = _mm_sub_ps(zero, m.v[0]);
@@ -521,7 +521,7 @@ mat PM_MATH_INLINE pm_Subtract(const mat& m, float s)
 
 mat PM_MATH_INLINE pm_Multiply(const mat& m1, const mat& m2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat r;
 	vec row = m1.v[0];
 
@@ -628,8 +628,8 @@ mat PM_MATH_INLINE pm_Multiply(const mat& m1, const mat& m2)
 
 vec PM_MATH_INLINE pm_Multiply(const mat& m, const vec& v)
 {
-#ifdef PM_USE_SIMD
-# ifndef PM_USE_SSE3
+#ifdef PM_WITH_SIMD
+# ifndef PM_WITH_SSE3
 	return PM::pm_Set(pm_Dot4D(m.v[0], v),
 		pm_Dot4D(m.v[1], v),
 		pm_Dot4D(m.v[2], v),
@@ -654,21 +654,12 @@ vec PM_MATH_INLINE pm_Multiply(const mat& m, const vec& v)
 
 mat PM_MATH_INLINE pm_MultiplyElement(const mat& m1, const mat& m2)
 {
-#ifdef PM_USE_SIMD
-	mat r;
-	r.v[0] = _mm_mul_ps(m1.v[0], m2.v[0]);
-	r.v[1] = _mm_mul_ps(m1.v[1], m2.v[1]);
-	r.v[2] = _mm_mul_ps(m1.v[2], m2.v[2]);
-	r.v[3] = _mm_mul_ps(m1.v[3], m2.v[3]);
-	return r;
-#else
 	mat r;
 	r.v[0] = pm_Multiply(m1.v[0], m2.v[0]);
 	r.v[1] = pm_Multiply(m1.v[1], m2.v[1]);
 	r.v[2] = pm_Multiply(m1.v[2], m2.v[2]);
 	r.v[3] = pm_Multiply(m1.v[3], m2.v[3]);
 	return r;
-#endif
 }
 
 mat PM_MATH_INLINE pm_Multiply(const mat& m, float s)
@@ -706,7 +697,7 @@ mat PM_MATH_INLINE pm_Divide(const mat& m, float s)
 
 mat PM_MATH_INLINE pm_Transpose(const mat& m)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat r;
 
 	vec tmp = _mm_shuffle_ps(m.v[0], m.v[1], _MM_SHUFFLE(1, 0, 1, 0));
@@ -791,7 +782,7 @@ mat PM_MATH_INLINE pm_Inverse3D(const mat& m, float* determinant)
 
 mat PM_MATH_INLINE pm_Inverse4D(const mat& m, float* determinant)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	mat tr = pm_Transpose(m);
 
 	vec m00 = _mm_shuffle_ps(tr.v[2], tr.v[2], _MM_SHUFFLE(1, 1, 0, 0));
@@ -985,13 +976,6 @@ float PM_MATH_INLINE pm_Determinant4D(const mat& m)
 	float detD;
 	const float t = pm_Determinant2D(pm_Subtract(A, pm_Multiply(B, pm_Multiply(pm_Inverse2D(D, &detD), C)))); 
 	return t * detD;
-}
-
-vec PM_MATH_INLINE pm_Transform(const mat& m, const vec& v)
-{
-	const vec t = pm_Multiply(m, v);
-	//return pm_Scale(t, 1.0f/pm_GetW(t));
-	return t;
 }
 
 //Right handled

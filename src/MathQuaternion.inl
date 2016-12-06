@@ -39,7 +39,7 @@ quat PM_MATH_INLINE pm_IdentityQuat()
 
 quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	const vec mask = _mm_setr_ps(1.0, 1.0, 1.0, -1.0);
 	const vec flip1 = _mm_mul_ps(
 		_mm_mul_ps(
@@ -72,7 +72,7 @@ quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
 
 quat PM_MATH_INLINE pm_ConjugateQuat(const quat& q)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	return _mm_mul_ps(q, _mm_setr_ps(-1, -1, -1, 1));
 #else
 	quat r;
@@ -86,7 +86,7 @@ quat PM_MATH_INLINE pm_ConjugateQuat(const quat& q)
 
 quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 {
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	quat r = _mm_mul_ps(q, _mm_setr_ps(-1, -1, -1, 1));
 	vec s = _mm_mul_ps(q, q);
 	s = _mm_rcp_ps(_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
