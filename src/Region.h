@@ -97,8 +97,7 @@ namespace PM
 
 		inline vec3 area() const
 		{
-			vec3 s = PM::pm_Subtract(mUpperCorner, mLowerCorner);
-			return PM::pm_Set(abs(PM::pm_GetX(s)), abs(PM::pm_GetY(s)), abs(PM::pm_GetZ(s)));
+			return PM::pm_Abs(PM::pm_Subtract(mUpperCorner, mLowerCorner));
 		}
 
 	private:

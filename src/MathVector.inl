@@ -586,6 +586,9 @@ vec PM_MATH_INLINE pm_ReciprocalSqrt(const vec& v)
 vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_pow_ps(v1, v2);
+# else
 	//I'm not happy with this :(
 	return _mm_setr_ps(
 		std::pow(pm_GetX(v1), pm_GetX(v2)),
@@ -593,6 +596,7 @@ vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
 		std::pow(pm_GetZ(v1), pm_GetZ(v2)),
 		std::pow(pm_GetW(v1), pm_GetW(v2)));
 	//return pm_Exp(_mm_mul_ps(pm_Log(v1), v2));
+# endif
 #else
 	vec r;
 	r[0] = std::pow(v1[0], v2[0]);
@@ -610,11 +614,15 @@ vec PM_MATH_INLINE pm_Pow(const vec& v1, const vec& v2)
 vec PM_MATH_INLINE pm_Exp(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_exp_ps(v);
+# else
 	return _mm_setr_ps(
 		std::exp(pm_GetX(v)),
 		std::exp(pm_GetY(v)),
 		std::exp(pm_GetZ(v)),
 		std::exp(pm_GetW(v)));
+# endif
 #else
 	vec r;
 	r[0] = std::exp(v[0]);
@@ -625,23 +633,223 @@ vec PM_MATH_INLINE pm_Exp(const vec& v)
 #endif
 }
 
+vec PM_MATH_INLINE pm_Exp2(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_exp2_ps(v);
+# else
+#  ifdef PM_WITH_CPP11
+	return _mm_setr_ps(
+		std::exp2(pm_GetX(v)),
+		std::exp2(pm_GetY(v)),
+		std::exp2(pm_GetZ(v)),
+		std::exp2(pm_GetW(v)));
+#  else
+	return _mm_setr_ps(
+		std::exp(pm_GetX(v)*PM_LOG_2_F),
+		std::exp(pm_GetY(v)*PM_LOG_2_F),
+		std::exp(pm_GetZ(v)*PM_LOG_2_F),
+		std::exp(pm_GetW(v)*PM_LOG_2_F));
+#  endif//PM_WITH_CPP11
+# endif// PM_WITH_SVML
+#else
+	vec r;
+# ifdef PM_WITH_CPP11
+	r[0] = std::exp2(v[0]);
+	r[1] = std::exp2(v[1]);
+	r[2] = std::exp2(v[2]);
+	r[3] = std::exp2(v[3]);
+# else
+	r[0] = std::exp(v[0]*PM_LOG_2_F);
+	r[1] = std::exp(v[1]*PM_LOG_2_F);
+	r[2] = std::exp(v[2]*PM_LOG_2_F);
+	r[3] = std::exp(v[3]*PM_LOG_2_F);
+# endif//PM_WITH_CPP11
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_Exp10(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_exp10_ps(v);
+# else
+	return _mm_setr_ps(
+		std::exp(pm_GetX(v)*PM_LOG_10_F),
+		std::exp(pm_GetY(v)*PM_LOG_10_F),
+		std::exp(pm_GetZ(v)*PM_LOG_10_F),
+		std::exp(pm_GetW(v)*PM_LOG_10_F));
+# endif// PM_WITH_SVML
+#else
+	vec r;
+	r[0] = std::exp(v[0]*PM_LOG_10_F);
+	r[1] = std::exp(v[1]*PM_LOG_10_F);
+	r[2] = std::exp(v[2]*PM_LOG_10_F);
+	r[3] = std::exp(v[3]*PM_LOG_10_F);
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_ExpM1(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_expm1_ps(v);
+# else
+#  ifdef PM_WITH_CPP11
+	return _mm_setr_ps(
+		std::expm1(pm_GetX(v)),
+		std::expm1(pm_GetY(v)),
+		std::expm1(pm_GetZ(v)),
+		std::expm1(pm_GetW(v)));
+#  else
+	static const vec minus = _mm_set1_ps(-1.0f); 
+	return pm_Add(_mm_setr_ps(
+		std::exp(pm_GetX(v)),
+		std::exp(pm_GetY(v)),
+		std::exp(pm_GetZ(v)),
+		std::exp(pm_GetW(v))),
+	minus);
+#  endif//PM_WITH_CPP11
+# endif// PM_WITH_SVML
+#else
+	vec r;
+# ifdef PM_WITH_CPP11
+	r[0] = std::expm1(v[0]);
+	r[1] = std::expm1(v[1]);
+	r[2] = std::expm1(v[2]);
+	r[3] = std::expm1(v[3]);
+# else
+	r[0] = std::exp(v[0]) - 1;
+	r[1] = std::exp(v[1]) - 1;
+	r[2] = std::exp(v[2]) - 1;
+	r[3] = std::exp(v[3]) - 1;
+# endif//PM_WITH_CPP11
+	return r;
+#endif
+}
+
 /*
  * @todo Implement own approximation...
  */
 vec PM_MATH_INLINE pm_Log(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_log_ps(v);
+# else
 	return _mm_setr_ps(
 		std::log(pm_GetX(v)),
 		std::log(pm_GetY(v)),
 		std::log(pm_GetZ(v)),
 		std::log(pm_GetW(v)));
+# endif//PM_WITH_SVML
 #else
 	vec r;
 	r[0] = std::log(v[0]);
 	r[1] = std::log(v[1]);
 	r[2] = std::log(v[2]);
 	r[3] = std::log(v[3]);
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_Log2(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_log2_ps(v);
+# else
+#  ifdef PM_WITH_CPP11
+	return _mm_setr_ps(
+		std::log2(pm_GetX(v)),
+		std::log2(pm_GetY(v)),
+		std::log2(pm_GetZ(v)),
+		std::log2(pm_GetW(v)));
+#  else
+	return _mm_setr_ps(
+		std::log(pm_GetX(v))*PM_INV_LOG_2_F,
+		std::log(pm_GetY(v))*PM_INV_LOG_2_F,
+		std::log(pm_GetZ(v))*PM_INV_LOG_2_F,
+		std::log(pm_GetW(v))*PM_INV_LOG_2_F);
+#  endif//PM_WITH_CPP11
+# endif//PM_WITH_SVML
+#else
+	vec r;
+# ifdef PM_WITH_CPP11
+	r[0] = std::log2(v[0]);
+	r[1] = std::log2(v[1]);
+	r[2] = std::log2(v[2]);
+	r[3] = std::log2(v[3]);
+# else
+	r[0] = std::log(v[0])*PM_INV_LOG_2_F;
+	r[1] = std::log(v[1])*PM_INV_LOG_2_F;
+	r[2] = std::log(v[2])*PM_INV_LOG_2_F;
+	r[3] = std::log(v[3])*PM_INV_LOG_2_F;
+# endif//PM_WITH_CPP11
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_Log10(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_log10_ps(v);
+# else
+	return _mm_setr_ps(
+		std::log10(pm_GetX(v)),
+		std::log10(pm_GetY(v)),
+		std::log10(pm_GetZ(v)),
+		std::log10(pm_GetW(v)));
+# endif//PM_WITH_SVML
+#else
+	vec r;
+	r[0] = std::log10(v[0]);
+	r[1] = std::log10(v[1]);
+	r[2] = std::log10(v[2]);
+	r[3] = std::log10(v[3]);
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_Log1P(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_log1p_ps(v);
+# else
+#  ifdef PM_WITH_CPP11
+	return _mm_setr_ps(
+		std::log1p(pm_GetX(v)),
+		std::log1p(pm_GetY(v)),
+		std::log1p(pm_GetZ(v)),
+		std::log1p(pm_GetW(v)));
+#  else
+	static const vec plus = _mm_set1_ps(1.0f);
+	return pm_Add(_mm_setr_ps(
+		std::log(pm_GetX(v)),
+		std::log(pm_GetY(v)),
+		std::log(pm_GetZ(v)),
+		std::log(pm_GetW(v))),
+	plus);
+#  endif//PM_WITH_CPP11
+# endif//PM_WITH_SVML
+#else
+	vec r;
+# ifdef PM_WITH_CPP11
+	r[0] = std::log1p(v[0]);
+	r[1] = std::log1p(v[1]);
+	r[2] = std::log1p(v[2]);
+	r[3] = std::log1p(v[3]);
+# else
+	r[0] = std::log(v[0]+1);
+	r[1] = std::log(v[1]+1);
+	r[2] = std::log(v[2]+1);
+	r[3] = std::log(v[3]+1);
+# endif//PM_WITH_CPP11
 	return r;
 #endif
 }
@@ -654,6 +862,9 @@ vec PM_MATH_INLINE pm_Log(const vec& v)
 vec PM_MATH_INLINE pm_Sin(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_sin_ps(v);
+# else
 	vec s = _mm_mul_ps(v, v);
 	vec p = _mm_mul_ps(v, s);
 	vec r = _mm_add_ps(v, _mm_mul_ps(_mm_set1_ps(-0.16666666666667f), p));
@@ -670,7 +881,7 @@ vec PM_MATH_INLINE pm_Sin(const vec& v)
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(-2.505210838544172e-8f), p));
 
-#if PM_MATH_SIN_QUAL >= 1
+#  if PM_MATH_SIN_QUAL >= 1
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(1.6059043836821613e-10f), p));
 
@@ -685,13 +896,10 @@ vec PM_MATH_INLINE pm_Sin(const vec& v)
 
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(1.9572941063391263e-20f), p));
-#endif
-
+#  endif//PM_MATH_SIN_QUAL >= 1
 	return r;
+# endif//PM_WITH_SVML
 #else
-	/*
-	 * Use this or the c implementation from above??
-	 */
 	vec r;
 	r[0] = std::sin(v[0]);
 	r[1] = std::sin(v[1]);
@@ -709,6 +917,9 @@ vec PM_MATH_INLINE pm_Sin(const vec& v)
 vec PM_MATH_INLINE pm_Cos(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_cos_ps(v);
+# else
 	vec s = _mm_mul_ps(v, v);//x^2
 	vec r = _mm_add_ps(_mm_set1_ps(1), _mm_mul_ps(_mm_set1_ps(-0.5f), s));//-x^2/2+1
 
@@ -724,7 +935,7 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(-2.7557319223985888e-7f), p));//-x^10/3628800+x^8/40320-x^6/720+x^4/24-x^2/2+1
 
-#if PM_MATH_COS_QUAL >= 1
+#  if PM_MATH_COS_QUAL >= 1
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(2.08767569878681e-9f), p));
 
@@ -739,9 +950,9 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 
 	p = _mm_mul_ps(p, s);
 	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(4.1103176233121648e-19f), p));
-#endif
-
+#  endif//PM_MATH_COS_QUAL >= 1
 	return r;
+# endif//PM_WITH_SVML
 #else
 	/*
 	 * Use this or the c implementation from above??
@@ -756,66 +967,70 @@ vec PM_MATH_INLINE pm_Cos(const vec& v)
 }
 
 template<>
-void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
+void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& s, vec& c)
 {
 #ifdef PM_WITH_SIMD
-	vec s = _mm_mul_ps(v, v);
-	vec sinp = _mm_mul_ps(v, s);
-	vec cosp = _mm_mul_ps(s, s);
+# ifdef PM_WITH_SVML
+	s = _mm_sincos_ps(&c, v);
+# else
+	vec s2 = _mm_mul_ps(v, v);
+	vec sinp = _mm_mul_ps(v, s2);
+	vec cosp = _mm_mul_ps(s2, s2);
 
-	sin = _mm_add_ps(v, _mm_mul_ps(_mm_set1_ps(-0.16666666666667f), sinp));
-	cos = _mm_add_ps(_mm_set1_ps(1), _mm_mul_ps(_mm_set1_ps(-0.5f), s));
+	s = _mm_add_ps(v, _mm_mul_ps(_mm_set1_ps(-0.16666666666667f), sinp));
+	c = _mm_add_ps(_mm_set1_ps(1), _mm_mul_ps(_mm_set1_ps(-0.5f), s2));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(0.0083333333333333f), sinp));
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(0.041666666666667f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(0.0083333333333333f), sinp));
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(0.041666666666667f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(-1.9841269841269841e-4f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(-0.0013888888888889f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(-1.9841269841269841e-4f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(-0.0013888888888889f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(2.7557319223985893e-6f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(2.4801587301587302e-5f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(2.7557319223985893e-6f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(2.4801587301587302e-5f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(-2.505210838544172e-8f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(-2.7557319223985888e-7f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(-2.505210838544172e-8f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(-2.7557319223985888e-7f), cosp));
 
-#if PM_MATH_SIN_QUAL == 1 || PM_MATH_COS_QUAL == 1
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(1.6059043836821613e-10f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(2.08767569878681e-9f), cosp));
+#  if PM_MATH_SIN_QUAL == 1 || PM_MATH_COS_QUAL == 1
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(1.6059043836821613e-10f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(2.08767569878681e-9f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(-7.6471637318198164e-13f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(-1.1470745597729725e-11f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(-7.6471637318198164e-13f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(-1.1470745597729725e-11f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(2.8114572543455206e-15f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(4.7794773323873853e-14f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(2.8114572543455206e-15f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(4.7794773323873853e-14f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(-8.2206352466243295e-18f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(-1.5619206968586225e-16f), cosp));
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(-8.2206352466243295e-18f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(-1.5619206968586225e-16f), cosp));
 
-	sinp = _mm_mul_ps(sinp, s);
-	sin = _mm_add_ps(sin, _mm_mul_ps(_mm_set1_ps(1.9572941063391263e-20f), sinp));
-	cosp = _mm_mul_ps(cosp, s);
-	cos = _mm_add_ps(cos, _mm_mul_ps(_mm_set1_ps(4.1103176233121648e-19f), cosp));
-#endif
+	sinp = _mm_mul_ps(sinp, s2);
+	s = _mm_add_ps(s, _mm_mul_ps(_mm_set1_ps(1.9572941063391263e-20f), sinp));
+	cosp = _mm_mul_ps(cosp, s2);
+	c = _mm_add_ps(c, _mm_mul_ps(_mm_set1_ps(4.1103176233121648e-19f), cosp));
+#  endif//PM_MATH_SIN_QUAL == 1 || PM_MATH_COS_QUAL == 1
+# endif//PM_WITH_SVML
 #else
-	pm_SinCos(v[0], sin[0], cos[0]);
-	pm_SinCos(v[1], sin[1], cos[1]);
-	pm_SinCos(v[2], sin[2], cos[2]);
-	pm_SinCos(v[3], sin[3], cos[3]);
+	pm_SinCos(v[0], s[0], c[0]);
+	pm_SinCos(v[1], s[1], c[1]);
+	pm_SinCos(v[2], s[2], c[2]);
+	pm_SinCos(v[3], s[3], c[3]);
 #endif
 }
 
@@ -831,73 +1046,15 @@ void PM_MATH_INLINE pm_SinCos<vec>(const vec& v, vec& sin, vec& cos)
 vec PM_MATH_INLINE pm_Tan(const vec& v)
 {
 #ifdef PM_WITH_SIMD
-	/*vec s = _mm_mul_ps(v, v);
-	vec p = _mm_mul_ps(v, s);
-	vec r = v;
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.33333333333333f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.13333333333333f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.053968253968254f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.021869488536155f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.0088632355299022f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.0035921280365725f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(0.0014558343870513f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(5.9002744094558595e-4f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(2.3912911424355248e-4f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(9.6915379569294509e-5f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(3.9278323883316833e-5f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(1.5918905069328964e-5f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(6.4516892156554306e-6f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(2.6147711512907546e-6f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(1.0597268320104654e-6f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(4.2949110782738063e-7f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(1.7406618963571648e-7f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(7.0546369464009681e-8f), p));
-
-	p = _mm_mul_ps(p, s);
-	r = _mm_add_ps(r, _mm_mul_ps(_mm_set1_ps(2.859136662305254e-8f), p));
-
-	return r;*/
+# ifdef PM_WITH_SVML
+	return _mm_tan_ps(v);
+# else
 	return _mm_setr_ps(
 		std::tan(pm_GetX(v)),
 		std::tan(pm_GetY(v)),
 		std::tan(pm_GetZ(v)),
 		std::tan(pm_GetW(v)));
+# endif//PM_WITH_SVML
 #else
 	/*
 	 * Use this or the c implementation from above??
@@ -917,11 +1074,15 @@ vec PM_MATH_INLINE pm_Tan(const vec& v)
 vec PM_MATH_INLINE pm_ASin(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_asin_ps(v);
+# else
 	return _mm_setr_ps(
 		std::asin(pm_GetX(v)),
 		std::asin(pm_GetY(v)),
 		std::asin(pm_GetZ(v)),
 		std::asin(pm_GetW(v)));
+# endif
 #else
 	vec r;
 	r[0] = std::asin(v[0]);
@@ -938,11 +1099,15 @@ vec PM_MATH_INLINE pm_ASin(const vec& v)
 vec PM_MATH_INLINE pm_ACos(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_acos_ps(v);
+# else
 	return _mm_setr_ps(
 		std::acos(pm_GetX(v)),
 		std::acos(pm_GetY(v)),
 		std::acos(pm_GetZ(v)),
 		std::acos(pm_GetW(v)));
+# endif//PM_WITH_SVML
 #else
 	vec r;
 	r[0] = std::acos(v[0]);
@@ -959,11 +1124,15 @@ vec PM_MATH_INLINE pm_ACos(const vec& v)
 vec PM_MATH_INLINE pm_ATan(const vec& v)
 {
 #ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_atan_ps(v);
+# else
 	return _mm_setr_ps(
 		std::atan(pm_GetX(v)),
 		std::atan(pm_GetY(v)),
 		std::atan(pm_GetZ(v)),
 		std::atan(pm_GetW(v)));
+# endif//PM_WITH_SVML
 #else
 	vec r;
 	r[0] = std::atan(v[0]);
@@ -1101,6 +1270,50 @@ vec PM_MATH_INLINE pm_Saturate(const vec& v)
 #endif
 }
 
+vec PM_MATH_INLINE pm_Ceil(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_ceil_ps(v);
+# else
+	return _mm_setr_ps(
+		std::ceil(pm_GetX(v)),
+		std::ceil(pm_GetY(v)),
+		std::ceil(pm_GetZ(v)),
+		std::ceil(pm_GetW(v)));
+# endif//PM_WITH_SVML
+#else
+	vec r;
+	r[0] = std::ceil(v[0]);
+	r[1] = std::ceil(v[1]);
+	r[2] = std::ceil(v[2]);
+	r[3] = std::ceil(v[3]);
+	return r;
+#endif
+}
+
+vec PM_MATH_INLINE pm_Floor(const vec& v)
+{
+#ifdef PM_WITH_SIMD
+# ifdef PM_WITH_SVML
+	return _mm_floor_ps(v);
+# else
+	return _mm_setr_ps(
+		std::floor(pm_GetX(v)),
+		std::floor(pm_GetY(v)),
+		std::floor(pm_GetZ(v)),
+		std::floor(pm_GetW(v)));
+# endif//PM_WITH_SVML
+#else
+	vec r;
+	r[0] = std::floor(v[0]);
+	r[1] = std::floor(v[1]);
+	r[2] = std::floor(v[2]);
+	r[3] = std::floor(v[3]);
+	return r;
+#endif
+}
+
 vec PM_MATH_INLINE pm_Load4D(const float src[4])
 {
 #ifdef PM_WITH_SIMD
@@ -1136,7 +1349,7 @@ void PM_MATH_INLINE pm_Store4D(const vec& v, float dst[4])
 float PM_MATH_INLINE pm_Dot4D(const vec4& v1, const vec4& v2)
 {
 #if defined(PM_WITH_SIMD)
-# if defined(PM_USE_SSE4)
+# if defined(PM_WITH_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0xF1));
 # else
 	vec s = _mm_mul_ps(v1, v2);

@@ -135,10 +135,24 @@
 # define PM_MATH_INLINE
 #endif
 
+#ifdef PM_WITH_SIMD
+# if !defined(PM_WITH_SSE) or !defined(PM_WITH_SSE2)
+#  error Need atleast SSE and SSE2 support for SIMD features. Undef PM_WITH_SIMD to proceed, or fix code.
+# endif
+#endif
+
+#if defined(PM_CC_INTEL) && defined(PM_USE_SVML)
+# define PM_WITH_SVML
+#endif
+
 #ifdef PM_CC_GNU
 # include <x86intrin.h>
 #else
 # include <intrin.h>
+#endif
+
+#ifdef PM_WITH_SVML
+# include <immintrin.h>
 #endif
 
 // Constants
@@ -163,6 +177,11 @@
 #define PM_INV_4_PI_F			(PM_INV_PI_F*0.25f)
 #define PM_2_PI_360_DIV_F		(0.017453292519943295f)
 #define PM_INV_2_PI_360_DIV_F	(57.29577951308232087f)
+
+#define PM_LOG_2_F			(0.69314718056f)
+#define PM_LOG_10_F			(2.30258509299f)
+#define PM_INV_LOG_2_F		(1.44269504089f)
+#define PM_INV_LOG_10_F		(0.4342944819f)
 
 #ifndef PM_MATH_SQRT_APPROXIMATION_ERROR
 # define PM_MATH_SQRT_APPROXIMATION_ERROR (-0x4C000)
@@ -467,7 +486,13 @@ namespace PM
 	vec pm_ReciprocalSqrt(const vec& v);
 	vec pm_Pow(const vec& v1, const vec& v2);
 	vec pm_Exp(const vec& v);
+	vec pm_Exp2(const vec& v);
+	vec pm_Exp10(const vec& v);
+	vec pm_ExpM1(const vec& v);
 	vec pm_Log(const vec& v);
+	vec pm_Log2(const vec& v);
+	vec pm_Log10(const vec& v);
+	vec pm_Log1P(const vec& v);
 	vec pm_Sin(const vec& v);
 	vec pm_Cos(const vec& v);
 	template<>
@@ -490,6 +515,8 @@ namespace PM
 
 	vec pm_Abs(const vec& v);
 	vec pm_Saturate(const vec& v);
+	vec pm_Ceil(const vec& v);
+	vec pm_Floor(const vec& v);
 
 	vec4 pm_Load4D(const float src[4]);
 	void pm_Store4D(const vec4& v, float dst[4]);

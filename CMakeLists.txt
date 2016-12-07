@@ -51,6 +51,8 @@ SET(SIMD_FEATURES SSE SSE2 SSE3 SSSE3 SSE4_1 SSE4_2
 
 #OPTIONS
 option(PM_USE_SIMD "Enable SIMD support." ON)
+option(PM_USE_SVML "Enable Intel SVML library support if available." OFF)
+option(PM_USE_CPP11 "Enable C++11 support." ON)
 FOREACH(feature ${SIMD_FEATURES})
 	option(PM_FORCE_${feature} "Force the use of ${feature} even when detection fails." OFF)
 ENDFOREACH()
@@ -136,6 +138,14 @@ IF((NOT MSVC) AND PM_WITH_SIMD)
 	set(PM_COMPILE_FLAGS "${PM_COMPILE_FLAGS}" PARENT_SCOPE)
 ENDIF()
 
+IF(PM_USE_SVML)
+	SET(DEFS "${DEFS};PM_USE_SVML")
+ENDIF()
+
+IF(PM_USE_CPP11)
+	SET(DEFS "${DEFS};PM_WITH_CPP11")
+ENDIF()
+
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PM_COMPILE_FLAGS}")
 SET(PM_DEFS "${DEFS}" PARENT_SCOPE)
 SET(PM_DEFS_DEBUG "${DEFS_DEBUG}" PARENT_SCOPE)
@@ -157,8 +167,10 @@ SET(PM_TEST_Src
 
 #DEPENDIES, LIBARIES AND EXECUTABLES
 IF(NOT PM_ONLY_LIBRARY)
+	enable_testing()
 	add_executable(pm_test ${PM_TEST_Src} ${PM_Hdr})
-	set_target_properties(pm_test PROPERTIES COMPILE_DEFINITIONS "${DEFS}" COMPILE_DEFINITIONS_DEBUG "${DEFS_DEBUG}")
+	target_compile_definitions(pm_test${name} PRIVATE "${DEFS}" "$<$<CONFIG:Debug>:${DEFS_DEBUG}>")
+	add_test(NAME pearmath COMMAND pm_test)
 ENDIF(NOT PM_ONLY_LIBRARY)
 
 #INSTALL
