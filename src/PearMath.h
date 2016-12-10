@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014-2015, �mercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2015, OEmercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
