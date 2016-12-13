@@ -127,7 +127,7 @@
 #endif
 
 #include <cmath>
-//#include <cstring>
+#include <cstring>
 
 #ifndef PM_MATH_NO_INLINE
 # define PM_MATH_INLINE inline
