@@ -1,28 +1,28 @@
 language: cpp
 compiler: gcc
-sudo: true
-env:
-  global:
-    - MAKEFLAGS="-j 2"
+sudo: false
 cache:
   - apt
-before_install:
-  - sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test"
-  - sudo -E apt-get update -qq
-install:
-# CMake and GCC
-  - sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install cmake cmake-data gcc-4.8 g++-4.8 
-  - export CXX=g++-4.8 CC=gcc-4.8
+addons:
+ apt:
+   sources:
+   - ubuntu-toolchain-r-test
+   - george-edison55-precise-backports
+   packages:
+   - gcc-4.8
+   - g++-4.8
+   - cmake
+   - cmake-data
 before_script:
+  - export CXX=g++-4.8 CC=gcc-4.8
   - $CXX --version
   - cmake --version
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake ..
 script:
-  - make $MAKEFLAGS 
+  - make
   - make test
-
 branches:
   only:
   - master
