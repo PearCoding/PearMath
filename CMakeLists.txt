@@ -30,17 +30,16 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+PROJECT(PearMath CXX)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+
+#SETS
 SET(VENDOR "PearMath project 2014-2016")
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 1)
 SET(VERSION_HEX 0x0101)
 SET(PM_Version ${VERSION_MAJOR}.${VERSION_MINOR})
-
-PROJECT(PearMath VERSION ${PM_Version} LANGUAGES CXX)
-
-get_directory_property(hasParent PARENT_DIRECTORY)
-
-#SETS
 IF(hasParent)
 	SET(PM_Version ${PM_Version} PARENT_SCOPE)
 ENDIF()
