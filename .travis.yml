@@ -18,7 +18,7 @@ before_script:
   - cmake --version
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release -DPR_ONLY_LIBRARY_SUBS=ON -DPM_ONLY_LIBRARY=ON -DDL_ONLY_LIBRARY=ON ..
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
 script:
   - make $MAKEFLAGS 
   - make test
