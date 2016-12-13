@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, OEmercan Yazici <pearcoding AT gmail.com>
+# Copyright (c) 2014-2016, OEmercan Yazici <pearcoding AT gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -28,18 +28,19 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT(PearMath CXX)
-
-get_directory_property(hasParent PARENT_DIRECTORY)
-
-#SETS
 SET(VENDOR "PearMath project 2014-2016")
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 1)
 SET(VERSION_HEX 0x0101)
 SET(PM_Version ${VERSION_MAJOR}.${VERSION_MINOR})
+
+PROJECT(PearMath VERSION ${PM_Version} LANGUAGES CXX)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+
+#SETS
 IF(hasParent)
 	SET(PM_Version ${PM_Version} PARENT_SCOPE)
 ENDIF()
@@ -86,30 +87,40 @@ IF(MSVC)
 	IF(CMAKE_CL_64)
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
 	ENDIF()
-ELSEIF(PM_USE_CPP11 AND CMAKE_COMPILER_IS_GNUCXX)
+	IF(PM_USE_CPP11)
+		SET(PM_WITH_CPP11 1)
+	ENDIF()
+ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-	IF (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
-        message(STATUS "C++11 activated.")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    ELSEIF (GCC_VERSION VERSION_GREATER 4.3 OR GCC_VERSION VERSION_EQUAL 4.3)
-        message(WARNING "C++0x activated. If you get any errors update to a compiler which fully supports C++11")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-    ELSE ()
-        message(WARNING "C++11 needed. Build can fail.")   
-    ENDIF ()
-ELSEIF(PM_USE_CPP11 AND CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-	# We do not check version any further.
-	if(VERBOSE)
-		message(STATUS "C++11 activated.")
-	endif()
-  
-  IF(WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qstd=c++11")
-  ELSE()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  ENDIF()
-ELSE()
-    message(WARNING "Unknown Compiler. C++11 needed. Build can fail.")   
+	IF(PM_USE_CPP11)
+		IF (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
+		    message(STATUS "C++11 activated.")
+		    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+			IF(PM_USE_CPP11)
+				SET(PM_WITH_CPP11 1)
+			ENDIF()
+		ELSEIF (GCC_VERSION VERSION_GREATER 4.3 OR GCC_VERSION VERSION_EQUAL 4.3)
+		    message(WARNING "C++0x activated. If you get any errors update to a compiler which fully supports C++11")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+			IF(PM_USE_CPP11)
+				SET(PM_WITH_CPP11 1)
+			ENDIF()
+		ELSE ()
+		    message(WARNING "C++11 needed. C++11 support disabled.")   
+		ENDIF ()
+	ENDIF()
+ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+	IF(PM_USE_CPP11)
+		IF(WIN32)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qstd=c++11")
+			SET(PM_WITH_CPP11 1)
+	  	ELSE()
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+			SET(PM_WITH_CPP11 1)
+	  	ENDIF()
+	ENDIF()
+ELSEIF(PM_USE_CPP11)
+    message(WARNING "Unknown Compiler. C++11 wanted, but now disabled.")   
 ENDIF()
 
 IF(PM_USE_SIMD)
@@ -188,7 +199,7 @@ IF(PM_USE_SVML)
 	SET(DEFS "${DEFS};PM_USE_SVML")
 ENDIF()
 
-IF(PM_USE_CPP11)
+IF(PM_WITH_CPP11)
 	SET(DEFS "${DEFS};PM_WITH_CPP11")
 ENDIF()
 
