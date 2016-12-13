@@ -35,14 +35,14 @@ PROJECT(PearMath CXX)
 get_directory_property(hasParent PARENT_DIRECTORY)
 
 #SETS
-SET(VENDOR "PearMath project 2014")
+SET(VENDOR "PearMath project 2014-2016")
 SET(VERSION_MAJOR 1)
-SET(VERSION_MINOR 0)
-SET(VERSION_HEX 0x0100)
-SET(PM_Version ${VERSION_MAJOR}.${VERSION_MINOR} PARENT_SCOPE)
-SET(PM_TARGET "PearMath")
-
-SET(PM_Root ${CMAKE_CURRENT_SOURCE_DIR}/src)
+SET(VERSION_MINOR 1)
+SET(VERSION_HEX 0x0101)
+SET(PM_Version ${VERSION_MAJOR}.${VERSION_MINOR})
+IF(hasParent)
+	SET(PM_Version ${PM_Version} PARENT_SCOPE)
+ENDIF()
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 SET(CMAKE_DEBUG_POSTFIX  "_d")
@@ -145,7 +145,7 @@ IF(PM_USE_SIMD)
 ENDIF()
 
 #DEFINITIONS AND FLAGS
-include_directories(${PM_Root})
+include_directories(src)
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 SET(DEFS "${DEFS};")
@@ -179,7 +179,9 @@ IF((NOT MSVC) AND PM_WITH_SIMD)
 	ENDIF()
 	
 	set(PM_COMPILE_FLAGS "${SSE_FLAG}")
-	set(PM_COMPILE_FLAGS "${PM_COMPILE_FLAGS}" PARENT_SCOPE)
+	IF(hasParent)
+		set(PM_COMPILE_FLAGS "${PM_COMPILE_FLAGS}" PARENT_SCOPE)
+	ENDIF()
 ENDIF()
 
 IF(PM_USE_SVML)
@@ -200,17 +202,17 @@ ENDIF()
 #include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 SET(PM_Hdr
-  ${PM_Root}/PearMath.h
-  ${PM_Root}/MathColor.inl
-  ${PM_Root}/MathFrame.inl
-  ${PM_Root}/MathMatrix.inl
-  ${PM_Root}/MathQuaternion.inl
-  ${PM_Root}/MathVector.inl
-  ${PM_Root}/Rect.h
-  ${PM_Root}/Region.h)
+  src/PearMath.h
+  src/MathColor.inl
+  src/MathFrame.inl
+  src/MathMatrix.inl
+  src/MathQuaternion.inl
+  src/MathVector.inl
+  src/Rect.h
+  src/Region.h)
 
 SET(PM_TEST_Src
-  ${PM_Root}/tests/main.cpp)
+  src/tests/main.cpp)
 
 #DEPENDIES, LIBARIES AND EXECUTABLES
 IF(NOT PM_ONLY_LIBRARY)
