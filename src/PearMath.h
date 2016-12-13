@@ -701,7 +701,8 @@ namespace PM
 	{
 		float v[4];
 
-		avec4() = default;
+		inline avec4() {}
+		
 		inline avec4(const vec4& o)
 		{
 			pm_Store4D(o, v);
@@ -739,7 +740,8 @@ namespace PM
 	{
 		float v[3];
 
-		avec3() = default;
+		inline avec3() {}
+
 		inline avec3(const vec3& o)
 		{
 			pm_Store3D(o, v);
@@ -776,7 +778,9 @@ namespace PM
 	struct avec2
 	{
 		float v[2];
-		avec2() = default;
+
+		inline avec2() {}
+
 		inline avec2(const vec2& o)
 		{
 			pm_Store2D(o, v);
