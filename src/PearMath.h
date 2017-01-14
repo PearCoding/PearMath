@@ -34,12 +34,12 @@
 #define PM_DOUBLEQUOTE(str) PM_STRINGIFY(str)
 
 #define PM_NAME_STRING		"PearMath"
-#define PM_VENDOR_STRING	"PearMath project 2014-2015"
+#define PM_VENDOR_STRING	"PearMath project 2014-2017"
 
 #define PM_VERSION_MAJOR	1
-#define PM_VERSION_MINOR	1
+#define PM_VERSION_MINOR	2
 #define PM_VERSION_STRING 	PM_DOUBLEQUOTE(PM_VERSION_MAJOR) "." PM_DOUBLEQUOTE(PM_VERSION_MINOR)
-#define PM_VERSION 			0x0101
+#define PM_VERSION 			0x0102
 #define PM_VERSION_CHECK(major, minor) (((major) << 8) | (minor))
 
 //OS
@@ -107,10 +107,14 @@
 # define PM_BUILDVARIANT_NAME "Release"
 #endif
 
-#ifdef PM_CC_MSC
-# define PM_ALIGN(x) __declspec(align(x))
-#else//FIXME: Really use cpu dependent assembler?
-# define PM_ALIGN(x) __attribute__((aligned(x)))
+#ifdef PM_WITH_CPP11
+# define PM_ALIGN(x) alignas((x))
+#else
+# ifdef PM_CC_MSC
+#  define PM_ALIGN(x) __declspec(align((x)))
+# else
+#  define PM_ALIGN(x) __attribute__((aligned((x))))
+# endif
 #endif
 
 #ifndef PM_NO_ASSERTS
@@ -219,7 +223,6 @@
 # include <limits>
 # define PM_EPSILON (std::numeric_limits<float>::epsilon())
 #endif
-
 
 /**
  * ATTENTION: Many 2D and 3D functions are constructed to change the other "unused" parts of the 4D vector.
@@ -696,12 +699,13 @@ namespace PM
 	vec3 pm_TransformPoint(const frame& f, const vec3& off);
 	vec3 pm_Rotate(const frame& f, const vec3& v);
 
-	// Array vectors
+	// Non aligned vectors (for memory allocators)
 	struct avec4
 	{
 		float v[4];
 
 		inline avec4() {}
+		inline avec4(float x, float y, float z, float w) { v[0] = x; v[1] = y; v[2] = z; v[3] = w; }
 		
 		inline avec4(const vec4& o)
 		{
@@ -741,6 +745,7 @@ namespace PM
 		float v[3];
 
 		inline avec3() {}
+		inline avec3(float x, float y, float z) { v[0] = x; v[1] = y; v[2] = z; }
 
 		inline avec3(const vec3& o)
 		{
@@ -780,6 +785,7 @@ namespace PM
 		float v[2];
 
 		inline avec2() {}
+		inline avec2(float x, float y) { v[0] = x; v[1] = y; }
 
 		inline avec2(const vec2& o)
 		{
