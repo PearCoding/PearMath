@@ -30,7 +30,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT(PearMath CXX)
+PROJECT(PearMath LANGUAGES C CXX)
 
 get_directory_property(hasParent PARENT_DIRECTORY)
 
