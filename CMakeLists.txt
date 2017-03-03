@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2016, OEmercan Yazici <pearcoding AT gmail.com>
+# Copyright (c) 2014-2017, OEmercan Yazici <pearcoding AT gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -35,17 +35,14 @@ PROJECT(PearMath CXX)
 get_directory_property(hasParent PARENT_DIRECTORY)
 
 #SETS
-SET(VENDOR "PearMath project 2014-2016")
+SET(VENDOR "PearMath project 2014-2017")
 SET(VERSION_MAJOR 1)
-SET(VERSION_MINOR 1)
-SET(VERSION_HEX 0x0101)
+SET(VERSION_MINOR 2)
+SET(VERSION_HEX 0x0102)
 SET(PM_Version ${VERSION_MAJOR}.${VERSION_MINOR})
 IF(hasParent)
 	SET(PM_Version ${PM_Version} PARENT_SCOPE)
 ENDIF()
-
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-SET(CMAKE_DEBUG_POSTFIX  "_d")
 
 SET(SIMD_FEATURES SSE SSE2 SSE3 SSSE3 SSE4_1 SSE4_2
 	AES AVX AVX2
@@ -76,12 +73,8 @@ IF(CYGWIN)
 ENDIF()
 
 IF(MSVC)
-	#SET(DEFS "_UNICODE;UNICODE;_MT;_USRDLL")
-	#SET(DEFS_DEBUG "_DEBUG")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Oi /fp:fast /EHsc")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox /Ob2 /Ot /GL")
-	#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /MDd")
-	#set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG")
 	IF(CMAKE_CL_64)
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
 	ENDIF()
