@@ -75,7 +75,6 @@ IF(CYGWIN)
 	MESSAGE(WARNING "Please don't use CYGWIN with PearMath, use the MSVC version instead")
 ENDIF()
 
-
 IF(MSVC)
 	#SET(DEFS "_UNICODE;UNICODE;_MT;_USRDLL")
 	#SET(DEFS_DEBUG "_DEBUG")
