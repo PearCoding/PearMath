@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2014, OEmercan Yazici <pearcoding AT gmail.com>
+ * Copyright(c) 2014-2017, OEmercan Yazici <pearcoding AT gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,7 +34,7 @@
 
 vec3 PM_MATH_INLINE pm_GetXAxis(const frame& f)
 {
-	return pm_Cross3D(f.Up, f.Forward);
+	return pm_Cross(f.Up, f.Forward);
 }
 
 vec3 PM_MATH_INLINE pm_GetYAxis(const frame& f)
@@ -50,13 +50,13 @@ vec3 PM_MATH_INLINE pm_GetZAxis(const frame& f)
 frame PM_MATH_INLINE pm_IdentityFrame()
 {
 	frame r;
-	r.Origin = pm_Zero();
+	r.Origin = pm_Zero3D();
 	r.Up = pm_Set(0, 1, 0);
 	r.Forward = pm_Set(0, 0, 1);
 	return r;
 }
 
-frame PM_MATH_INLINE pm_Set(const vec& origin, const vec& up, const vec& forward)
+frame PM_MATH_INLINE pm_Set(const vec3& origin, const vec3& up, const vec3& forward)
 {
 	frame r;
 	r.Origin = origin;
@@ -93,9 +93,9 @@ frame PM_MATH_INLINE pm_IsNearlyEqualv(const frame& f1, const frame& f2, const f
 frame PM_MATH_INLINE pm_IsNearlyEqualv(const frame& f1, const frame& f2, float delta)
 {
 	frame r;
-	r.Origin = pm_IsNearlyEqualv(f1.Origin, f2.Origin, pm_FillVector(delta));
-	r.Up = pm_IsNearlyEqualv(f1.Up, f2.Up, pm_FillVector(delta));
-	r.Forward = pm_IsNearlyEqualv(f1.Forward, f2.Forward, pm_FillVector(delta));
+	r.Origin = pm_IsNearlyEqualv(f1.Origin, f2.Origin, delta);
+	r.Up = pm_IsNearlyEqualv(f1.Up, f2.Up, delta);
+	r.Forward = pm_IsNearlyEqualv(f1.Forward, f2.Forward, delta);
 
 	return r;
 }
@@ -107,7 +107,7 @@ bool PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, const fra
 
 bool PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, float delta)
 {
-	return pm_IsNearlyEqual(f1.Origin, f2.Origin, pm_FillVector(delta)) && pm_IsNearlyEqual(f1.Up, f2.Up, pm_FillVector(delta)) && pm_IsNearlyEqual(f1.Forward, f2.Forward, pm_FillVector(delta));
+	return pm_IsNearlyEqual(f1.Origin, f2.Origin, delta) && pm_IsNearlyEqual(f1.Up, f2.Up, delta) && pm_IsNearlyEqual(f1.Forward, f2.Forward, delta);
 }
 
 frame PM_MATH_INLINE pm_IsNotEqualv(const frame& f1, const frame& f2)
@@ -127,11 +127,11 @@ bool PM_MATH_INLINE pm_IsNotEqual(const frame& f1, const frame& f2)
 
 frame PM_MATH_INLINE pm_Normalize(const frame& f)
 {
-	vec lX = pm_Cross3D(f.Up, f.Forward);
+	vec3 lX = pm_Cross(f.Up, f.Forward);
 
 	frame r;
-	r.Forward = pm_Normalize3D(pm_Cross3D(lX, f.Up));
-	r.Up = pm_Normalize3D(f.Up);
+	r.Forward = pm_Normalize(pm_Cross(lX, f.Up));
+	r.Up = pm_Normalize(f.Up);
 	r.Origin = f.Origin;
 
 	return r;
@@ -180,83 +180,85 @@ frame PM_MATH_INLINE pm_MoveDown(const frame& f, float s)
 frame PM_MATH_INLINE pm_MoveRight(const frame& f, float s)
 {
 	frame r = f;
-	r.Origin = pm_Add(f.Origin, pm_Scale(pm_Cross3D(f.Up, f.Forward), s));
+	r.Origin = pm_Add(f.Origin, pm_Scale(pm_Cross(f.Up, f.Forward), s));
 	return r;
 }
 
 frame PM_MATH_INLINE pm_MoveLeft(const frame& f, float s)
 {
 	frame r = f;
-	r.Origin = pm_Subtract(f.Origin, pm_Scale(pm_Cross3D(f.Up, f.Forward), s));
+	r.Origin = pm_Subtract(f.Origin, pm_Scale(pm_Cross(f.Up, f.Forward), s));
 	return r;
 }
 
-mat PM_MATH_INLINE pm_ToMatrix(const frame& f, bool rotationOnly)
+mat4 PM_MATH_INLINE pm_ToMatrix(const frame& f, bool rotationOnly)
 {
-	return pm_Set4D(pm_SetW(pm_Cross3D(f.Up, f.Forward), rotationOnly ? 0.0f : pm_GetX(f.Origin)),
-		pm_SetW(f.Up, rotationOnly ? 0.0f : pm_GetY(f.Origin)),
-		pm_SetW(f.Forward, rotationOnly ? 0.0f : pm_GetZ(f.Origin)),
-		pm_Set(0.0f, 0.0f, 0.0f, 1.0));
+	const vec3 n = pm_Cross(f.Up, f.Forward);
+	return pm_Create(pm_GetX(n), pm_GetY(n), pm_GetZ(n), rotationOnly ? 0.0f : pm_GetX(f.Origin),
+		pm_GetX(f.Up), pm_GetY(f.Up), pm_GetZ(f.Up), rotationOnly ? 0.0f : pm_GetY(f.Origin),
+		pm_GetX(f.Forward), pm_GetY(f.Forward), pm_GetZ(f.Forward), rotationOnly ? 0.0f : pm_GetZ(f.Origin),
+		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-mat PM_MATH_INLINE pm_ToCameraMatrix(const frame& f, bool rotationOnly)
+mat4 PM_MATH_INLINE pm_ToCameraMatrix(const frame& f, bool rotationOnly)
 {
-	return pm_Set4D(pm_SetW(pm_Cross3D(f.Up, pm_Negate(f.Forward)), rotationOnly ? 0.0f : -pm_GetX(f.Origin)),
-		pm_SetW(f.Up, rotationOnly ? 0.0f : -pm_GetY(f.Origin)),
-		pm_SetW(pm_Negate(f.Forward), rotationOnly ? 0.0f : -pm_GetZ(f.Origin)),
-		pm_Set(0.0f, 0.0f, 0.0f, 1.0));
+	const vec3 n = pm_Cross(f.Up, pm_Negate(f.Forward));
+	return pm_Create(pm_GetX(n), pm_GetY(n), pm_GetZ(n), rotationOnly ? 0.0f : -pm_GetX(f.Origin),
+		pm_GetX(f.Up), pm_GetY(f.Up), pm_GetZ(f.Up), rotationOnly ? 0.0f : -pm_GetY(f.Origin),
+		pm_GetX(f.Forward), pm_GetY(f.Forward), pm_GetZ(f.Forward), rotationOnly ? 0.0f : -pm_GetZ(f.Origin),
+		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 frame PM_MATH_INLINE pm_RotateLocalX(const frame& f, float angle)
 {
-	vec lX = pm_Cross3D(f.Up, f.Forward);
-	mat t = pm_Rotation(lX, angle);
+	const vec3 lX = pm_Cross(f.Up, f.Forward);
+	const mat4 t = pm_Rotation(lX, angle);
 
 	frame r = f;
-	r.Up = pm_Set(t[0][0] * pm_GetX(f.Up) + t[1][0] * pm_GetY(f.Up) + t[2][0] * pm_GetZ(f.Up),
-		t[0][1] * pm_GetX(f.Up) + t[1][1] * pm_GetY(f.Up) + t[2][1] * pm_GetZ(f.Up),
-		t[0][2] * pm_GetX(f.Up) + t[1][2] * pm_GetY(f.Up) + t[2][2] * pm_GetZ(f.Up), pm_GetW(f.Up));
+	r.Up = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Up) + pm_GetIndex(t,1,0) * pm_GetY(f.Up) + pm_GetIndex(t,2,0) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,1) * pm_GetX(f.Up) + pm_GetIndex(t,1,1) * pm_GetY(f.Up) + pm_GetIndex(t,2,1) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,2) * pm_GetX(f.Up) + pm_GetIndex(t,1,2) * pm_GetY(f.Up) + pm_GetIndex(t,2,2) * pm_GetZ(f.Up));
 
-	r.Forward = pm_Set(t[0][0] * pm_GetX(f.Forward) + t[1][0] * pm_GetY(f.Forward) + t[2][0] * pm_GetZ(f.Forward),
-		t[0][1] * pm_GetX(f.Forward) + t[1][1] * pm_GetY(f.Forward) + t[2][1] * pm_GetZ(f.Forward),
-		t[0][2] * pm_GetX(f.Forward) + t[1][2] * pm_GetY(f.Forward) + t[2][2] * pm_GetZ(f.Forward), pm_GetW(f.Forward));
+	r.Forward = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Forward) + pm_GetIndex(t,1,0) * pm_GetY(f.Forward) + pm_GetIndex(t,2,0) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,1) * pm_GetX(f.Forward) + pm_GetIndex(t,1,1) * pm_GetY(f.Forward) + pm_GetIndex(t,2,1) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,2) * pm_GetX(f.Forward) + pm_GetIndex(t,1,2) * pm_GetY(f.Forward) + pm_GetIndex(t,2,2) * pm_GetZ(f.Forward));
 	return r;
 }
 
 frame PM_MATH_INLINE pm_RotateLocalY(const frame& f, float angle)
 {
-	mat t = pm_Rotation(f.Up, angle);
+	const mat4 t = pm_Rotation(f.Up, angle);
 
 	frame r = f;
-	r.Forward = pm_Set(t[0][0] * pm_GetX(f.Forward) + t[1][0] * pm_GetY(f.Forward) + t[2][0] * pm_GetZ(f.Forward),
-		t[0][0] * pm_GetX(f.Forward) + t[1][1] * pm_GetY(f.Forward) + t[2][1] * pm_GetZ(f.Forward),
-		t[0][0] * pm_GetX(f.Forward) + t[1][2] * pm_GetY(f.Forward) + t[2][2] * pm_GetZ(f.Forward), pm_GetW(f.Forward));
+	r.Forward = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Forward) + pm_GetIndex(t,1,0) * pm_GetY(f.Forward) + pm_GetIndex(t,2,0) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,0) * pm_GetX(f.Forward) + pm_GetIndex(t,1,1) * pm_GetY(f.Forward) + pm_GetIndex(t,2,1) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,0) * pm_GetX(f.Forward) + pm_GetIndex(t,1,2) * pm_GetY(f.Forward) + pm_GetIndex(t,2,2) * pm_GetZ(f.Forward));
 	return r;
 }
 
 frame PM_MATH_INLINE pm_RotateLocalZ(const frame& f, float angle)
 {
-	mat t = pm_Rotation(f.Forward, angle);
+	const mat4 t = pm_Rotation(f.Forward, angle);
 
 	frame r = f;
-	r.Up = pm_Set(t[0][0] * pm_GetX(f.Up) + t[1][0] * pm_GetY(f.Up) + t[2][0] * pm_GetZ(f.Up),
-		t[0][1] * pm_GetX(f.Up) + t[1][1] * pm_GetY(f.Up) + t[2][1] * pm_GetZ(f.Up),
-		t[0][2] * pm_GetX(f.Up) + t[1][2] * pm_GetY(f.Up) + t[2][2] * pm_GetZ(f.Up), pm_GetW(f.Up));
+	r.Up = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Up) + pm_GetIndex(t,1,0) * pm_GetY(f.Up) + pm_GetIndex(t,2,0) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,1) * pm_GetX(f.Up) + pm_GetIndex(t,1,1) * pm_GetY(f.Up) + pm_GetIndex(t,2,1) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,2) * pm_GetX(f.Up) + pm_GetIndex(t,1,2) * pm_GetY(f.Up) + pm_GetIndex(t,2,2) * pm_GetZ(f.Up));
 	return r;
 }
 
 frame PM_MATH_INLINE pm_RotateWorld(const frame& f, float angle, const vec3& axis)
 {
-	mat t = pm_Rotation(axis, angle);
+	mat4 t = pm_Rotation(axis, angle);
 
 	frame r = f;
-	r.Up = pm_Set(t[0][0] * pm_GetX(f.Up) + t[1][0] * pm_GetY(f.Up) + t[2][0] * pm_GetZ(f.Up),
-		t[0][1] * pm_GetX(f.Up) + t[1][1] * pm_GetY(f.Up) + t[2][1] * pm_GetZ(f.Up),
-		t[0][2] * pm_GetX(f.Up) + t[1][2] * pm_GetY(f.Up) + t[2][2] * pm_GetZ(f.Up), pm_GetW(f.Up));
+	r.Up = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Up) + pm_GetIndex(t,1,0) * pm_GetY(f.Up) + pm_GetIndex(t,2,0) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,1) * pm_GetX(f.Up) + pm_GetIndex(t,1,1) * pm_GetY(f.Up) + pm_GetIndex(t,2,1) * pm_GetZ(f.Up),
+		pm_GetIndex(t,0,2) * pm_GetX(f.Up) + pm_GetIndex(t,1,2) * pm_GetY(f.Up) + pm_GetIndex(t,2,2) * pm_GetZ(f.Up));
 
-	r.Forward = pm_Set(t[0][0] * pm_GetX(f.Forward) + t[1][0] * pm_GetY(f.Forward) + t[2][0] * pm_GetZ(f.Forward),
-		t[0][1] * pm_GetX(f.Forward) + t[1][1] * pm_GetY(f.Forward) + t[2][1] * pm_GetZ(f.Forward),
-		t[0][2] * pm_GetX(f.Forward) + t[1][2] * pm_GetY(f.Forward) + t[2][2] * pm_GetZ(f.Forward), pm_GetW(f.Forward));
+	r.Forward = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(f.Forward) + pm_GetIndex(t,1,0) * pm_GetY(f.Forward) + pm_GetIndex(t,2,0) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,1) * pm_GetX(f.Forward) + pm_GetIndex(t,1,1) * pm_GetY(f.Forward) + pm_GetIndex(t,2,1) * pm_GetZ(f.Forward),
+		pm_GetIndex(t,0,2) * pm_GetX(f.Forward) + pm_GetIndex(t,1,2) * pm_GetY(f.Forward) + pm_GetIndex(t,2,2) * pm_GetZ(f.Forward));
 
 	return r;
 }
@@ -268,12 +270,12 @@ frame PM_MATH_INLINE pm_RotateLocal(const frame& f, float angle, const vec3& axi
 
 vec3 PM_MATH_INLINE pm_LocalToWorld(const frame& f, const vec3& v, bool rotationOnly)
 {
-	mat t = pm_ToMatrix(f, true);
+	const mat4 t = pm_ToMatrix(f, true);
 
 	vec3 r;
-	r = pm_Set(t[0][0] * pm_GetX(v) + t[1][0] * pm_GetY(v) + t[2][0] * pm_GetZ(v),
-		t[0][1] * pm_GetX(v) + t[1][1] * pm_GetY(v) + t[2][1] * pm_GetZ(v),
-		t[0][2] * pm_GetX(v) + t[1][2] * pm_GetY(v) + t[2][2] * pm_GetZ(v), pm_GetW(v));
+	r = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(v) + pm_GetIndex(t,1,0) * pm_GetY(v) + pm_GetIndex(t,2,0) * pm_GetZ(v),
+		pm_GetIndex(t,0,1) * pm_GetX(v) + pm_GetIndex(t,1,1) * pm_GetY(v) + pm_GetIndex(t,2,1) * pm_GetZ(v),
+		pm_GetIndex(t,0,2) * pm_GetX(v) + pm_GetIndex(t,1,2) * pm_GetY(v) + pm_GetIndex(t,2,2) * pm_GetZ(v));
 
 	if (!rotationOnly)
 		r = pm_Add(r, f.Origin);
@@ -283,31 +285,31 @@ vec3 PM_MATH_INLINE pm_LocalToWorld(const frame& f, const vec3& v, bool rotation
 
 vec3 PM_MATH_INLINE pm_WorldToLocal(const frame& f, const vec3& v)
 {
-	mat t = pm_ToMatrix(f, true);
-	t = pm_Inverse4D(t);
+	mat4 t = pm_ToMatrix(f, true);
+	t = pm_Inverse(t);
 
 	vec3 r = pm_Subtract(v, f.Origin);
-	r = pm_Set(t[0][0] * pm_GetX(r) + t[1][0] * pm_GetY(r) + t[2][0] * pm_GetZ(r),
-		t[0][1] * pm_GetX(r) + t[1][1] * pm_GetY(r) + t[2][1] * pm_GetZ(r),
-		t[0][2] * pm_GetX(r) + t[1][2] * pm_GetY(r) + t[2][2] * pm_GetZ(r), pm_GetW(r));
+	r = pm_Set(pm_GetIndex(t,0,0) * pm_GetX(r) + pm_GetIndex(t,1,0) * pm_GetY(r) + pm_GetIndex(t,2,0) * pm_GetZ(r),
+		pm_GetIndex(t,0,1) * pm_GetX(r) + pm_GetIndex(t,1,1) * pm_GetY(r) + pm_GetIndex(t,2,1) * pm_GetZ(r),
+		pm_GetIndex(t,0,2) * pm_GetX(r) + pm_GetIndex(t,1,2) * pm_GetY(r) + pm_GetIndex(t,2,2) * pm_GetZ(r));
 
 	return r;
 }
 
 vec3 PM_MATH_INLINE pm_TransformPoint(const frame& f, const vec3& off)
 {
-	mat t = pm_ToMatrix(f);
+	const mat4 t = pm_ToMatrix(f);
 
-	return pm_Set(t[0][0] * pm_GetX(off) + t[1][0] * pm_GetY(off) + t[2][0] * pm_GetZ(off),
-		t[0][1] * pm_GetX(off) + t[1][1] * pm_GetY(off) + t[2][1] * pm_GetZ(off),
-		t[0][2] * pm_GetX(off) + t[1][2] * pm_GetY(off) + t[2][2] * pm_GetZ(off), pm_GetW(off));
+	return pm_Set(pm_GetIndex(t,0,0) * pm_GetX(off) + pm_GetIndex(t,1,0) * pm_GetY(off) + pm_GetIndex(t,2,0) * pm_GetZ(off),
+		pm_GetIndex(t,0,1) * pm_GetX(off) + pm_GetIndex(t,1,1) * pm_GetY(off) + pm_GetIndex(t,2,1) * pm_GetZ(off),
+		pm_GetIndex(t,0,2) * pm_GetX(off) + pm_GetIndex(t,1,2) * pm_GetY(off) + pm_GetIndex(t,2,2) * pm_GetZ(off));
 }
 
 vec3 PM_MATH_INLINE pm_Rotate(const frame& f, const vec3& v)
 {
-	mat t = pm_ToMatrix(f, true);
+	const mat4 t = pm_ToMatrix(f, true);
 
-	return pm_Set(t[0][0] * pm_GetX(v) + t[1][0] * pm_GetY(v) + t[2][0] * pm_GetZ(v),
-		t[0][1] * pm_GetX(v) + t[1][1] * pm_GetY(v) + t[2][1] * pm_GetZ(v),
-		t[0][2] * pm_GetX(v) + t[1][2] * pm_GetY(v) + t[2][2] * pm_GetZ(v), pm_GetW(v));
+	return pm_Set(pm_GetIndex(t,0,0) * pm_GetX(v) + pm_GetIndex(t,1,0) * pm_GetY(v) + pm_GetIndex(t,2,0) * pm_GetZ(v),
+		pm_GetIndex(t,0,1) * pm_GetX(v) + pm_GetIndex(t,1,1) * pm_GetY(v) + pm_GetIndex(t,2,1) * pm_GetZ(v),
+		pm_GetIndex(t,0,2) * pm_GetX(v) + pm_GetIndex(t,1,2) * pm_GetY(v) + pm_GetIndex(t,2,2) * pm_GetZ(v));
 }

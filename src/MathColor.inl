@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014, OEmercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2017, OEmercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -32,22 +32,22 @@
 # error MathColor.h should only be included from Math.h
 #endif
 
-vec PM_MATH_INLINE pm_SetR(const color& v, float x)
+color PM_MATH_INLINE pm_SetR(const color& v, float x)
 {
 	return pm_SetX(v, x);
 }
 
-vec PM_MATH_INLINE pm_SetG(const color& v, float y)
+color PM_MATH_INLINE pm_SetG(const color& v, float y)
 {
 	return pm_SetY(v, y);
 }
 
-vec PM_MATH_INLINE pm_SetB(const color& v, float z)
+color PM_MATH_INLINE pm_SetB(const color& v, float z)
 {
 	return pm_SetZ(v, z);
 }
 
-vec PM_MATH_INLINE pm_SetA(const color& v, float w)
+color PM_MATH_INLINE pm_SetA(const color& v, float w)
 {
 	return pm_SetW(v, w);
 }

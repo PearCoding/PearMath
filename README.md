@@ -2,7 +2,7 @@
 
 ## SIMD math library.
 
-Copyright (c) 2014, Ömercan Yazici < pearcoding AT gmail.com >
+Copyright (c) 2014-2017, Ömercan Yazici < pearcoding AT gmail.com >
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

@@ -69,8 +69,8 @@ namespace PM
 
 		inline bool contains(const vec3& point, float boundary = 0) const
 		{
-			return pm_IsLessOrEqual(point, pm_Subtract(mUpperCorner, pm_FillVector(boundary)))
-				&& pm_IsGreaterOrEqual(point, pm_Add(mLowerCorner, pm_FillVector(boundary)));
+			return pm_IsLessOrEqual(point, pm_Subtract(mUpperCorner, pm_FillVector3D(boundary)))
+				&& pm_IsGreaterOrEqual(point, pm_Add(mLowerCorner, pm_FillVector3D(boundary)));
 		}
 
 		inline void cropTo(const Region& region)

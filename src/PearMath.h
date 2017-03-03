@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014-2015, OEmercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2017, OEmercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -37,9 +37,9 @@
 #define PM_VENDOR_STRING	"PearMath project 2014-2017"
 
 #define PM_VERSION_MAJOR	1
-#define PM_VERSION_MINOR	2
+#define PM_VERSION_MINOR	3
 #define PM_VERSION_STRING 	PM_DOUBLEQUOTE(PM_VERSION_MAJOR) "." PM_DOUBLEQUOTE(PM_VERSION_MINOR)
-#define PM_VERSION 			0x0102
+#define PM_VERSION 			0x0103
 #define PM_VERSION_CHECK(major, minor) (((major) << 8) | (minor))
 
 //OS
@@ -105,16 +105,6 @@
 #  define PM_RELEASE
 # endif
 # define PM_BUILDVARIANT_NAME "Release"
-#endif
-
-#ifdef PM_WITH_CPP11
-# define PM_ALIGN(x) alignas((x))
-#else
-# ifdef PM_CC_MSC
-#  define PM_ALIGN(x) __declspec(align((x)))
-# else
-#  define PM_ALIGN(x) __attribute__((aligned((x))))
-# endif
 #endif
 
 #ifndef PM_NO_ASSERTS
@@ -209,9 +199,9 @@
 
 #ifndef PM_MATH_RECIPROCALSQRT_QUAL
 # ifdef PM_FAST_MATH
-#  define PM_MATH_RECIPROCALSQRT_QUAL 0
-# else
 #  define PM_MATH_RECIPROCALSQRT_QUAL 1
+# else
+#  define PM_MATH_RECIPROCALSQRT_QUAL 2
 # endif
 #endif
 
@@ -224,10 +214,10 @@
 # define PM_EPSILON (std::numeric_limits<float>::epsilon())
 #endif
 
-/**
- * ATTENTION: Many 2D and 3D functions are constructed to change the other "unused" parts of the 4D vector.
- * Don't use these functions as an element wise operation.
- */
+#define _PM_SSE_DIM_MASK(D) (1 << (D))
+
+#include <type_traits>
+#include <utility>
 namespace PM
 {
 	inline void pm_Noop()
@@ -366,263 +356,394 @@ namespace PM
 	typedef unsigned long int uint64;
 #endif
 
-#ifdef PM_WITH_SIMD
-	typedef __m128 vec;
-#else
-	struct PM_ALIGN(16) vec
+	template<int D>
+	struct alignas(16) vec
 	{
-		float v[4];
+		static constexpr int Dimension = D;
+		vec() = default;
 
-		inline float& operator [] (int index)
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return v[index];
-		}
-
-		inline float operator [] (int index) const
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return v[index];
-		}
-
-		inline operator float* ()
-		{
-			return v;
-		}
-
-		inline operator const float* () const
-		{
-			return v;
-		}
-	};
-#endif
-
-	typedef vec vec4;
-	typedef vec vec3;
-	typedef vec vec2;
-	typedef vec quat;
-	typedef vec color;
-
-	struct PM_ALIGN(16) mat4
-	{
-		union
-		{
-			vec v[4];
-			float m[4][4];
-		};
-
-		inline float* operator [] (int index)
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return m[index];
-		}
-
-		inline const float* operator [] (int index) const
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return m[index];
-		}
+	#ifdef PM_WITH_SIMD
+		__m128 _vec;
+		vec(const __m128& v) : _vec(v) {}
+	#else
+		float _vec[D];
+	#endif
 	};
 
-	typedef mat4 mat;
-	// Memory?
-	typedef mat mat4x3;
-	typedef mat mat3;
-	typedef mat mat2;
+	typedef vec<4> vec4;
+	typedef vec<3> vec3;
+	typedef vec<2> vec2;
+	typedef vec<4> quat;
+	typedef vec<4> color;
 
-	struct PM_ALIGN(16) frame
+	template<int D1, int D2>
+	struct alignas(16) mat
+	{
+		static constexpr int Rows = D1;
+		static constexpr int Columns = D2;
+		typedef vec<D2> row_t;
+		typedef vec<D1> column_t;
+
+		vec<D2> v[D1];
+	};
+
+	typedef mat<4,4> mat4;
+	typedef mat<3,3> mat3;
+	typedef mat<2,2> mat2;
+
+	struct frame
 	{
 		vec3 Origin;
 		vec3 Forward;
 		vec3 Up;
 	};
 
+	// type_traits
+	template<class VectorType>
+	struct is_vector : std::integral_constant<bool,
+		std::is_same<vec4, typename std::remove_cv<VectorType>::type>::value ||
+		std::is_same<vec3, typename std::remove_cv<VectorType>::type>::value ||
+		std::is_same<vec2, typename std::remove_cv<VectorType>::type>::value> {};
+
+	template<class MatrixType>
+	struct is_matrix : std::integral_constant<bool,
+		std::is_same<mat4, typename std::remove_cv<MatrixType>::type>::value ||
+		std::is_same<mat3, typename std::remove_cv<MatrixType>::type>::value ||
+		std::is_same<mat2, typename std::remove_cv<MatrixType>::type>::value> {};
+
 	//Vector
-	void pm_AlignedCopy(vec& vdst, const vec& vsrc);
-	void pm_Copy(vec& vdst, const vec& vsrc);
+	template<typename VectorType>
+	VectorType pm_SetIndex(const VectorType& v, int index, float x);
+	template<typename VectorType>
+	float pm_GetIndex(const VectorType& v, int index);
+	template<typename VectorType>
+	VectorType pm_SetX(const VectorType& v, float x);
+	template<typename VectorType>
+	VectorType pm_SetY(const VectorType& v, float y);
+	template<typename VectorType>
+	VectorType pm_SetZ(const VectorType& v, float z);
+	template<typename VectorType>
+	VectorType pm_SetW(const VectorType& v, float w);
+	template<typename VectorType>
+	float pm_GetX(const VectorType& v);
+	template<typename VectorType>
+	float pm_GetY(const VectorType& v);
+	template<typename VectorType>
+	float pm_GetZ(const VectorType& v);
+	template<typename VectorType>
+	float pm_GetW(const VectorType& v);
 
-	vec pm_Zero();
-	vec pm_One();
-	vec pm_Set(float x, float y, float z = 0, float w = 0);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsEqualv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsEqual(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, const VectorType& delta);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, float delta);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const VectorType& delta);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const float delta);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsNotEqualv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsNotEqual(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsLessv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsLess(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsLessOrEqualv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsLessOrEqual(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsGreaterv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsGreater(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsGreaterOrEqualv(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsGreaterOrEqual(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	VectorType pm_IsInBounds(const VectorType& v, const VectorType& bounds);
 
-	vec pm_SetIndex(const vec& v, int index, float x);
-	vec pm_SetX(const vec& v, float x);
-	vec pm_SetY(const vec& v, float y);
-	vec pm_SetZ(const vec& v, float z);
-	vec pm_SetW(const vec& v, float w);
-	float pm_GetIndex(const vec& v, int index);
-	float pm_GetX(const vec& v);
-	float pm_GetY(const vec& v);
-	float pm_GetZ(const vec& v);
-	float pm_GetW(const vec& v);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Negate(const VectorType& v);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Add(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Subtract(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Multiply(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Divide(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Scale(const VectorType& v, float factor);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_MultiplyAdd(const VectorType& v1, const VectorType& v2, const VectorType& v3);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_Reciprocal(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Sqrt(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_ReciprocalSqrt(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Pow(const VectorType& v1, const VectorType& v2);
+	template<typename VectorType>
+	VectorType pm_Exp(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Exp2(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Exp10(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_ExpM1(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Log(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Log2(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Log10(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Log1P(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Sin(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Cos(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Tan(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_ASin(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_ACos(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_ATan(const VectorType& v);
 
-	vec pm_FillVector(float val);
+	template<typename VectorType>
+	VectorType pm_Lerp(const VectorType& v1, const VectorType& v2, const VectorType& t);
+	template<typename VectorType>
+	VectorType pm_NLerp(const VectorType& v1, const VectorType& v2, const VectorType& t);
+	template<typename VectorType>
+	VectorType pm_SLerp(const VectorType& v1, const VectorType& v2, const VectorType& t);
 
-	void pm_Vec2Array(const vec& v, float* dst);
+	template<typename VectorType>
+	VectorType pm_Abs(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Saturate(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Ceil(const VectorType& v);
+	template<typename VectorType>
+	VectorType pm_Floor(const VectorType& v);
 
-	vec pm_IsEqualv(const vec& v1, const vec& v2);
-	bool pm_IsEqual(const vec& v1, const vec& v2);
-	vec pm_IsNearlyEqualv(const vec& v1, const vec& v2, const vec& delta);
-	bool pm_IsNearlyEqual(const vec& v1, const vec& v2, const vec& delta);
-	vec pm_IsNotEqualv(const vec& v1, const vec& v2);
-	bool pm_IsNotEqual(const vec& v1, const vec& v2);
-	vec pm_IsLessv(const vec& v1, const vec& v2);
-	bool pm_IsLess(const vec& v1, const vec& v2);
-	vec pm_IsLessOrEqualv(const vec& v1, const vec& v2);
-	bool pm_IsLessOrEqual(const vec& v1, const vec& v2);
-	vec pm_IsGreaterv(const vec& v1, const vec& v2);
-	bool pm_IsGreater(const vec& v1, const vec& v2);
-	vec pm_IsGreaterOrEqualv(const vec& v1, const vec& v2);
-	bool pm_IsGreaterOrEqual(const vec& v1, const vec& v2);
-	vec pm_IsInBounds(const vec& v, const vec& bounds);
-
-	vec pm_Negate(const vec& v);
-	vec pm_Add(const vec& v1, const vec& v2);
-	vec pm_Subtract(const vec& v1, const vec& v2);
-	vec pm_Multiply(const vec& v1, const vec& v2);//Component wise
-	vec pm_Divide(const vec& v1, const vec& v2);
-	vec pm_Scale(const vec& v, float factor);
-	vec pm_MultiplyAdd(const vec& v1, const vec& v2, const vec& v3);
-	vec pm_Reciprocal(const vec& v);
-	vec pm_Reciprocal(const vec& v, int n);// Newton-Raphson
-	vec pm_Sqrt(const vec& v);
-	vec pm_ReciprocalSqrt(const vec& v);
-	vec pm_Pow(const vec& v1, const vec& v2);
-	vec pm_Exp(const vec& v);
-	vec pm_Exp2(const vec& v);
-	vec pm_Exp10(const vec& v);
-	vec pm_ExpM1(const vec& v);
-	vec pm_Log(const vec& v);
-	vec pm_Log2(const vec& v);
-	vec pm_Log10(const vec& v);
-	vec pm_Log1P(const vec& v);
-	vec pm_Sin(const vec& v);
-	vec pm_Cos(const vec& v);
-	template<>
-	void pm_SinCos<vec>(const vec& v, vec& sin, vec& cos);
-	vec pm_Tan(const vec& v);
-	vec pm_ASin(const vec& v);
-	vec pm_ACos(const vec& v);
-	vec pm_ATan(const vec& v);
-
-	vec pm_Lerp(const vec& v1, const vec& v2, const vec& t);
-	vec pm_NLerp(const vec& v1, const vec& v2, const vec& t);
-	vec pm_SLerp(const vec& v1, const vec& v2, const vec& t);
-
-	template<>
-	vec pm_Max<vec>(const vec& v1, const vec& v2);
-	template<>
-	vec pm_Min<vec>(const vec& v1, const vec& v2);
-	template<>
-	vec pm_Clamp<vec>(const vec& v, const vec& min, const vec& max);
-
-	vec pm_Abs(const vec& v);
-	vec pm_Saturate(const vec& v);
-	vec pm_Ceil(const vec& v);
-	vec pm_Floor(const vec& v);
-
+	vec4 pm_Zero4D();
+	vec4 pm_One4D();
+	vec4 pm_Set(float x, float y, float z, float w);
+	vec4 pm_FillVector4(float val);
 	vec4 pm_Load4D(const float src[4]);
 	void pm_Store4D(const vec4& v, float dst[4]);
-	float pm_Dot4D(const vec4& v1, const vec4& v2);
-	float pm_Magnitude4D(const vec4& v);
-	float pm_MagnitudeSqr4D(const vec4& v);
-	vec4 pm_Normalize4D(const vec4& v);
-	vec4 pm_QualityNormalize4D(const vec4& v);
-	vec4 pm_FastNormalize4D(const vec4& v);
-	float pm_MaxElement4D(const vec4& v);
-	float pm_MinElement4D(const vec4& v);
+	vec4 pm_ExtendTo4D(const vec2& v);
+	vec4 pm_ExtendTo4D(const vec3& v);
+	float pm_Dot(const vec4& v1, const vec4& v2);
+	float pm_Magnitude(const vec4& v);
+	float pm_MagnitudeSqr(const vec4& v);
+	vec4 pm_Normalize(const vec4& v);
+	vec4 pm_QualityNormalize(const vec4& v);
+	vec4 pm_FastNormalize(const vec4& v);
+	float pm_MaxElement(const vec4& v);
+	float pm_MinElement(const vec4& v);
+	template<>
+	void pm_SinCos<vec4>(const vec4& v, vec4& sin, vec4& cos);
+	template<>
+	vec4 pm_Max<vec4>(const vec4& v1, const vec4& v2);
+	template<>
+	vec4 pm_Min<vec4>(const vec4& v1, const vec4& v2);
+	template<>
+	vec4 pm_Clamp<vec4>(const vec4& v, const vec4& min, const vec4& max);
 
+	vec3 pm_Zero3D();
+	vec3 pm_One3D();
+	vec3 pm_Set(float x, float y, float z);
+	vec3 pm_FillVector3D(float val);
 	vec3 pm_Load3D(const float src[3]);
 	void pm_Store3D(const vec3& v, float dst[3]);
-	float pm_Dot3D(const vec3& v1, const vec3& v2);
-	vec3 pm_Cross3D(const vec3& v1, const vec3& v2);
-	float pm_Magnitude3D(const vec3& v);
-	float pm_MagnitudeSqr3D(const vec3& v);
-	vec3 pm_Normalize3D(const vec3& v);
-	vec3 pm_QualityNormalize3D(const vec2& v);
-	vec3 pm_FastNormalize3D(const vec2& v);
-	float pm_MaxElement3D(const vec4& v);
-	float pm_MinElement3D(const vec4& v);
+	vec3 pm_ExtendTo3D(const vec2& v);
+	vec3 pm_ShrinkTo3D(const vec4& v);
+	float pm_Dot(const vec3& v1, const vec3& v2);
+	vec3 pm_Cross(const vec3& v1, const vec3& v2);
+	float pm_Magnitude(const vec3& v);
+	float pm_MagnitudeSqr(const vec3& v);
+	vec3 pm_Normalize(const vec3& v);
+	vec3 pm_QualityNormalize(const vec3& v);
+	vec3 pm_FastNormalize(const vec3& v);
+	float pm_MaxElement(const vec3& v);
+	float pm_MinElement(const vec3& v);
+	template<>
+	void pm_SinCos<vec3>(const vec3& v, vec3& sin, vec3& cos);
+	template<>
+	vec3 pm_Max<vec3>(const vec3& v1, const vec3& v2);
+	template<>
+	vec3 pm_Min<vec3>(const vec3& v1, const vec3& v2);
+	template<>
+	vec3 pm_Clamp<vec3>(const vec3& v, const vec3& min, const vec3& max);
 
+	vec2 pm_Zero2D();
+	vec2 pm_One2D();
+	vec2 pm_Set(float x, float y);
+	vec2 pm_FillVector2D(float val);
 	vec2 pm_Load2D(const float src[2]);
 	void pm_Store2D(const vec2& v, float dst[2]);
-	float pm_Dot2D(const vec2& v1, const vec2& v2);
-	float pm_Magnitude2D(const vec2& v);
-	float pm_MagnitudeSqr2D(const vec2& v);
-	vec2 pm_Normalize2D(const vec2& v);
-	vec2 pm_QualityNormalize2D(const vec2& v);
-	vec2 pm_FastNormalize2D(const vec2& v);
-	float pm_MaxElement2D(const vec4& v);
-	float pm_MinElement2D(const vec4& v);
+	vec2 pm_ShrinkTo2D(const vec4& v);
+	vec2 pm_ShrinkTo2D(const vec3& v);
+	float pm_Dot(const vec2& v1, const vec2& v2);
+	float pm_Magnitude(const vec2& v);
+	float pm_MagnitudeSqr(const vec2& v);
+	vec2 pm_Normalize(const vec2& v);
+	vec2 pm_QualityNormalize(const vec2& v);
+	vec2 pm_FastNormalize(const vec2& v);
+	float pm_MaxElement(const vec2& v);
+	float pm_MinElement(const vec2& v);
+	template<>
+	void pm_SinCos<vec2>(const vec2& v, vec2& sin, vec2& cos);
+	template<>
+	vec2 pm_Max<vec2>(const vec2& v1, const vec2& v2);
+	template<>
+	vec2 pm_Min<vec2>(const vec2& v1, const vec2& v2);
+	template<>
+	vec2 pm_Clamp<vec2>(const vec2& v, const vec2& min, const vec2& max);
 
 	//Matrix
-	mat pm_LoadMatrix(const float* src);
-	void pm_StoreMatrix(const mat& src, float* dst);
-
-	mat pm_Identity();
-	mat pm_ZeroMatrix();
-	mat pm_Translation(const vec& v);
-	mat pm_Rotation(const quat& v);
-	mat pm_Rotation(const vec& v, float angle);
-	mat pm_RotationYawPitchRoll(const vec& v);
-	mat pm_Scaling(const vec3& v);
-
-	mat pm_Set2D(const vec& r1, const vec& r2);
-	mat pm_Set2D(float m00, float m01, float m10, float m11);
-
-	mat pm_Set3D(const vec& r1, const vec& r2, const vec& r3);
-	mat pm_Set3D(float m00, float m01, float m02,
-		float m10, float m11, float m12,
-		float m20, float m21, float m22);
-
-	mat pm_Set4D(const vec& r1, const vec& r2, const vec& r3, const vec& r4);
-	mat pm_Set4D(float m00, float m01, float m02, float m03,
+	mat4 pm_Identity4();
+	mat4 pm_ZeroMatrix4();
+	mat4 pm_LoadMatrix4(const float* src);
+	void pm_StoreMatrix4(const mat4& src, float* dst);
+	mat4 pm_FillMatrix4(float val);
+	mat4 pm_Create(const vec4& r1, const vec4& r2, const vec4& r3, const vec4& r4);
+	mat4 pm_Create(float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
 		float m30, float m31, float m32, float m33);
+	vec4 pm_GetColumn(const mat4& m, int x);
+	mat4 pm_Product(const mat4& m1, const mat4& m2);
+	mat4 pm_Perspective(float width, float height, float near, float far);
+	mat4 pm_Orthographic(float width, float height, float near, float far);
+	mat4 pm_Inverse(const mat4& m, float* determinant = nullptr);
+	float pm_Determinant(const mat4& m);
+	mat4 pm_Transpose(const mat4& m);
 
-	float pm_Get(const mat& m, int x, int y);
-	vec pm_GetRow(const mat& m, int y);
-	vec pm_GetColumn(const mat& m, int x);
+	mat3 pm_Identity3();
+	mat3 pm_ZeroMatrix3();
+	mat3 pm_LoadMatrix3(const float* src);
+	void pm_StoreMatrix3(const mat3& src, float* dst);
+	mat3 pm_FillMatrix3(float val);
+	mat3 pm_Create(const vec3& r1, const vec3& r2, const vec3& r3);
+	mat3 pm_Create(float m00, float m01, float m02,
+		float m10, float m11, float m12,
+		float m20, float m21, float m22);
+	vec3 pm_GetColumn(const mat3& m, int x);
+	mat3 pm_Product(const mat3& m1, const mat3& m2);
+	mat3 pm_Inverse(const mat3& m, float* determinant = nullptr);
+	float pm_Determinant(const mat3& m);
+	mat3 pm_Transpose(const mat3& m);
+
+	mat2 pm_Identity2();
+	mat2 pm_ZeroMatrix2();
+	mat2 pm_LoadMatrix2(const float* src);
+	void pm_StoreMatrix2(const mat2& src, float* dst);
+	mat2 pm_FillMatrix2(float val);
+	mat2 pm_Create(const vec2& r1, const vec2& r2);
+	mat2 pm_Create(float m00, float m01, float m10, float m11);
+	vec2 pm_GetColumn(const mat2& m, int x);
+	mat2 pm_Product(const mat2& m1, const mat2& m2);
+	mat2 pm_Inverse(const mat2& m, float* determinant = nullptr);
+	float pm_Determinant(const mat2& m);
+	mat2 pm_Transpose(const mat2& m);
+
+	template<typename MatrixType>
+	MatrixType pm_SetIndex(const MatrixType& m, int x, int y, float f);
+	template<typename MatrixType>
+	float pm_GetIndex(const MatrixType& m, int x, int y);
+
+	template<typename MatrixType>
+	typename MatrixType::row_t pm_GetRow(const MatrixType& m, int x);
 	
-	vec pm_DecomposeTranslation(const mat& m);
-	vec3 pm_DecomposeScale(const mat& m);
-	quat pm_DecomposeRotation(const mat& m);
-	void pm_Decompose(const mat& m, vec& t, vec3& s, quat& r);
-	mat pm_FillMatrix(float val);
+	mat4 pm_Translation(const vec3& v);
+	mat4 pm_Rotation(const quat& v);
+	mat4 pm_Scaling(const vec3& v);
+	vec3 pm_DecomposeTranslation(const mat4& m);
+	vec3 pm_DecomposeScale(const mat4& m);
+	quat pm_DecomposeRotation(const mat4& m);
+	void pm_Decompose(const mat4& m, vec3& t, vec3& s, quat& r);
 
-	mat pm_IsEqualv(const mat& m1, const mat& m2);
-	bool pm_IsEqual(const mat& m1, const mat& m2);
-	mat pm_IsNearlyEqualv(const mat& m1, const mat& m2, const mat& delta);
-	mat pm_IsNearlyEqualv(const mat& m1, const mat& m2, float delta);
-	bool pm_IsNearlyEqual(const mat& m1, const mat& m2, const mat& delta);
-	bool pm_IsNearlyEqual(const mat& m1, const mat& m2, float delta);
-	mat pm_IsNotEqualv(const mat& m1, const mat& m2);
-	bool pm_IsNotEqual(const mat& m1, const mat& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_IsEqualv(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsEqual(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, float delta);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, float delta);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_IsNotEqualv(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsNotEqual(const MatrixType& m1, const MatrixType& m2);
 
-	mat pm_Negate(const mat& m);
-	mat pm_Add(const mat& m1, const mat& m2);
-	mat pm_Add(const mat& m, float s);
-	mat pm_Subtract(const mat& m1, const mat& m2);
-	mat pm_Subtract(const mat& m, float s);
-	mat pm_Multiply(const mat& m1, const mat& m2);
-	vec pm_Multiply(const mat& m, const vec& v);
-	mat pm_MultiplyElement(const mat& m1, const mat& m2);
-	mat pm_Multiply(const mat& m, float s);
-	mat pm_Divide(const mat& m1, const mat& m2);
-	mat pm_Divide(const mat& m, float s);
-	mat pm_Transpose(const mat& m);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Negate(const MatrixType& m);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Add(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Subtract(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Multiply(const MatrixType& m1, const MatrixType& m2);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Scale(const MatrixType& m, float s);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+		pm_Divide(const MatrixType& m1, const MatrixType& m2);
 
-	mat pm_Inverse2D(const mat& m, float* determinant = 0);
-	mat pm_Inverse3D(const mat& m, float* determinant = 0);
-	mat pm_Inverse4D(const mat& m, float* determinant = 0);
-
-	float pm_Determinant2D(const mat& m);
-	float pm_Determinant3D(const mat& m);
-	float pm_Determinant4D(const mat& m);
-
-	mat pm_Perspective(float width, float height, float near, float far);
-	mat pm_Orthographic(float width, float height, float near, float far);
+	template<typename MatrixType>
+	typename MatrixType::row_t pm_Product(const MatrixType& m, const typename MatrixType::row_t& v);
 
 	//Quaternion
 	quat pm_IdentityQuat();
@@ -630,25 +751,24 @@ namespace PM
 	quat pm_ConjugateQuat(const quat& q);
 	quat pm_InverseQuat(const quat& q);
 
-	quat pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t);
+	quat pm_SLerpQuat(const quat& q1, const quat& q2, const vec4& t);
 
 	quat pm_RotationQuatFromXYZ(float angle_x, float angle_y, float angle_z);
 	quat pm_RotationQuatFromXYZ(const vec3& angles);
 	vec3 pm_RotationQuatToXYZ(const quat& rot);
-	quat pm_RotationAxis(const vec& axis, float angle);
-	quat pm_RotationMatrixNormalized(const mat& m);
-	quat pm_RotationMatrix(const mat& m);
-	vec pm_RotateWithQuat(const quat& rot, const vec& v);
+	quat pm_RotationAxis(const vec3& axis, float angle);
+	quat pm_RotationMatrixNormalized(const mat4& m);
+	quat pm_RotationMatrix(const mat4& m);
+	vec3 pm_RotateWithQuat(const quat& rot, const vec3& v);
 
 	quat pm_RotateFromTo(const vec3& from, const vec3& to);
 	quat pm_RotateFromTo(const vec3& from, const vec3& to, const vec3& fallback);
 
 	//Color
-
-	vec pm_SetR(const color& v, float x);
-	vec pm_SetG(const color& v, float y);
-	vec pm_SetB(const color& v, float z);
-	vec pm_SetA(const color& v, float w);
+	color pm_SetR(const color& v, float x);
+	color pm_SetG(const color& v, float y);
+	color pm_SetB(const color& v, float z);
+	color pm_SetA(const color& v, float w);
 	float pm_GetR(const color& v);
 	float pm_GetG(const color& v);
 	float pm_GetB(const color& v);
@@ -660,7 +780,7 @@ namespace PM
 	vec3 pm_GetZAxis(const frame& f);
 
 	frame pm_IdentityFrame();
-	frame pm_Set(const vec& origin, const vec& up, const vec& forward);
+	frame pm_Set(const vec3& origin, const vec3& up, const vec3& forward);
 
 	frame pm_IsEqualv(const frame& f1, const frame& f2);
 	bool pm_IsEqual(const frame& f1, const frame& f2);
@@ -683,8 +803,8 @@ namespace PM
 	frame pm_MoveRight(const frame& f, float s);
 	frame pm_MoveLeft(const frame& f, float s);
 
-	mat pm_ToMatrix(const frame& f, bool rotationOnly = false);
-	mat pm_ToCameraMatrix(const frame& f, bool rotationOnly = false);
+	mat4 pm_ToMatrix(const frame& f, bool rotationOnly = false);
+	mat4 pm_ToCameraMatrix(const frame& f, bool rotationOnly = false);
 
 	frame pm_RotateLocalX(const frame& f, float angle);
 	frame pm_RotateLocalY(const frame& f, float angle);
@@ -698,127 +818,6 @@ namespace PM
 
 	vec3 pm_TransformPoint(const frame& f, const vec3& off);
 	vec3 pm_Rotate(const frame& f, const vec3& v);
-
-	// Non aligned vectors (for memory allocators)
-	struct avec4
-	{
-		float v[4];
-
-		inline avec4() {}
-		inline avec4(float x, float y, float z, float w) { v[0] = x; v[1] = y; v[2] = z; v[3] = w; }
-		
-		inline avec4(const vec4& o)
-		{
-			pm_Store4D(o, v);
-		}
-
-		inline operator vec4() const
-		{
-			return pm_Load4D(v);
-		}
-
-		inline float& operator [] (int index)
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return v[index];
-		}
-
-		inline float operator [] (int index) const
-		{
-			PM_DEBUG_ASSERT(index < 4);
-			return v[index];
-		}
-
-		inline operator float* ()
-		{
-			return v;
-		}
-
-		inline operator const float* () const
-		{
-			return v;
-		}
-	};
-
-	struct avec3
-	{
-		float v[3];
-
-		inline avec3() {}
-		inline avec3(float x, float y, float z) { v[0] = x; v[1] = y; v[2] = z; }
-
-		inline avec3(const vec3& o)
-		{
-			pm_Store3D(o, v);
-		}
-
-		inline operator vec3() const
-		{
-			return pm_Load3D(v);
-		}
-
-		inline float& operator [] (int index)
-		{
-			PM_DEBUG_ASSERT(index < 3);
-			return v[index];
-		}
-
-		inline float operator [] (int index) const
-		{
-			PM_DEBUG_ASSERT(index < 3);
-			return v[index];
-		}
-
-		inline operator float* ()
-		{
-			return v;
-		}
-
-		inline operator const float* () const
-		{
-			return v;
-		}
-	};
-
-	struct avec2
-	{
-		float v[2];
-
-		inline avec2() {}
-		inline avec2(float x, float y) { v[0] = x; v[1] = y; }
-
-		inline avec2(const vec2& o)
-		{
-			pm_Store2D(o, v);
-		}
-
-		inline operator vec2() const
-		{
-			return pm_Load2D(v);
-		}
-
-		inline float& operator [] (int index)
-		{
-			PM_DEBUG_ASSERT(index < 2);
-			return v[index];
-		}
-
-		inline float operator [] (int index) const
-		{
-			PM_DEBUG_ASSERT(index < 2);
-			return v[index];
-		}
-
-		inline operator float* ()
-		{
-			return v;
-		}
-
-		inline operator const float* () const
-		{
-			return v;
-		}
-	};
 
 #define _PM_MATH_INCLUDED_
 # include "MathVector.inl"

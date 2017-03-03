@@ -1,5 +1,5 @@
 /*
-* Copyright(c) 2014, OEmercan Yazici <pearcoding AT gmail.com>
+* Copyright(c) 2014-2017, OEmercan Yazici <pearcoding AT gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -40,31 +40,31 @@ quat PM_MATH_INLINE pm_IdentityQuat()
 quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
 {
 #ifdef PM_WITH_SIMD
-	const vec mask = _mm_setr_ps(1.0, 1.0, 1.0, -1.0);
-	const vec flip1 = _mm_mul_ps(
+	static const __m128 mask = _mm_setr_ps(1.0, 1.0, 1.0, -1.0);
+	const __m128 flip1 = _mm_mul_ps(
 		_mm_mul_ps(
-		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(2, 0, 2, 1)),
-		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(2, 1, 0, 2))),
+		_mm_shuffle_ps(q1._vec, q1._vec, _MM_SHUFFLE(2, 0, 2, 1)),
+		_mm_shuffle_ps(q2._vec, q2._vec, _MM_SHUFFLE(2, 1, 0, 2))),
 		mask);
-	const vec flip2 = _mm_mul_ps(
+	const __m128 flip2 = _mm_mul_ps(
 		_mm_mul_ps(
-		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(1, 3, 3, 3)),
-		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(1, 2, 1, 0))),
+		_mm_shuffle_ps(q1._vec, q1._vec, _MM_SHUFFLE(1, 3, 3, 3)),
+		_mm_shuffle_ps(q2._vec, q2._vec, _MM_SHUFFLE(1, 2, 1, 0))),
 		mask);
 	return _mm_add_ps(
 		_mm_sub_ps(
-		_mm_mul_ps(q1,
-		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3, 3, 3, 3))),
+		_mm_mul_ps(q1._vec,
+		_mm_shuffle_ps(q2._vec, q2._vec, _MM_SHUFFLE(3, 3, 3, 3))),
 		_mm_mul_ps(
-		_mm_shuffle_ps(q1, q1, _MM_SHUFFLE(0, 1, 0, 2)),
-		_mm_shuffle_ps(q2, q2, _MM_SHUFFLE(0, 0, 2, 1)))),
+		_mm_shuffle_ps(q1._vec, q1._vec, _MM_SHUFFLE(0, 1, 0, 2)),
+		_mm_shuffle_ps(q2._vec, q2._vec, _MM_SHUFFLE(0, 0, 2, 1)))),
 		_mm_add_ps(flip1, flip2));
 #else
 	quat r;
-	r.v[0] = q1.v[3] * q2.v[0] + q1.v[0] * q2.v[3] + q1.v[1] * q2.v[2] - q1.v[2] * q2.v[1];
-	r.v[1] = q1.v[3] * q2.v[1] + q1.v[1] * q2.v[3] + q1.v[2] * q2.v[0] - q1.v[0] * q2.v[2];
-	r.v[2] = q1.v[3] * q2.v[2] + q1.v[2] * q2.v[3] + q1.v[0] * q2.v[1] - q1.v[1] * q2.v[0];
-	r.v[3] = q1.v[3] * q2.v[3] - q1.v[0] * q2.v[0] - q1.v[1] * q2.v[1] - q1.v[2] * q2.v[2];
+	r._vec[0] = q1._vec[3] * q2._vec[0] + q1._vec[0] * q2._vec[3] + q1._vec[1] * q2._vec[2] - q1._vec[2] * q2._vec[1];
+	r._vec[1] = q1._vec[3] * q2._vec[1] + q1._vec[1] * q2._vec[3] + q1._vec[2] * q2._vec[0] - q1._vec[0] * q2._vec[2];
+	r._vec[2] = q1._vec[3] * q2._vec[2] + q1._vec[2] * q2._vec[3] + q1._vec[0] * q2._vec[1] - q1._vec[1] * q2._vec[0];
+	r._vec[3] = q1._vec[3] * q2._vec[3] - q1._vec[0] * q2._vec[0] - q1._vec[1] * q2._vec[1] - q1._vec[2] * q2._vec[2];
 
 	return r;
 #endif
@@ -73,13 +73,13 @@ quat PM_MATH_INLINE pm_MultiplyQuat(const quat& q1, const quat& q2)
 quat PM_MATH_INLINE pm_ConjugateQuat(const quat& q)
 {
 #ifdef PM_WITH_SIMD
-	return _mm_mul_ps(q, _mm_setr_ps(-1, -1, -1, 1));
+	return _mm_mul_ps(q._vec, _mm_setr_ps(-1, -1, -1, 1));
 #else
 	quat r;
-	r.v[0] = -q.v[0];
-	r.v[1] = -q.v[1];
-	r.v[2] = -q.v[2];
-	r.v[3] = q.v[3];
+	r._vec[0] = -q._vec[0];
+	r._vec[1] = -q._vec[1];
+	r._vec[2] = -q._vec[2];
+	r._vec[3] = q._vec[3];
 	return r;
 #endif
 }
@@ -87,8 +87,8 @@ quat PM_MATH_INLINE pm_ConjugateQuat(const quat& q)
 quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 {
 #ifdef PM_WITH_SIMD
-	quat r = _mm_mul_ps(q, _mm_setr_ps(-1, -1, -1, 1));
-	vec s = _mm_mul_ps(q, q);
+	const __m128 r = _mm_mul_ps(q._vec, _mm_setr_ps(-1, -1, -1, 1));
+	__m128 s = _mm_mul_ps(q._vec, q._vec);
 	s = _mm_rcp_ps(_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 0, 0, 0)),
 		_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 1, 1, 1)),
 		_mm_add_ps(_mm_shuffle_ps(s, s, _MM_SHUFFLE(2, 2, 2, 2)),
@@ -96,15 +96,15 @@ quat PM_MATH_INLINE pm_InverseQuat(const quat& q)
 	return _mm_mul_ps(r, s);
 #else
 	quat r = pm_ConjugateQuat(q);
-	return pm_Divide(r, pm_FillVector(pm_MagnitudeSqr4D(r)));
+	return pm_Divide(r, pm_FillVector4D(pm_MagnitudeSqr(r)));
 #endif
 }
 
 // Better and faster approach?
 // TODO: Test it!
-quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
+quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec4& t)
 {
-	float theta = pm_Dot4D(q1, q2);
+	float theta = pm_Dot(q1, q2);
 
 	if (std::abs(theta) > 1)
 		return q1;
@@ -122,7 +122,7 @@ quat PM_MATH_INLINE pm_SLerpQuat(const quat& q1, const quat& q2, const vec& t)
 		return pm_Add(pm_Scale(q1, 0.5f), pm_Scale(q3, 0.5f));
 
 	float rsinHalfTheta = 1 / sinHalfTheta;
-	vec4 ratioA = pm_Scale(pm_Sin(pm_Scale(pm_Subtract(pm_One(), t), halfTheta)), rsinHalfTheta);
+	vec4 ratioA = pm_Scale(pm_Sin(pm_Scale(pm_Subtract(pm_One4D(), t), halfTheta)), rsinHalfTheta);
 	vec4 ratioB = pm_Scale(pm_Sin(pm_Scale(t, halfTheta)), rsinHalfTheta);
 
 	return pm_MultiplyAdd(q1, ratioA, pm_Multiply(q3, ratioB));
@@ -149,52 +149,52 @@ quat PM_MATH_INLINE pm_RotationQuatFromXYZ(const vec3& angles)
 
 vec3 PM_MATH_INLINE pm_RotationQuatToXYZ(const quat& rot)
 {
-	vec p = pm_Multiply(rot, rot);
+	vec4 p = pm_Multiply(rot, rot);
 	return pm_Set(
 			std::atan2(2*(pm_GetW(rot)*pm_GetX(rot) + pm_GetY(rot)*pm_GetZ(rot)), 1 - 2*(pm_GetX(p) + pm_GetY(p))),
 			std::asin(2*(pm_GetW(rot)*pm_GetY(rot) - pm_GetX(rot)*pm_GetZ(rot))),
-			std::atan2(2*(pm_GetW(rot)*pm_GetZ(rot) + pm_GetX(rot)*pm_GetY(rot)), 1 - 2*(pm_GetY(p) + pm_GetZ(p))),
-			0);
+			std::atan2(2*(pm_GetW(rot)*pm_GetZ(rot) + pm_GetX(rot)*pm_GetY(rot)), 1 - 2*(pm_GetY(p) + pm_GetZ(p))));
 }
 
-quat PM_MATH_INLINE pm_RotationAxis(const vec& axis, float angle)
+quat PM_MATH_INLINE pm_RotationAxis(const vec3& axis, float angle)
 {
 	vec3 cosa;
 	vec3 sina;
-	pm_SinCos(pm_FillVector(0.5f*angle), sina, cosa);
-	return pm_Normalize4D(pm_SetW(pm_Multiply(axis, sina), pm_GetW(cosa)));
+	pm_SinCos(pm_FillVector3D(0.5f*angle), sina, cosa);
+	vec4 r = pm_ExtendTo4D(pm_Multiply(axis, sina));
+	return pm_Normalize(pm_SetW(r, pm_GetW(cosa)));
 }
 
-quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat& m)
+quat PM_MATH_INLINE pm_RotationMatrixNormalized(const mat4& m)
 {
-	const float w = pm_SafeSqrt<float>(1 + m[0][0] + m[1][1] + m[2][2] ) / 2;
-	const float x = pm_SafeSqrt<float>(1 + m[0][0] - m[1][1] - m[2][2] ) / 2;
-	const float y = pm_SafeSqrt<float>(1 - m[0][0] + m[1][1] - m[2][2] ) / 2;
-	const float z = pm_SafeSqrt<float>(1 - m[0][0] - m[1][1] + m[2][2] ) / 2;
+	const float w = pm_SafeSqrt<float>(1 + pm_GetIndex(m,0,0) + pm_GetIndex(m,1,1) + pm_GetIndex(m,2,2) ) / 2;
+	const float x = pm_SafeSqrt<float>(1 + pm_GetIndex(m,0,0) - pm_GetIndex(m,1,1) - pm_GetIndex(m,2,2) ) / 2;
+	const float y = pm_SafeSqrt<float>(1 - pm_GetIndex(m,0,0) + pm_GetIndex(m,1,1) - pm_GetIndex(m,2,2) ) / 2;
+	const float z = pm_SafeSqrt<float>(1 - pm_GetIndex(m,0,0) - pm_GetIndex(m,1,1) + pm_GetIndex(m,2,2) ) / 2;
 
-	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
-		copysignf(y, m[0][2] - m[2][0] ),
-		copysignf(z, m[1][0] - m[0][1] ),
+	return pm_Set(std::copysignf(x, pm_GetIndex(m,2,1) - pm_GetIndex(m,1,2) ),
+		std::copysignf(y, pm_GetIndex(m,0,2) - pm_GetIndex(m,2,0) ),
+		std::copysignf(z, pm_GetIndex(m,1,0) - pm_GetIndex(m,0,1) ),
 		w);
 }
 
-quat PM_MATH_INLINE pm_RotationMatrix(const mat& m)
+quat PM_MATH_INLINE pm_RotationMatrix(const mat4& m)
 {
-	const float absDet = std::pow(pm_Determinant4D(m), 1/3.0f);
-	const float w = pm_SafeSqrt<float>(absDet + m[0][0] + m[1][1] + m[2][2] ) / 2;
-	const float x = pm_SafeSqrt<float>(absDet + m[0][0] - m[1][1] - m[2][2] ) / 2;
-	const float y = pm_SafeSqrt<float>(absDet - m[0][0] + m[1][1] - m[2][2] ) / 2;
-	const float z = pm_SafeSqrt<float>(absDet - m[0][0] - m[1][1] + m[2][2] ) / 2;
+	const float absDet = std::pow(pm_Determinant(m), 1/3.0f);
+	const float w = pm_SafeSqrt<float>(absDet + pm_GetIndex(m,0,0) + pm_GetIndex(m,1,1) + pm_GetIndex(m,2,2) ) / 2;
+	const float x = pm_SafeSqrt<float>(absDet + pm_GetIndex(m,0,0) - pm_GetIndex(m,1,1) - pm_GetIndex(m,2,2) ) / 2;
+	const float y = pm_SafeSqrt<float>(absDet - pm_GetIndex(m,0,0) + pm_GetIndex(m,1,1) - pm_GetIndex(m,2,2) ) / 2;
+	const float z = pm_SafeSqrt<float>(absDet - pm_GetIndex(m,0,0) - pm_GetIndex(m,1,1) + pm_GetIndex(m,2,2) ) / 2;
 
-	return pm_Set(copysignf(x, m[2][1] - m[1][2] ),
-		copysignf(y, m[0][2] - m[2][0] ),
-		copysignf(z, m[1][0] - m[0][1] ),
+	return pm_Set(std::copysignf(x, pm_GetIndex(m,2,1) - pm_GetIndex(m,1,2) ),
+		std::copysignf(y, pm_GetIndex(m,0,2) - pm_GetIndex(m,2,0) ),
+		std::copysignf(z, pm_GetIndex(m,1,0) - pm_GetIndex(m,0,1) ),
 		w);
 }
 
-vec PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec& vector)
+vec3 PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec3& vector)
 {
-	return pm_MultiplyQuat(rotation, pm_MultiplyQuat(pm_SetW(vector,0), pm_ConjugateQuat(rotation)));
+	return pm_ShrinkTo3D(pm_MultiplyQuat(rotation, pm_MultiplyQuat(pm_ExtendTo4D(vector), pm_ConjugateQuat(rotation))));
 }
 
 /*
@@ -203,7 +203,7 @@ vec PM_MATH_INLINE pm_RotateWithQuat(const quat& rotation, const vec& vector)
 */
 quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to)
 {
-	float dot = pm_Dot3D(from, to);
+	const float dot = pm_Dot(from, to);
 	if (dot >= 1)
 	{
 		return pm_IdentityQuat();
@@ -212,24 +212,22 @@ quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to)
 	{
 		if (dot + 1 < PM_EPSILON) // Close to -1
 		{
-			vec axis = pm_Cross3D(from, pm_Set(1, 0, 0));
-			if (pm_MagnitudeSqr3D(axis) < PM_EPSILON)
-				axis = pm_Cross3D(from, pm_Set(0, 1, 0));
+			vec3 axis = pm_Cross(from, pm_Set(1, 0, 0));
+			if (pm_MagnitudeSqr(axis) < PM_EPSILON)
+				axis = pm_Cross(from, pm_Set(0, 1, 0));
 
-			return PM::pm_SetW(axis, 0);
+			return pm_ExtendTo4D(axis);
 		}
 		else
 		{
-			float s = std::sqrt((1 + dot) * 2);
-			float is = 1 / s;
+			const float s = std::sqrt((1 + dot) * 2);
+			const float is = 1 / s;
 
-			vec3 cross = pm_Cross3D(from, to);
+			const vec3 cross = pm_Cross(from, to);
 
-			return pm_Normalize4D(pm_SetW(pm_Scale(cross, is), s * 0.5f));
+			const vec4 r = pm_ExtendTo4D(pm_Scale(cross, is));
+			return pm_Normalize(pm_SetW(r, s * 0.5f));
 		}
-
-		/*vec3 w = pm_Cross3D(from, to);
-		return pm_Normalize4D(pm_SetW(w, 1 + dot));*/
 	}
 }
 
@@ -239,8 +237,7 @@ Will fallback to rotate with the 'fallback' axis, when both vectors are too clos
 */
 quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to, const vec3& fallback)
 {
-
-	float dot = pm_Dot3D(from, to);
+	const float dot = pm_Dot(from, to);
 	if (dot >= 1)
 	{
 		return pm_IdentityQuat();
@@ -253,12 +250,13 @@ quat PM_MATH_INLINE pm_RotateFromTo(const vec3& from, const vec3& to, const vec3
 		}
 		else
 		{
-			float s = std::sqrt((1 + dot) * 2);
-			float is = 1 / s;
+			const float s = std::sqrt((1 + dot) * 2);
+			const float is = 1 / s;
 
-			vec3 cross = pm_Cross3D(from, to);
+			const vec3 cross = pm_Cross(from, to);
 
-			return pm_Normalize4D(pm_SetW(pm_Scale(cross, is), s * 0.5f));
+			const vec4 r = pm_ExtendTo4D(pm_Scale(cross, is));
+			return pm_Normalize(pm_SetW(r, s * 0.5f));
 		}
 	}
 }
