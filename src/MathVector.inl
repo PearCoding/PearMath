@@ -514,7 +514,7 @@ VectorType PM_MATH_INLINE pm_ReciprocalSqrt(const VectorType& v)
 	union
 	{
 		float V[VectorType::Dimension];
-		long I[VectorType::Dimension];
+		uint32_t I[VectorType::Dimension];
 	} val;
 
 	const VectorType half = pm_Scale(v, 0.5f);

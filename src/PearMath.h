@@ -121,6 +121,7 @@
 #endif
 
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 
 #ifndef PM_MATH_NO_INLINE
