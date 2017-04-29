@@ -65,64 +65,59 @@ frame PM_MATH_INLINE pm_Set(const vec3& origin, const vec3& up, const vec3& forw
 	return r;
 }
 
-frame PM_MATH_INLINE pm_IsEqualv(const frame& f1, const frame& f2)
+bool PM_MATH_INLINE pm_IsAllTrue(const frame& f)
+{
+	return pm_IsAllTrue(f.Origin) && pm_IsAllTrue(f.Up) && pm_IsAllTrue(f.Forward);
+}
+
+bool PM_MATH_INLINE pm_IsSomeTrue(const frame& f)
+{
+	return pm_IsSomeTrue(f.Origin) || pm_IsSomeTrue(f.Up) || pm_IsSomeTrue(f.Forward);
+}
+
+bool PM_MATH_INLINE pm_IsNoneTrue(const frame& f)
+{
+	return pm_IsNoneTrue(f.Origin) && pm_IsNoneTrue(f.Up) && pm_IsNoneTrue(f.Forward);
+}
+
+frame PM_MATH_INLINE pm_IsEqual(const frame& f1, const frame& f2)
 {
 	frame r;
-	r.Origin = pm_IsEqualv(f1.Origin, f2.Origin);
-	r.Up = pm_IsEqualv(f1.Up, f2.Up);
-	r.Forward = pm_IsEqualv(f1.Forward, f2.Forward);
+	r.Origin = pm_IsEqual(f1.Origin, f2.Origin);
+	r.Up = pm_IsEqual(f1.Up, f2.Up);
+	r.Forward = pm_IsEqual(f1.Forward, f2.Forward);
 
 	return r;
 }
 
-bool PM_MATH_INLINE pm_IsEqual(const frame& f1, const frame& f2)
-{
-	return pm_IsEqual(f1.Origin, f2.Origin) && pm_IsEqual(f1.Up, f2.Up) && pm_IsEqual(f1.Forward, f2.Forward);
-}
-
-frame PM_MATH_INLINE pm_IsNearlyEqualv(const frame& f1, const frame& f2, const frame& delta)
+frame PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, const frame& delta)
 {
 	frame r;
-	r.Origin = pm_IsNearlyEqualv(f1.Origin, f2.Origin, delta.Origin);
-	r.Up = pm_IsNearlyEqualv(f1.Up, f2.Up, delta.Up);
-	r.Forward = pm_IsNearlyEqualv(f1.Forward, f2.Forward, delta.Forward);
+	r.Origin = pm_IsNearlyEqual(f1.Origin, f2.Origin, delta.Origin);
+	r.Up = pm_IsNearlyEqual(f1.Up, f2.Up, delta.Up);
+	r.Forward = pm_IsNearlyEqual(f1.Forward, f2.Forward, delta.Forward);
 
 	return r;
 }
 
-frame PM_MATH_INLINE pm_IsNearlyEqualv(const frame& f1, const frame& f2, float delta)
+frame PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, float delta)
 {
 	frame r;
-	r.Origin = pm_IsNearlyEqualv(f1.Origin, f2.Origin, delta);
-	r.Up = pm_IsNearlyEqualv(f1.Up, f2.Up, delta);
-	r.Forward = pm_IsNearlyEqualv(f1.Forward, f2.Forward, delta);
+	r.Origin = pm_IsNearlyEqual(f1.Origin, f2.Origin, delta);
+	r.Up = pm_IsNearlyEqual(f1.Up, f2.Up, delta);
+	r.Forward = pm_IsNearlyEqual(f1.Forward, f2.Forward, delta);
 
 	return r;
 }
 
-bool PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, const frame& delta)
-{
-	return pm_IsNearlyEqual(f1.Origin, f2.Origin, delta.Origin) && pm_IsNearlyEqual(f1.Up, f2.Up, delta.Up) && pm_IsNearlyEqual(f1.Forward, f2.Forward, delta.Forward);
-}
-
-bool PM_MATH_INLINE pm_IsNearlyEqual(const frame& f1, const frame& f2, float delta)
-{
-	return pm_IsNearlyEqual(f1.Origin, f2.Origin, delta) && pm_IsNearlyEqual(f1.Up, f2.Up, delta) && pm_IsNearlyEqual(f1.Forward, f2.Forward, delta);
-}
-
-frame PM_MATH_INLINE pm_IsNotEqualv(const frame& f1, const frame& f2)
+frame PM_MATH_INLINE pm_IsNotEqual(const frame& f1, const frame& f2)
 {
 	frame r;
-	r.Origin = pm_IsNotEqualv(f1.Origin, f2.Origin);
-	r.Up = pm_IsNotEqualv(f1.Up, f2.Up);
-	r.Forward = pm_IsNotEqualv(f1.Forward, f2.Forward);
+	r.Origin = pm_IsNotEqual(f1.Origin, f2.Origin);
+	r.Up = pm_IsNotEqual(f1.Up, f2.Up);
+	r.Forward = pm_IsNotEqual(f1.Forward, f2.Forward);
 
 	return r;
-}
-
-bool PM_MATH_INLINE pm_IsNotEqual(const frame& f1, const frame& f2)
-{
-	return pm_IsNotEqual(f1.Origin, f2.Origin) || pm_IsNotEqual(f1.Up, f2.Up) || pm_IsNotEqual(f1.Forward, f2.Forward);
 }
 
 frame PM_MATH_INLINE pm_Normalize(const frame& f)

@@ -178,6 +178,8 @@
 #define PM_INV_LOG_2_F		(1.44269504089f)
 #define PM_INV_LOG_10_F		(0.4342944819f)
 
+#define PM_ELEMENT_TRUE (0xFFFFFFFF)
+
 #ifndef PM_MATH_SQRT_APPROXIMATION_ERROR
 # define PM_MATH_SQRT_APPROXIMATION_ERROR (-0x4C000)
 #endif
@@ -215,7 +217,9 @@
 # define PM_EPSILON (std::numeric_limits<float>::epsilon())
 #endif
 
-#define _PM_SSE_DIM_MASK(D) (1 << (D))
+#ifdef PM_WITH_SIMD
+# define _PM_SSE_DIM_MASK(D) ((1 << (D)) - 1)
+#endif
 
 #include <type_traits>
 #include <utility>
@@ -435,52 +439,38 @@ namespace PM
 	float pm_GetW(const VectorType& v);
 
 	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsEqualv(const VectorType& v1, const VectorType& v2);
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsAllTrue(const VectorType& v);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsSomeTrue(const VectorType& v);
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, bool>::type
+		pm_IsNoneTrue(const VectorType& v);
+
+	template<typename VectorType>
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
 		pm_IsEqual(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, const VectorType& delta);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, float delta);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const VectorType& delta);
 	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
-		pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const float delta);
+	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+		pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, float delta);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsNotEqualv(const VectorType& v1, const VectorType& v2);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsNotEqual(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsLessv(const VectorType& v1, const VectorType& v2);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsLess(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsLessOrEqualv(const VectorType& v1, const VectorType& v2);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsLessOrEqual(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsGreaterv(const VectorType& v1, const VectorType& v2);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsGreater(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-		pm_IsGreaterOrEqualv(const VectorType& v1, const VectorType& v2);
-	template<typename VectorType>
-	typename std::enable_if<is_vector<VectorType>::value, bool>::type
 		pm_IsGreaterOrEqual(const VectorType& v1, const VectorType& v2);
 	template<typename VectorType>
 	VectorType pm_IsInBounds(const VectorType& v, const VectorType& bounds);
@@ -700,28 +690,26 @@ namespace PM
 	void pm_Decompose(const mat4& m, vec3& t, vec3& s, quat& r);
 
 	template<typename MatrixType>
-	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-		pm_IsEqualv(const MatrixType& m1, const MatrixType& m2);
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsAllTrue(const MatrixType& v);
 	template<typename MatrixType>
 	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsSomeTrue(const MatrixType& v);
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+		pm_IsNoneTrue(const MatrixType& v);
+
+	template<typename MatrixType>
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
 		pm_IsEqual(const MatrixType& m1, const MatrixType& m2);
 	template<typename MatrixType>
 	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-		pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta);
-	template<typename MatrixType>
-	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-		pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, float delta);
-	template<typename MatrixType>
-	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
 		pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta);
 	template<typename MatrixType>
-	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
 		pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, float delta);
 	template<typename MatrixType>
 	typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-		pm_IsNotEqualv(const MatrixType& m1, const MatrixType& m2);
-	template<typename MatrixType>
-	typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
 		pm_IsNotEqual(const MatrixType& m1, const MatrixType& m2);
 
 	template<typename MatrixType>
@@ -783,14 +771,14 @@ namespace PM
 	frame pm_IdentityFrame();
 	frame pm_Set(const vec3& origin, const vec3& up, const vec3& forward);
 
-	frame pm_IsEqualv(const frame& f1, const frame& f2);
-	bool pm_IsEqual(const frame& f1, const frame& f2);
-	frame pm_IsNearlyEqualv(const frame& f1, const frame& f2, const frame& delta);
-	frame pm_IsNearlyEqualv(const frame& f1, const frame& f2, float delta);
-	bool pm_IsNearlyEqual(const frame& f1, const frame& f2, const frame& delta);
-	bool pm_IsNearlyEqual(const frame& f1, const frame& f2, float delta);
-	frame pm_IsNotEqualv(const frame& f1, const frame& f2);
-	bool pm_IsNotEqual(const frame& f1, const frame& f2);
+	bool pm_IsAllTrue(const frame& f);
+	bool pm_IsSomeTrue(const frame& f);
+	bool pm_IsNoneTrue(const frame& f);
+
+	frame pm_IsEqual(const frame& f1, const frame& f2);
+	frame pm_IsNearlyEqual(const frame& f1, const frame& f2, const frame& delta);
+	frame pm_IsNearlyEqual(const frame& f1, const frame& f2, float delta);
+	frame pm_IsNotEqual(const frame& f1, const frame& f2);
 
 	frame pm_Normalize(const frame& f);
 

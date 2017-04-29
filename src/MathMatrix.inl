@@ -906,91 +906,80 @@ vec3 PM_MATH_INLINE pm_Transform(const mat4& m, const vec3& v)
 
 // --------------------------------- Relations
 template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-	PM_MATH_INLINE pm_IsEqualv(const MatrixType& m1, const MatrixType& m2)
+typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+	PM_MATH_INLINE pm_IsAllTrue(const MatrixType& m)
 {
-	MatrixType r;
 	for(int i = 0; i < MatrixType::Rows; ++i)
-		r.v[i] = pm_IsEqualv(m1.v[i], m2.v[i]);
-	return r;
+	{
+		if(!pm_IsAllTrue(m.v[i]))
+			return false;
+	}
+	return true;
 }
 
 template<typename MatrixType>
 typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+	PM_MATH_INLINE pm_IsSomeTrue(const MatrixType& m)
+{
+	for(int i = 0; i < MatrixType::Rows; ++i)
+	{
+		if(!pm_IsSomeTrue(m.v[i]))
+			return false;
+	}
+	return true;
+}
+
+template<typename MatrixType>
+typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+	PM_MATH_INLINE pm_IsNoneTrue(const MatrixType& m)
+{
+	for(int i = 0; i < MatrixType::Rows; ++i)
+	{
+		if(!pm_IsNoneTrue(m.v[i]))
+			return false;
+	}
+	return true;
+}
+	
+template<typename MatrixType>
+typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
 	PM_MATH_INLINE pm_IsEqual(const MatrixType& m1, const MatrixType& m2)
 {
-	for(int i = 0; i < MatrixType::Rows; ++i)
-	{
-		if(!pm_IsEqual(m1.v[i], m2.v[i]))
-			return false;
-	}
-	return true;
-}
-
-template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-	PM_MATH_INLINE pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta)
-{
 	MatrixType r;
 	for(int i = 0; i < MatrixType::Rows; ++i)
-		r.v[i] = pm_IsNearlyEqualv(m1.v[i], m2.v[i], delta.v[i]);
+		r.v[i] = pm_IsEqual(m1.v[i], m2.v[i]);
 	return r;
 }
 
 template<typename MatrixType>
 typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-	PM_MATH_INLINE pm_IsNearlyEqualv(const MatrixType& m1, const MatrixType& m2, float delta)
-{
-	MatrixType r;
-	for(int i = 0; i < MatrixType::Rows; ++i)
-		r.v[i] = pm_IsNearlyEqualv(m1.v[i], m2.v[i], delta);
-	return r;
-}
-
-template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
 	PM_MATH_INLINE pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, const MatrixType& delta)
 {
-	for(int i = 0; i < MatrixType::Rows; ++i)
-	{
-		if(!pm_IsNearlyEqual(m1.v[i], m2.v[i], delta.v[i]))
-			return false;
-	}
-	return true;
-}
-
-template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
-	PM_MATH_INLINE pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, float delta)
-{
-	for(int i = 0; i < MatrixType::Rows; ++i)
-	{
-		if(!pm_IsNearlyEqual(m1.v[i], m2.v[i], delta))
-			return false;
-	}
-	return true;
-}
-
-template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
-	PM_MATH_INLINE pm_IsNotEqualv(const MatrixType& m1, const MatrixType& m2)
-{
 	MatrixType r;
 	for(int i = 0; i < MatrixType::Rows; ++i)
-		r.v[i] = pm_IsNotEqualv(m1.v[i], m2.v[i]);
+		r.v[i] = pm_IsNearlyEqual(m1.v[i], m2.v[i], delta.v[i]);
 	return r;
 }
 
 template<typename MatrixType>
-typename std::enable_if<is_matrix<MatrixType>::value, bool>::type
+typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
+	PM_MATH_INLINE pm_IsNearlyEqual(const MatrixType& m1, const MatrixType& m2, float delta)
+{
+	MatrixType r;
+	for(int i = 0; i < MatrixType::Rows; ++i)
+		r.v[i] = pm_IsNearlyEqual(m1.v[i], m2.v[i], delta);
+	return r;
+}
+
+
+template<typename MatrixType>
+typename std::enable_if<is_matrix<MatrixType>::value, MatrixType>::type
 	PM_MATH_INLINE pm_IsNotEqual(const MatrixType& m1, const MatrixType& m2)
 {
+	MatrixType r;
 	for(int i = 0; i < MatrixType::Rows; ++i)
-	{
-		if(!pm_IsNotEqual(m1.v[i], m2.v[i]))
-			return false;
-	}
-	return true;
+		r.v[i] = pm_IsNotEqual(m1.v[i], m2.v[i]);
+	return r;
 }
 
 template<typename MatrixType>

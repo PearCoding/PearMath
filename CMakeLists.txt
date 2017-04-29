@@ -186,9 +186,7 @@ SET(PM_Hdr
   src/MathFrame.inl
   src/MathMatrix.inl
   src/MathQuaternion.inl
-  src/MathVector.inl
-  src/Rect.h
-  src/Region.h)
+  src/MathVector.inl)
 
 FUNCTION(PUSH_TEST name files local_defs)
 	add_executable(pm_test_${name} ${files} src/tests/test.h ${PM_Hdr})

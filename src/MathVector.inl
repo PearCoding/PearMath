@@ -107,30 +107,47 @@ float PM_MATH_INLINE pm_GetW(const VectorType& v)
 }
 
 template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsEqualv(const VectorType& v1, const VectorType& v2)
+typename std::enable_if<is_vector<VectorType>::value, bool>::type
+	PM_MATH_INLINE pm_IsAllTrue(const VectorType& v)
 {
 #ifdef PM_WITH_SIMD
-	return _mm_cmpeq_ps(v1._vec, v2._vec);
+	return (_mm_movemask_ps(v._vec) & _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
 #else
-	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] == v2._vec[i]) ? 0xFFFFFFFF : 0);
-	return r;
+	{
+		if(v1._vec[i] != PM_ELEMENT_TRUE)
+			return false;
+	}
+	return true;
 #endif
 }
 
 template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsEqual(const VectorType& v1, const VectorType& v2)
+	PM_MATH_INLINE pm_IsSomeTrue(const VectorType& v)
 {
 #ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmpeq_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
+	return (_mm_movemask_ps(v._vec) & _PM_SSE_DIM_MASK(VectorType::Dimension)) != 0;
 #else
 	for(int i = 0; i < VectorType::Dimension; ++i)
 	{
-		if(v1._vec[i] != v2._vec[i])
+		if(v1._vec[i] == PM_ELEMENT_TRUE)
+			return true;
+	}
+	return false;
+#endif
+}
+
+template<typename VectorType>
+typename std::enable_if<is_vector<VectorType>::value, bool>::type
+	PM_MATH_INLINE pm_IsNoneTrue(const VectorType& v)
+{
+#ifdef PM_WITH_SIMD
+	return (_mm_movemask_ps(v._vec) & _PM_SSE_DIM_MASK(VectorType::Dimension)) == 0;
+#else
+	for(int i = 0; i < VectorType::Dimension; ++i)
+	{
+		if(v1._vec[i] == PM_ELEMENT_TRUE)
 			return false;
 	}
 	return true;
@@ -139,7 +156,21 @@ typename std::enable_if<is_vector<VectorType>::value, bool>::type
 
 template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, const VectorType& delta)
+	PM_MATH_INLINE pm_IsEqual(const VectorType& v1, const VectorType& v2)
+{
+#ifdef PM_WITH_SIMD
+	return _mm_cmpeq_ps(v1._vec, v2._vec);
+#else
+	VectorType r;
+	for(int i = 0; i < VectorType::Dimension; ++i)
+		r._vec[i] = (float)((v1._vec[i] == v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
+	return r;
+#endif
+}
+
+template<typename VectorType>
+typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
+	PM_MATH_INLINE pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const VectorType& delta)
 {
 #ifdef PM_WITH_SIMD
 	__m128 del = _mm_sub_ps(v1._vec, v2._vec);
@@ -148,14 +179,14 @@ typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((std::abs(v1._vec[i] - v2._vec[i]) <= delta._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((std::abs(v1._vec[i] - v2._vec[i]) <= delta._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
 #endif
 }
 
 template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsNearlyEqualv(const VectorType& v1, const VectorType& v2, float delta)
+	PM_MATH_INLINE pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, float delta)
 {
 #ifdef PM_WITH_SIMD
 	__m128 del = _mm_sub_ps(v1._vec, v2._vec);
@@ -164,201 +195,78 @@ typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((std::abs(v1._vec[i] - v2._vec[i]) <= delta) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((std::abs(v1._vec[i] - v2._vec[i]) <= delta) ? PM_ELEMENT_TRUE : 0);
 	return r;
 #endif
 }
 
 template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, const VectorType& delta)
-{
-#ifdef PM_WITH_SIMD
-	__m128 del = _mm_sub_ps(v1._vec, v2._vec);
-	__m128 abs = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), del), del);
-	return (_mm_movemask_ps(_mm_cmple_ps(abs, delta._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(std::abs(v1._vec[i] - v2._vec[i]) > delta._vec[i])
-			return false;
-	}
-	return true;
-#endif
-}
-
-template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsNearlyEqual(const VectorType& v1, const VectorType& v2, float delta)
-{
-#ifdef PM_WITH_SIMD
-	__m128 del = _mm_sub_ps(v1._vec, v2._vec);
-	__m128 abs = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), del), del);
-	return (_mm_movemask_ps(_mm_cmple_ps(abs, _mm_set1_ps(delta))) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(std::abs(v1._vec[i] - v2._vec[i]) > delta)
-			return false;
-	}
-	return true;
-#endif
-}
-
-template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsNotEqualv(const VectorType& v1, const VectorType& v2)
+	PM_MATH_INLINE pm_IsNotEqual(const VectorType& v1, const VectorType& v2)
 {
 #ifdef PM_WITH_SIMD
 	return _mm_cmpneq_ps(v1._vec, v2._vec);
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] != v2._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((v1._vec[i] != v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
 #endif
 }
 
 template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsNotEqual(const VectorType& v1, const VectorType& v2)
-{
-#ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmpneq_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(v1._vec[i] == v2._vec[i])
-			return false;
-	}
-	return true;
-#endif
-}
-
-template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsLessv(const VectorType& v1, const VectorType& v2)
+	PM_MATH_INLINE pm_IsLess(const VectorType& v1, const VectorType& v2)
 {
 #ifdef PM_WITH_SIMD
 	return _mm_cmplt_ps(v1._vec, v2._vec);
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] < v2._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((v1._vec[i] < v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
 #endif
 }
 
 template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsLess(const VectorType& v1, const VectorType& v2)
-{
-#ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmplt_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(v1._vec[i] >= v2._vec[i])
-			return false;
-	}
-	return true;
-#endif
-}
-
-template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsLessOrEqualv(const VectorType& v1, const VectorType& v2)
+	PM_MATH_INLINE pm_IsLessOrEqual(const VectorType& v1, const VectorType& v2)
 {
 #ifdef PM_WITH_SIMD
 	return _mm_cmple_ps(v1._vec, v2._vec);
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] <= v2._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((v1._vec[i] <= v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
-#endif
-}
-
-template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsLessOrEqual(const VectorType& v1, const VectorType& v2)
-{
-#ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmple_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(v1._vec[i] > v2._vec[i])
-			return false;
-	}
-	return true;
 #endif
 }
 
 template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsGreaterv(const VectorType& v1, const VectorType& v2)
-{
-#ifdef PM_WITH_SIMD
-	return _mm_cmpgt_ps(v1, v2);
-#else
-	VectorType r;
-	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] > v2._vec[i]) ? 0xFFFFFFFF : 0);
-	return r;
-#endif
-}
-
-template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
 	PM_MATH_INLINE pm_IsGreater(const VectorType& v1, const VectorType& v2)
 {
 #ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmpgt_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
+	return _mm_cmpgt_ps(v1._vec, v2._vec);
 #else
+	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(v1._vec[i] <= v2._vec[i])
-			return false;
-	}
-	return true;
+		r._vec[i] = (float)((v1._vec[i] > v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
+	return r;
 #endif
 }
 
 template<typename VectorType>
 typename std::enable_if<is_vector<VectorType>::value, VectorType>::type
-	PM_MATH_INLINE pm_IsGreaterOrEqualv(const VectorType& v1, const VectorType& v2)
+	PM_MATH_INLINE pm_IsGreaterOrEqual(const VectorType& v1, const VectorType& v2)
 {
 #ifdef PM_WITH_SIMD
 	return _mm_cmpge_ps(v1._vec, v2._vec);
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v1._vec[i] >= v2._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((v1._vec[i] >= v2._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
-#endif
-}
-
-template<typename VectorType>
-typename std::enable_if<is_vector<VectorType>::value, bool>::type
-	PM_MATH_INLINE pm_IsGreaterOrEqual(const VectorType& v1, const VectorType& v2)
-{
-#ifdef PM_WITH_SIMD
-	return (_mm_movemask_ps(_mm_cmpge_ps(v1._vec, v2._vec)) 
-		& _PM_SSE_DIM_MASK(VectorType::Dimension)) == _PM_SSE_DIM_MASK(VectorType::Dimension);
-#else
-	for(int i = 0; i < VectorType::Dimension; ++i)
-	{
-		if(v1._vec[i] < v2._vec[i])
-			return false;
-	}
-	return true;
 #endif
 }
 
@@ -374,7 +282,7 @@ VectorType PM_MATH_INLINE pm_IsInBounds(const VectorType& v, const VectorType& b
 #else
 	VectorType r;
 	for(int i = 0; i < VectorType::Dimension; ++i)
-		r._vec[i] = (float)((v._vec[i] <= bounds._vec[i] && v._vec[i] >= -bounds._vec[i]) ? 0xFFFFFFFF : 0);
+		r._vec[i] = (float)((v._vec[i] <= bounds._vec[i] && v._vec[i] >= -bounds._vec[i]) ? PM_ELEMENT_TRUE : 0);
 	return r;
 #endif
 }

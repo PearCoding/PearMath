@@ -9,7 +9,7 @@ int main()
 	printf("------------------------------------------------------------------------\n");
 	printf("Tests for the math library PearMath. [vector]\n");
 	printf("------------------------------------------------------------------------\n");
-#ifdef PM_USE_SIMD
+#ifdef PM_WITH_SIMD
 	printf("SIMD support: true\n");
 #else
 	printf("SIMD support: false\n");
@@ -70,111 +70,152 @@ bool vectorTest()
 	CHECK_TEST2(pm_GetY(v) == 20, v, pm_GetY(v), 20)
 		END_TEST()
 
+	START_TEST("Equal Vector")
+	TEST(bool b = ALL_EQ(top1,top1));
+	CHECK_TEST3(b, top1, top1, b, true)
+		END_TEST()
+
+	START_TEST("Not Equal Vector")
+		vec2 v = pm_Set(20, 30);
+	TEST(bool b = pm_IsSomeTrue(pm_IsNotEqual(top1,v)));
+	CHECK_TEST3(b, top1, v, b, true)
+		END_TEST()
+
+	START_TEST("Nearly Equal Vector")
+		vec2 v = pm_Set(10.000001f, 20.000001f);
+	TEST(bool b = ALL_NEARLY_EQ(top1,v,0.0001f));
+	CHECK_TEST3(b, top1, v, b, true)
+		END_TEST()
+
+	START_TEST("Greater Vector")
+		vec2 v = pm_Set(20, 30);
+	TEST(bool b = pm_IsAllTrue(pm_IsGreater(v, top1)));
+	CHECK_TEST3(b, v, top1, b, true)
+		END_TEST()
+
+	START_TEST("Greater or Equal Vector")
+		vec2 v = pm_Set(20, 30);
+	TEST(bool b = pm_IsAllTrue(pm_IsGreaterOrEqual(v, top1)));
+	CHECK_TEST3(b, v, top1, b, true)
+		END_TEST()
+
+	START_TEST("Less Vector")
+		vec2 v = pm_Set(20, 30);
+	TEST(bool b = pm_IsAllTrue(pm_IsLess(top1,v)));
+	CHECK_TEST3(b, top1, v, b, true)
+		END_TEST()
+
+	START_TEST("Less or Equal Vector")
+		vec2 v = pm_Set(20, 30);
+	TEST(bool b = pm_IsAllTrue(pm_IsLessOrEqual(top1, v)));
+	CHECK_TEST3(b, top1, v, b, true)
+		END_TEST()
+
 		START_TEST("Vector + Vector");
 	vec2 op2 = pm_Set(40, 30);
 	TEST(vec2 r = pm_Add(top1, op2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(50, 50)), top1, op2, r, pm_Set(50, 50))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(50, 50)), top1, op2, r, pm_Set(50, 50))
 		END_TEST()
 
 		START_TEST("Vector - Vector");
 	vec2 op1 = pm_Set(50, 60);
 	vec2 op2 = pm_Set(60, 20);
 	TEST(vec2 r = pm_Subtract(op1, op2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(-10, 40)), op1, op2, r, pm_Set(-10, 40))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(-10, 40)), op1, op2, r, pm_Set(-10, 40))
 		END_TEST()
 
 		START_TEST("Vector * float");
 	TEST(vec2 r = pm_Scale(top1, 60));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(600, 1200)), top1, 60, r, pm_Set(600, 1200))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(600, 1200)), top1, 60, r, pm_Set(600, 1200))
 		END_TEST()
 
 		START_TEST("Vector * Vector");
 	vec2 op1 = pm_Set(50, 60);
 	vec2 op2 = pm_Set(60, 20);
 	TEST(vec2 r = pm_Multiply(op1, op2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(3000, 1200)), op1, op2, r, pm_Set(3000, 1200))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(3000, 1200)), op1, op2, r, pm_Set(3000, 1200))
 		END_TEST()
 
 		START_TEST("Vector / Vector");
 	TEST(vec2 r = pm_Divide(top1, pm_Set(1, 2)));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(10,10)), top1, 5, r, pm_Set(10,10))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(10,10)), top1, 5, r, pm_Set(10,10))
 		END_TEST()
 
 		START_TEST("Reciprocal Vector");
 	TEST(vec2 r = pm_Reciprocal(top1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.1f, 0.05f), ABSOLUTE_ERROR), top1, r, pm_Set(0.1f, 0.05f))
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0.1f, 0.05f), ABSOLUTE_ERROR), top1, r, pm_Set(0.1f, 0.05f))
 		END_TEST()
 
 	
 		START_TEST("SQRT Vector");
 	TEST(vec2 r = pm_Sqrt(top1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(3.16227766016838f, 4.47213595499958f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(3.16227766016838f, 4.47213595499958f), ABSOLUTE_ERROR),
 		top1, r, pm_Set(3.16227766016838f, 4.47213595499958f))
 		END_TEST()
 
 		START_TEST("Reciprocal SQRT Vector");
 	TEST(vec2 r = pm_ReciprocalSqrt(top1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.31622776601684f, 0.22360679774998f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0.31622776601684f, 0.22360679774998f), ABSOLUTE_ERROR),
 		top1, r, pm_Set(0.31622776601684f, 0.22360679774998f))
 		END_TEST()
 
 		START_TEST("Vector ^ Vector");
 	vec2 op2 = pm_Set(1, 2);
 	TEST(vec2 r = pm_Pow(top1, op2));
-	CHECK_TEST3(pm_IsEqual(r, pm_Set(10, 400)), top1, op2, r, pm_Set(10, 400))
+	CHECK_TEST3(ALL_EQ(r, pm_Set(10, 400)), top1, op2, r, pm_Set(10, 400))
 		END_TEST()
 
 		START_TEST("Exp Vector");
 	TEST(vec2 r = pm_Exp(top1));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(22026.46579480672f, 4.8516519540979028e8f)),
+	CHECK_TEST2(ALL_EQ(r, pm_Set(22026.46579480672f, 4.8516519540979028e8f)),
 		top1, r, pm_Set(22026.46579480672f, 4.8516519540979028e8f))
 		END_TEST()
 
 		START_TEST("Log Vector");
 	TEST(vec2 r = pm_Log(top1));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(2.302585092994046f, 2.995732273553991f)),
+	CHECK_TEST2(ALL_EQ(r, pm_Set(2.302585092994046f, 2.995732273553991f)),
 		top1, r, pm_Set(2.302585092994046f, 2.995732273553991f))
 		END_TEST()
 
 		START_TEST("Sin Vector");
 	vec2 op1 = pm_Set(2.5, -2.5);
 	TEST(vec2 r = pm_Sin(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.59847214410396f, -0.59847214410396f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0.59847214410396f, -0.59847214410396f), ABSOLUTE_ERROR),
 		op1, r, pm_Set(0.59847214410396f, -0.59847214410396f))
 		END_TEST()
 
 		START_TEST("Cos Vector");
 	vec2 op1 = pm_Set(2.5, -2.5);
 	TEST(vec2 r = pm_Cos(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(-0.80114361554693f, -0.80114361554693f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(-0.80114361554693f, -0.80114361554693f), ABSOLUTE_ERROR),
 		op1, r, pm_Set(-0.80114361554693f, -0.80114361554693f))
 		END_TEST()
 
 		START_TEST("Tan Vector");
 	vec2 op1 = pm_Set(0.1, 0);
 	TEST(vec2 r = pm_Tan(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0.10033467208545f, 0), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0.10033467208545f, 0), ABSOLUTE_ERROR),
 		op1, r, pm_Set(0.10033467208545f, 0))
 		END_TEST()
 
 		START_TEST("ASin Vector");
 	vec2 op1 = pm_Set(1, 0);
 	TEST(vec2 r = pm_ASin(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(1.570796326794897f, 0), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(1.570796326794897f, 0), ABSOLUTE_ERROR),
 		op1, r, pm_Set(1.570796326794897f, 0))
 		END_TEST()
 
 		START_TEST("ACos Vector");
 	vec2 op1 = pm_Set(1, 0);
 	TEST(vec2 r = pm_ACos(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1.570796326794897f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0, 1.570796326794897f), ABSOLUTE_ERROR),
 		op1, r, pm_Set(0, 1.570796326794897f))
 		END_TEST()
 
 		START_TEST("ATan Vector");
 	vec2 op1 = pm_Set(PM_PI_F, 1);
 	TEST(vec2 r = pm_ATan(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(1.262627255678912f, 0.78539816339745f), ABSOLUTE_ERROR),
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(1.262627255678912f, 0.78539816339745f), ABSOLUTE_ERROR),
 		op1, r, pm_Set(1.262627255678912f, 0.78539816339745f))
 		END_TEST()
 
@@ -182,14 +223,14 @@ bool vectorTest()
 	vec2 op1 = pm_Set(20, 0);
 	vec2 op2 = pm_Set(40, 20);
 	TEST(vec2 r = pm_Lerp(op1, op2, pm_FillVector2D(0.5f)));
-	CHECK_TEST3(pm_IsNearlyEqual(r, pm_Set(30, 10), ABSOLUTE_ERROR), op1, op2, r, pm_Set(30, 10))
+	CHECK_TEST3(ALL_NEARLY_EQ(r, pm_Set(30, 10), ABSOLUTE_ERROR), op1, op2, r, pm_Set(30, 10))
 		END_TEST()
 
 		START_TEST("NLERP Vector");
 	vec2 op1 = pm_Set(20, 0);
 	vec2 op2 = pm_Set(40, 20);
 	TEST(vec2 r = pm_NLerp(op1, op2, pm_FillVector2D(0.5f)));
-	CHECK_TEST3(pm_IsNearlyEqual(r, pm_Set(0.94417967980259f, 0.3147265599342f), ABSOLUTE_ERROR),
+	CHECK_TEST3(ALL_NEARLY_EQ(r, pm_Set(0.94417967980259f, 0.3147265599342f), ABSOLUTE_ERROR),
 		op1, op2, r, pm_Set(0.94417967980259f, 0.3147265599342f))
 		END_TEST()
 
@@ -197,14 +238,14 @@ bool vectorTest()
 	vec2 op1 = pm_Set(0.66666666666667f, 0);
 	vec2 op2 = pm_Set(0.27735009811261f, 0.55470019622523f);
 	TEST(vec2 r = pm_SLerp(op1, op2, pm_FillVector2D(0.5f)));
-	CHECK_TEST3(pm_IsNearlyEqual(r, pm_Set(0.50610424149908f, 0.29738467847613f), ABSOLUTE_ERROR),
+	CHECK_TEST3(ALL_NEARLY_EQ(r, pm_Set(0.50610424149908f, 0.29738467847613f), ABSOLUTE_ERROR),
 		op1, op2, r, pm_Set(0.50610424149908f, 0.29738467847613f))
 		END_TEST()
 
 		START_TEST("Saturate Vector");
 	vec2 op1 = pm_Set(20, 0);
 	TEST(vec2 r = pm_Saturate(op1));
-	CHECK_TEST2(pm_IsEqual(r, pm_Set(1, 0)), op1, r, pm_Set(1, 0))
+	CHECK_TEST2(ALL_EQ(r, pm_Set(1, 0)), op1, r, pm_Set(1, 0))
 		END_TEST()
 
 		START_TEST("Dot");
@@ -229,19 +270,19 @@ bool vectorTest()
 		START_TEST("Normalize");
 	vec2 op1 = pm_Set(0, 20);
 	TEST(vec2 r = pm_Normalize(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
 		END_TEST()
 
 		START_TEST("Quality Normalize");
 	vec2 op1 = pm_Set(0, 20);
 	TEST(vec2 r = pm_QualityNormalize(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
 		END_TEST()
 
 		START_TEST("Fast Normalize");
 	vec2 op1 = pm_Set(0, 20);
 	TEST(vec2 r = pm_FastNormalize(op1));
-	CHECK_TEST2(pm_IsNearlyEqual(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
+	CHECK_TEST2(ALL_NEARLY_EQ(r, pm_Set(0, 1), ABSOLUTE_ERROR), op1, r, pm_Set(0, 1))
 		END_TEST()
 
 		return TEST_UNIT_RESULT;

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "PearMath.h"
-#include "Rect.h"
-#include "Region.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define ALL_EQ(v1, v2) (pm_IsAllTrue(pm_IsEqual((v1), (v2))))
+#define ALL_NEARLY_EQ(v1, v2, d) (pm_IsAllTrue(pm_IsNearlyEqual((v1), (v2), (d))))
 
 #define INIT_TEST_UNIT(str) \
 	printf("%s Tests>>\n", str); \
